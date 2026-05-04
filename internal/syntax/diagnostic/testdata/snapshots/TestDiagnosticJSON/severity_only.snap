@@ -3,5 +3,5 @@ expression: string(content)
 ---
 |-
   {
-    "severity": "warning"
+    "severity": "error"
   }

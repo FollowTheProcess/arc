@@ -3,38 +3,38 @@ expression: string(content)
 ---
 |-
   {
-    "message": "Uh oh!",
+    "message": "duplicate 'Accept' header",
     "span": {
       "file": {
         "name": "test.http"
       },
-      "startOffset": 1,
-      "endOffset": 14
+      "startOffset": 31,
+      "endOffset": 37
     },
     "labels": [
       {
-        "message": "previously declared here",
+        "message": "first declared here",
         "span": {
           "file": {
             "name": "test.http"
           },
-          "startOffset": 0,
-          "endOffset": 5
+          "startOffset": 6,
+          "endOffset": 12
         }
       }
     ],
     "fixes": [
       {
-        "message": "replace 'there' with 'world'",
+        "message": "remove the duplicate header",
         "edits": [
           {
-            "replacement": "world",
+            "replacement": "",
             "span": {
               "file": {
                 "name": "test.http"
               },
-              "startOffset": 6,
-              "endOffset": 11
+              "startOffset": 31,
+              "endOffset": 50
             }
           }
         ]

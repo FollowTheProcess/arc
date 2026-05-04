@@ -3,12 +3,12 @@ expression: string(content)
 ---
 |-
   {
-    "message": "Uh oh!",
+    "message": "DELETE with empty body",
     "span": {
       "file": {
         "name": "test.http"
       },
-      "startOffset": 1,
-      "endOffset": 14
+      "startOffset": 0,
+      "endOffset": 6
     }
   }

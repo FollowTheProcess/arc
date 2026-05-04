@@ -19,8 +19,9 @@ var (
 )
 
 func TestDiagnosticString(t *testing.T) {
-	warningFile := source.NewFile("test.http", []byte("hello\nthere\nworld"))
-	errorFile := source.NewFile("test.http", []byte("hello\nthere"))
+	invalidFile := source.NewFile("test.http", []byte("POST /api\n"))
+	warningFile := source.NewFile("test.http", []byte("GET http://api.local/users\n"))
+	errorFile := source.NewFile("test.http", []byte("GETT /users HTTP/1.1\n"))
 
 	// Extra stuff like Labels and Fixes aren't shown in .String() output
 	tests := []struct {
@@ -42,11 +43,11 @@ func TestDiagnosticString(t *testing.T) {
 			name: "valid but invalid severity",
 			diag: diagnostic.Diagnostic{
 				Severity: diagnostic.SeverityInvalid,
-				Message:  "Uh oh!",
+				Message:  "POST without Content-Type",
 				Span: source.Span{
-					File:        source.NewFile("test.http", []byte("hello\nthere\nworld")),
-					StartOffset: 1,  // 'e' in "hello"
-					EndOffset:   14, // 'r' in "world"
+					File:        invalidFile,
+					StartOffset: 0, // 'P' in "POST"
+					EndOffset:   4, // end of "POST"
 				},
 			},
 			want: "",
@@ -55,85 +56,77 @@ func TestDiagnosticString(t *testing.T) {
 			name: "valid warning",
 			diag: diagnostic.Diagnostic{
 				Severity: diagnostic.SeverityWarning,
-				Message:  "Uh oh!",
+				Message:  "use https for transport security",
 				Span: source.Span{
 					File:        warningFile,
-					StartOffset: 1,  // 'e' in "hello"
-					EndOffset:   14, // 'r' in "world"
+					StartOffset: 4, // 'h' in "http"
+					EndOffset:   8, // end of "http"
 				},
 				Labels: []diagnostic.Label{
 					{
-						Message: "previously declared here",
+						Message: "this URL will be sent in plaintext",
 						Span: source.Span{
 							File:        warningFile,
-							StartOffset: 0, // 'h' in "hello"
-							EndOffset:   5, // end of "hello"
+							StartOffset: 4,  // 'h' in "http"
+							EndOffset:   26, // end of "/users"
 						},
 					},
 				},
 				Fixes: []diagnostic.Fix{
 					{
-						Message: "replace 'there' with 'world'",
+						Message: "replace with 'https'",
 						Edits: []diagnostic.Edit{
 							{
-								Replacement: "world",
+								Replacement: "https",
 								Span: source.Span{
 									File:        warningFile,
-									StartOffset: 6,  // 't' in "there"
-									EndOffset:   11, // end of "there"
+									StartOffset: 4,
+									EndOffset:   8,
 								},
 							},
 						},
 					},
 				},
 			},
-			want: "[warning] test.http:1:2: Uh oh!",
+			want: "[warning] test.http:1:5: use https for transport security",
 		},
 		{
 			name: "valid error",
 			diag: diagnostic.Diagnostic{
 				Severity: diagnostic.SeverityError,
-				Message:  "This is broken",
+				Message:  "unknown HTTP method 'GETT'",
 				Span: source.Span{
 					File:        errorFile,
-					StartOffset: 6, // 't' in "there"
-					EndOffset:   6,
+					StartOffset: 0, // 'G' in "GETT"
+					EndOffset:   4, // end of "GETT"
 				},
 				Labels: []diagnostic.Label{
 					{
-						Message: "first declared here",
+						Message: "applies to this request",
 						Span: source.Span{
 							File:        errorFile,
-							StartOffset: 0, // 'h' in "hello"
-							EndOffset:   5, // end of "hello"
+							StartOffset: 5,  // '/' in "/users"
+							EndOffset:   11, // end of "/users"
 						},
 					},
 				},
 				Fixes: []diagnostic.Fix{
 					{
-						Message: "rename 'hello' to 'world'",
+						Message: "did you mean 'GET'?",
 						Edits: []diagnostic.Edit{
 							{
-								Replacement: "world",
+								Replacement: "GET",
 								Span: source.Span{
 									File:        errorFile,
 									StartOffset: 0,
-									EndOffset:   5,
-								},
-							},
-							{
-								Replacement: "world",
-								Span: source.Span{
-									File:        errorFile,
-									StartOffset: 6,
-									EndOffset:   11,
+									EndOffset:   4,
 								},
 							},
 						},
 					},
 				},
 			},
-			want: "[error] test.http:2:1: This is broken",
+			want: "[error] test.http:1:1: unknown HTTP method 'GETT'",
 		},
 	}
 
@@ -149,8 +142,12 @@ func TestDiagnosticJSON(t *testing.T) {
 	// Force colour for diffs but only locally
 	test.ColorEnabled(os.Getenv("CI") == "")
 
-	warningFile := source.NewFile("test.http", []byte("hello\nthere\nworld"))
-	errorFile := source.NewFile("test.http", []byte("hello\nthere"))
+	invalidFile := source.NewFile("test.http", []byte("DELETE /\n"))
+	warningFile := source.NewFile(
+		"test.http",
+		[]byte("GET /\nAccept: application/json\nAccept: text/plain\n"),
+	)
+	errorFile := source.NewFile("test.http", []byte("GET {{url}}/users\nHost: {{url}}\n"))
 
 	tests := []struct {
 		name string                // Name of the test case
@@ -162,17 +159,17 @@ func TestDiagnosticJSON(t *testing.T) {
 		},
 		{
 			name: "severity only",
-			diag: diagnostic.Diagnostic{Severity: diagnostic.SeverityWarning},
+			diag: diagnostic.Diagnostic{Severity: diagnostic.SeverityError},
 		},
 		{
 			name: "valid but invalid severity",
 			diag: diagnostic.Diagnostic{
 				Severity: diagnostic.SeverityInvalid,
-				Message:  "Uh oh!",
+				Message:  "DELETE with empty body",
 				Span: source.Span{
-					File:        source.NewFile("test.http", []byte("hello\nthere\nworld")),
-					StartOffset: 1,  // 'e' in "hello"
-					EndOffset:   14, // 'r' in "world"
+					File:        invalidFile,
+					StartOffset: 0, // 'D' in "DELETE"
+					EndOffset:   6, // end of "DELETE"
 				},
 			},
 		},
@@ -180,32 +177,34 @@ func TestDiagnosticJSON(t *testing.T) {
 			name: "valid warning",
 			diag: diagnostic.Diagnostic{
 				Severity: diagnostic.SeverityWarning,
-				Message:  "Uh oh!",
+				Message:  "duplicate 'Accept' header",
 				Span: source.Span{
 					File:        warningFile,
-					StartOffset: 1,  // 'e' in "hello"
-					EndOffset:   14, // 'r' in "world"
+					StartOffset: 31, // 'A' in second "Accept"
+					EndOffset:   37, // end of second "Accept"
 				},
 				Labels: []diagnostic.Label{
 					{
-						Message: "previously declared here",
+						Message: "first declared here",
 						Span: source.Span{
 							File:        warningFile,
-							StartOffset: 0, // 'h' in "hello"
-							EndOffset:   5, // end of "hello"
+							StartOffset: 6,  // 'A' in first "Accept"
+							EndOffset:   12, // end of first "Accept"
 						},
 					},
 				},
 				Fixes: []diagnostic.Fix{
 					{
-						Message: "replace 'there' with 'world'",
+						Message: "remove the duplicate header",
 						Edits: []diagnostic.Edit{
 							{
-								Replacement: "world",
+								// Replacing the entire line including its trailing
+								// newline removes the header without leaving a blank line.
+								Replacement: "",
 								Span: source.Span{
 									File:        warningFile,
-									StartOffset: 6,  // 't' in "there"
-									EndOffset:   11, // end of "there"
+									StartOffset: 31,
+									EndOffset:   50,
 								},
 							},
 						},
@@ -217,40 +216,40 @@ func TestDiagnosticJSON(t *testing.T) {
 			name: "valid error",
 			diag: diagnostic.Diagnostic{
 				Severity: diagnostic.SeverityError,
-				Message:  "This is broken",
+				Message:  "undefined variable 'url'",
 				Span: source.Span{
 					File:        errorFile,
-					StartOffset: 6, // 't' in "there"
-					EndOffset:   6,
+					StartOffset: 4, // first '{{url}}'
+					EndOffset:   11,
 				},
 				Labels: []diagnostic.Label{
 					{
-						Message: "first declared here",
+						Message: "also referenced here",
 						Span: source.Span{
 							File:        errorFile,
-							StartOffset: 0, // 'h' in "hello"
-							EndOffset:   5, // end of "hello"
+							StartOffset: 24, // second '{{url}}'
+							EndOffset:   31,
 						},
 					},
 				},
 				Fixes: []diagnostic.Fix{
 					{
-						Message: "rename 'hello' to 'world'",
+						Message: "rename 'url' to 'baseUrl'",
 						Edits: []diagnostic.Edit{
 							{
-								Replacement: "world",
+								Replacement: "baseUrl",
 								Span: source.Span{
 									File:        errorFile,
-									StartOffset: 0,
-									EndOffset:   5,
+									StartOffset: 6, // 'url' inside first '{{...}}'
+									EndOffset:   9,
 								},
 							},
 							{
-								Replacement: "world",
+								Replacement: "baseUrl",
 								Span: source.Span{
 									File:        errorFile,
-									StartOffset: 6,
-									EndOffset:   11,
+									StartOffset: 26, // 'url' inside second '{{...}}'
+									EndOffset:   29,
 								},
 							},
 						},

@@ -3,48 +3,48 @@ expression: string(content)
 ---
 |-
   {
-    "message": "This is broken",
+    "message": "undefined variable 'url'",
     "span": {
       "file": {
         "name": "test.http"
       },
-      "startOffset": 6,
-      "endOffset": 6
+      "startOffset": 4,
+      "endOffset": 11
     },
     "labels": [
       {
-        "message": "first declared here",
+        "message": "also referenced here",
         "span": {
           "file": {
             "name": "test.http"
           },
-          "startOffset": 0,
-          "endOffset": 5
+          "startOffset": 24,
+          "endOffset": 31
         }
       }
     ],
     "fixes": [
       {
-        "message": "rename 'hello' to 'world'",
+        "message": "rename 'url' to 'baseUrl'",
         "edits": [
           {
-            "replacement": "world",
-            "span": {
-              "file": {
-                "name": "test.http"
-              },
-              "startOffset": 0,
-              "endOffset": 5
-            }
-          },
-          {
-            "replacement": "world",
+            "replacement": "baseUrl",
             "span": {
               "file": {
                 "name": "test.http"
               },
               "startOffset": 6,
-              "endOffset": 11
+              "endOffset": 9
+            }
+          },
+          {
+            "replacement": "baseUrl",
+            "span": {
+              "file": {
+                "name": "test.http"
+              },
+              "startOffset": 26,
+              "endOffset": 29
             }
           }
         ]
