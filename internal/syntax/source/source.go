@@ -11,8 +11,8 @@ import (
 // Position is an arbitrary 1-indexed line and column position within
 // some source text.
 type Position struct {
-	Line int
-	Col  int
+	Line int `json:"line"`
+	Col  int `json:"col"`
 }
 
 // String returns a string representation of a [Position].
@@ -24,7 +24,7 @@ func (p Position) String() string {
 //
 // Construct with [NewFile]; the zero value is not valid.
 type File struct {
-	name        string // Name of the file, or "-" for stdin.
+	Name        string `json:"name"` // Name of the file, or "-" for stdin.
 	content     []byte // Raw file contents.
 	lineOffsets []int  // Line offset table, built at construction time.
 }
@@ -55,15 +55,10 @@ func NewFile(name string, content []byte) *File {
 	}
 
 	return &File{
-		name:        name,
+		Name:        name,
 		content:     content,
 		lineOffsets: lineOffsets,
 	}
-}
-
-// Name returns the name of the source file.
-func (f *File) Name() string {
-	return f.name
 }
 
 // PositionAt returns the [Position] in a [File] of a given byte offset.
@@ -95,9 +90,9 @@ func (f *File) PositionAt(offset int) Position {
 // span covers the bytes [StartOffset, EndOffset) of File. EndOffset must be
 // >= StartOffset.
 type Span struct {
-	File        *File // The file in question.
-	StartOffset int   // Byte offset of the span start (inclusive).
-	EndOffset   int   // Byte offset of the span end (exclusive).
+	File        *File `json:"file,omitempty"` // The file in question.
+	StartOffset int   `json:"startOffset"`    // Byte offset of the span start (inclusive).
+	EndOffset   int   `json:"endOffset"`      // Byte offset of the span end (exclusive).
 }
 
 // String returns a string representation of a [Span].
@@ -106,7 +101,7 @@ func (s Span) String() string {
 		return ""
 	}
 
-	return s.File.name + ":" + s.Start().String()
+	return s.File.Name + ":" + s.Start().String()
 }
 
 // Start returns the line and column of the span start.

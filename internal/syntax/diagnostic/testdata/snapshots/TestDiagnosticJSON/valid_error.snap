@@ -1,0 +1,15 @@
+source: diagnostic_test.go
+expression: string(content)
+---
+|-
+  {
+    "message": "This is broken",
+    "span": {
+      "file": {
+        "name": "test.http"
+      },
+      "startOffset": 6,
+      "endOffset": 6
+    },
+    "severity": "error"
+  }

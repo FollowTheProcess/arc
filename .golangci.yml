@@ -51,6 +51,7 @@ linters:
           - prealloc  # These kinds of optimisations will make no difference to test code
           - gosec  # Tests don't need security stuff
           - goconst  # Sometimes repetition is okay in tests
+          - gochecknoglobals  # Flags and env vars
 
   settings:
     cyclop:

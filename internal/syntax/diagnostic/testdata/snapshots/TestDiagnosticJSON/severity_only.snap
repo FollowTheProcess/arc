@@ -1,0 +1,7 @@
+source: diagnostic_test.go
+expression: string(content)
+---
+|-
+  {
+    "severity": "warning"
+  }
