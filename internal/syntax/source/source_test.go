@@ -99,7 +99,8 @@ func TestSpan(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, span := srcSpan(t, tt.src)
+			file, span := srcSpan(t, tt.src)
+			test.Equal(t, file.Name(), "test.http")
 
 			test.Equal(t, span.Start(), tt.start, test.Context("wrong start of span"))
 			test.Equal(t, span.End(), tt.end, test.Context("wrong end of span"))
