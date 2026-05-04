@@ -38,24 +38,28 @@ type File struct {
 // Internally it builds a line offset table for fast position
 // lookups.
 func NewFile(name string, content []byte) *File {
-	numLines := bytes.Count(content, []byte("\n"))
+	numLines := bytes.Count(content, []byte{'\n'})
 	lineOffsets := make([]int, 1, numLines+1)
-	lineOffsets[0] = 0
 
-	s := &File{
+	for base := 0; base < len(content); {
+		i := bytes.IndexByte(content[base:], '\n')
+		if i < 0 {
+			break
+		}
+
+		next := base + i + 1
+		if next < len(content) {
+			lineOffsets = append(lineOffsets, next)
+		}
+
+		base = next
+	}
+
+	return &File{
 		name:        name,
 		content:     content,
 		lineOffsets: lineOffsets,
 	}
-
-	for i, b := range content {
-		nextLineStart := i + 1
-		if b == '\n' && nextLineStart < len(content) {
-			s.lineOffsets = append(s.lineOffsets, nextLineStart)
-		}
-	}
-
-	return s
 }
 
 // Name returns the name of the source file.
