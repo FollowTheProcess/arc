@@ -1,0 +1,38 @@
+# Request bodies: inline JSON, file-loaded, templated file-loaded.
+
+@host = "https://httpbin.org"
+
+### postInlineJson
+POST {{ host }}/post
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "arc",
+  "tagline": "the shortest path from request to response",
+  "stars": 0
+}
+
+### postFromFile
+# `< path` reads the body verbatim. Interpolations inside the file are NOT expanded.
+POST {{ host }}/post
+Content-Type: application/json
+
+< ./new-post.json
+
+### postFromTemplatedFile
+# `<@ path` reads the file then runs it through the interpolation engine,
+# so `{{ ... }}` blocks inside the file are expanded before sending.
+POST {{ host }}/post
+Content-Type: application/json
+
+<@ ./post.json
+
+### putForm
+PUT {{ host }}/put
+Content-Type: application/x-www-form-urlencoded
+
+name=arc&tagline=the+shortest+path&stars=0
+
+### deleteThing
+DELETE {{ host }}/delete

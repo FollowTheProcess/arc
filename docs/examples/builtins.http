@@ -1,0 +1,42 @@
+# Builtin functions.
+#
+# All builtins are namespaced as `$namespace.thing`. Each request gets fresh
+# values: `$random.uuid` is generated per send.
+
+@host = "https://httpbin.org"
+
+### dynamicHeaders
+GET {{ host }}/anything
+X-Request-Id: {{ $random.uuid }}
+X-Trace-Id: {{ $random.hex(16) }}
+X-Sent-At: {{ $time.iso }}
+X-Run-Number: {{ $random.int(1, 9999) }}
+Accept: application/json
+
+### envInterpolation
+# `$env.NAME` reads from the process environment (or `.env` file if loaded).
+GET {{ host }}/anything
+X-User: {{ $env.USER }}
+X-Shell: {{ $env.SHELL }}
+
+### bearerAuth
+# Auth helpers expand to a fully-formed header value.
+GET {{ host }}/bearer
+Authorization: {{ $auth.bearer("dev-token-abc123") }}
+
+### basicAuth
+GET {{ host }}/basic-auth/arc/secret
+Authorization: {{ $auth.basic("arc", "secret") }}
+
+### fakerData
+# Faker-style random data for realistic payloads.
+POST {{ host }}/anything
+Content-Type: application/json
+
+{
+  "id": "{{ $random.uuid }}",
+  "name": "{{ $random.fullName }}",
+  "email": "{{ $random.exampleEmail }}",
+  "createdAt": "{{ $time.iso }}",
+  "score": {{ $random.int(0, 100) }}
+}

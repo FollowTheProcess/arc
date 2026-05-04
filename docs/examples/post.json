@@ -1,0 +1,5 @@
+{
+  "title": "Hello from a body file",
+  "body": "Loaded verbatim by `< post.json`.",
+  "userId": 1
+}

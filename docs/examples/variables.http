@@ -1,0 +1,28 @@
+# Variables and interpolation.
+#
+# Globals are declared at file scope with `@name = "value"` (quotes mandatory).
+# Locals live inside a request, prefixed with the comment marker.
+# `{{ name }}` interpolates anywhere a value is accepted: URL, header, body.
+
+@host = "https://httpbin.org"
+@project = "arc"
+
+### echoHeaders
+GET {{ host }}/headers
+X-Project: {{ project }}
+Accept: application/json
+
+### echoQuery
+# Local variable, only visible to this request. Shadows any global of the same name.
+# @search = "shortest path from request to response"
+GET {{ host }}/get?q={{ search }}
+Accept: application/json
+
+### multiLineUrl
+# URLs can wrap across lines with an indent for readability.
+GET {{ host }}
+    /anything
+    ?team={{ project }}
+    &since=2026-01-01
+    &limit=25
+Accept: application/json

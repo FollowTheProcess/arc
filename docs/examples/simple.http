@@ -1,0 +1,5 @@
+# The smallest possible arc file: one GET, no variables, no headers.
+# Run with: arc run docs/examples/simplehttp
+
+###
+GET https://httpbin.org/get

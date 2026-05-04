@@ -1,0 +1,47 @@
+# Assertions and golden-file tests.
+#
+# Inline `# ??` assertions run after the response. `arc test` exits non-zero
+# on any failure. The grammar is `?? <query> [filters...] <predicate>`.
+
+@host = "https://httpbin.org"
+
+### healthy
+GET {{ host }}/status/200
+
+# ?? status == 200
+# ?? duration < 2000
+
+### notFound
+# Negative-path test: 404 is the *expected* outcome.
+GET {{ host }}/status/404
+
+# ?? status == 404
+
+### contentNegotiation
+GET {{ host }}/json
+Accept: application/json
+
+# ?? status == 200
+# ?? header "Content-Type" contains "application/json"
+# ?? body jsonpath "$.slideshow.title" exists
+# ?? body jsonpath "$.slideshow.slides" count > 0
+
+### serverError
+# httpbin will faithfully return whatever status you ask for, handy for
+# verifying retry/error reporting paths.
+GET {{ host }}/status/500
+
+# ?? status >= 500
+# ?? status < 600
+
+### goldenSlideshow
+# `<>` snapshots the full response (status + headers + body) to the named
+# file on first run, then diffs against it on every subsequent run.
+# This is the preferred testing mechanism with arc, assertion DSLs are messy
+# golden files are clean and readable.
+#
+# Refresh the snapshot with: arc test --update
+GET {{ host }}/json
+Accept: application/json
+
+<> slideshow.golden.json

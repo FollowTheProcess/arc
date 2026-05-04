@@ -1,0 +1,33 @@
+# Request chaining.
+#
+# Reference any prior response with `{{ requestName.response.body.path }}`.
+# arc walks the dependency graph automatically: running `getAuthor` first
+# runs `listPosts` to populate the `[0].id` lookup, then `getPost` for
+# `userId`, then issues `getAuthor`. Standard fields per request are
+# `request.{body,headers}` and `response.{status,headers,body}`.
+
+@host = "https://jsonplaceholder.typicode.com"
+
+### listPosts
+GET {{ host }}/posts
+Accept: application/json
+
+### getPost
+GET {{ host }}/posts/{{ listPosts.response.body[0].id }}
+Accept: application/json
+
+### getAuthor
+GET {{ host }}/users/{{ getPost.response.body.userId }}
+Accept: application/json
+
+### echoChain
+# Prior responses are also available inside request bodies.
+# @echoHost = "https://httpbin.org"
+POST {{ echoHost }}/anything
+Content-Type: application/json
+
+{
+  "post": "{{ getPost.response.body.title }}",
+  "author": "{{ getAuthor.response.body.name }}",
+  "email": "{{ getAuthor.response.body.email }}"
+}

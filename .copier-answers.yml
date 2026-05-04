@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier
+_commit: v0.54.6
+_src_path: gh:FollowTheProcess/go-template
+author_email: me@followtheprocess.codes
+author_name: Tom Fleet
+dependency_bot: renovate
+description: A command line API Client and testing tool, driven by plaintext .http files
+github_url: https://github.com/FollowTheProcess/arc
+github_username: FollowTheProcess
+license: Apache-2.0
+linter: golangci-lint
+module_path: go.followtheprocess.codes/arc
+project_name: arc
+project_slug: arc
+project_type: binary
