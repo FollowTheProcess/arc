@@ -1,10 +1,32 @@
-// Package arc is a A command line API Client and testing tool, driven by plaintext .http files.
+// Package arc is a command line API Client and testing tool, driven by plaintext .http files.
 package main
 
 import (
-	"fmt"
+	"context"
+	"os"
+	"os/signal"
+
+	"go.followtheprocess.codes/arc/internal/cmd"
+	"go.followtheprocess.codes/msg"
 )
 
 func main() {
-	fmt.Println("Design the architecture, name the components, document the details.")
+	if err := run(); err != nil {
+		msg.Err(err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	ctx := context.Background()
+
+	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
+	defer cancel()
+
+	cli, err := cmd.Build()
+	if err != nil {
+		return err
+	}
+
+	return cli.Execute(ctx)
 }
