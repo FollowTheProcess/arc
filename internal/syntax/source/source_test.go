@@ -313,6 +313,72 @@ func TestPositionAtClamp(t *testing.T) {
 	}
 }
 
+// FuzzPositionAt checks that [source.PositionAt] doesn't panic for arbitrary
+// offset and content and the resulting [source.Position] is always a valid
+// 1-indexed position:
+//
+//   - Line should always increase as we go through the file
+//   - Col should reset to 1 after every '\n' (other than the final one)
+func FuzzPositionAt(f *testing.F) {
+	seeds := []struct {
+		content []byte
+		offset  int
+	}{
+		{content: []byte(""), offset: 0},
+		{content: []byte("a"), offset: 0},
+		{content: []byte("a\nb\nc"), offset: 3},
+		{content: []byte("\n\n\n"), offset: 1},
+		{content: []byte("abc\ndef\nghi"), offset: -1},
+		{content: []byte("abc\ndef\nghi"), offset: 9999},
+	}
+
+	for _, s := range seeds {
+		f.Add(s.content, s.offset)
+	}
+
+	f.Fuzz(func(t *testing.T, content []byte, offset int) {
+		file := source.NewFile("fuzz", content)
+
+		pos := file.PositionAt(offset)
+		test.True(
+			t,
+			pos.Line >= 1 && pos.Col >= 1,
+			test.Context("not 1-indexed: offset=%d pos=%s len=%d", offset, pos, len(content)),
+		)
+
+		var prev source.Position
+
+		for i := range len(content) + 1 {
+			p := file.PositionAt(i)
+
+			posIsValid := p.Line >= 1 && p.Col >= 1
+			lineAlwaysIncreases := p.Line >= prev.Line
+			atNonTrailingNewline := i > 0 && i < len(content) && content[i-1] == '\n'
+			colResetsAfterNewline := !atNonTrailingNewline || p.Col == 1
+
+			test.True(
+				t,
+				posIsValid,
+				test.Context("not 1-indexed: offset=%d pos=%s len=%d", offset, p, len(content)),
+			)
+
+			test.True(
+				t,
+				lineAlwaysIncreases,
+				test.Context("line went backwards at offset %d: %d -> %d", i, prev, p),
+			)
+
+			test.True(
+				t,
+				colResetsAfterNewline,
+				test.Context("col not reset after newline at offset %d: %s", i, p),
+			)
+
+			prev = p
+		}
+	})
+}
+
 func BenchmarkNewFile(b *testing.B) {
 	file := filepath.Join("testdata", "bench", "lines.txt")
 	data, err := os.ReadFile(file)
