@@ -1,6 +1,8 @@
 package syntax_test
 
 import (
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -320,6 +322,16 @@ func TestDiagnosticString(t *testing.T) {
 			got := tt.diag.String()
 			test.Equal(t, got, tt.want)
 		})
+	}
+}
+
+func BenchmarkNewSourceFile(b *testing.B) {
+	file := filepath.Join("testdata", "bench", "lines.txt")
+	data, err := os.ReadFile(file)
+	test.Ok(b, err)
+
+	for b.Loop() {
+		syntax.NewSourceFile("bench", data)
 	}
 }
 

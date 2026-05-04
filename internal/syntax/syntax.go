@@ -3,6 +3,7 @@
 package syntax
 
 import (
+	"bytes"
 	"fmt"
 	"slices"
 	"strconv"
@@ -63,10 +64,14 @@ type SourceFile struct {
 // following the '\n' is appended. A trailing '\n' does not introduce an
 // extra empty line.
 func NewSourceFile(name string, content []byte) *SourceFile {
+	numLines := bytes.Count(content, []byte("\n"))
+	lineOffsets := make([]int, 1, numLines+1)
+	lineOffsets[0] = 0
+
 	s := &SourceFile{
 		name:        name,
 		content:     content,
-		lineOffsets: []int{0},
+		lineOffsets: lineOffsets,
 	}
 
 	for i, b := range content {
