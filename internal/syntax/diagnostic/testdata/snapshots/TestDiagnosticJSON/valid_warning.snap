@@ -11,5 +11,34 @@ expression: string(content)
       "startOffset": 1,
       "endOffset": 14
     },
+    "labels": [
+      {
+        "message": "previously declared here",
+        "span": {
+          "file": {
+            "name": "test.http"
+          },
+          "startOffset": 0,
+          "endOffset": 5
+        }
+      }
+    ],
+    "fixes": [
+      {
+        "message": "replace 'there' with 'world'",
+        "edits": [
+          {
+            "replacement": "world",
+            "span": {
+              "file": {
+                "name": "test.http"
+              },
+              "startOffset": 6,
+              "endOffset": 11
+            }
+          }
+        ]
+      }
+    ],
     "severity": "warning"
   }

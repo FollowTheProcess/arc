@@ -11,8 +11,8 @@ import (
 // Position is an arbitrary 1-indexed line and column position within
 // some source text.
 type Position struct {
-	Line int `json:"line"`
-	Col  int `json:"col"`
+	Line int `json:"line,omitempty"`
+	Col  int `json:"col,omitempty"`
 }
 
 // String returns a string representation of a [Position].

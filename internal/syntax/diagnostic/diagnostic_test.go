@@ -19,6 +19,10 @@ var (
 )
 
 func TestDiagnosticString(t *testing.T) {
+	warningFile := source.NewFile("test.http", []byte("hello\nthere\nworld"))
+	errorFile := source.NewFile("test.http", []byte("hello\nthere"))
+
+	// Extra stuff like Labels and Fixes aren't shown in .String() output
 	tests := []struct {
 		name string                // Name of the test case
 		want string                // Expected result
@@ -53,9 +57,34 @@ func TestDiagnosticString(t *testing.T) {
 				Severity: diagnostic.SeverityWarning,
 				Message:  "Uh oh!",
 				Span: source.Span{
-					File:        source.NewFile("test.http", []byte("hello\nthere\nworld")),
+					File:        warningFile,
 					StartOffset: 1,  // 'e' in "hello"
 					EndOffset:   14, // 'r' in "world"
+				},
+				Labels: []diagnostic.Label{
+					{
+						Message: "previously declared here",
+						Span: source.Span{
+							File:        warningFile,
+							StartOffset: 0, // 'h' in "hello"
+							EndOffset:   5, // end of "hello"
+						},
+					},
+				},
+				Fixes: []diagnostic.Fix{
+					{
+						Message: "replace 'there' with 'world'",
+						Edits: []diagnostic.Edit{
+							{
+								Replacement: "world",
+								Span: source.Span{
+									File:        warningFile,
+									StartOffset: 6,  // 't' in "there"
+									EndOffset:   11, // end of "there"
+								},
+							},
+						},
+					},
 				},
 			},
 			want: "[warning] test.http:1:2: Uh oh!",
@@ -66,9 +95,42 @@ func TestDiagnosticString(t *testing.T) {
 				Severity: diagnostic.SeverityError,
 				Message:  "This is broken",
 				Span: source.Span{
-					File:        source.NewFile("test.http", []byte("hello\nthere")),
+					File:        errorFile,
 					StartOffset: 6, // 't' in "there"
 					EndOffset:   6,
+				},
+				Labels: []diagnostic.Label{
+					{
+						Message: "first declared here",
+						Span: source.Span{
+							File:        errorFile,
+							StartOffset: 0, // 'h' in "hello"
+							EndOffset:   5, // end of "hello"
+						},
+					},
+				},
+				Fixes: []diagnostic.Fix{
+					{
+						Message: "rename 'hello' to 'world'",
+						Edits: []diagnostic.Edit{
+							{
+								Replacement: "world",
+								Span: source.Span{
+									File:        errorFile,
+									StartOffset: 0,
+									EndOffset:   5,
+								},
+							},
+							{
+								Replacement: "world",
+								Span: source.Span{
+									File:        errorFile,
+									StartOffset: 6,
+									EndOffset:   11,
+								},
+							},
+						},
+					},
 				},
 			},
 			want: "[error] test.http:2:1: This is broken",
@@ -86,6 +148,9 @@ func TestDiagnosticString(t *testing.T) {
 func TestDiagnosticJSON(t *testing.T) {
 	// Force colour for diffs but only locally
 	test.ColorEnabled(os.Getenv("CI") == "")
+
+	warningFile := source.NewFile("test.http", []byte("hello\nthere\nworld"))
+	errorFile := source.NewFile("test.http", []byte("hello\nthere"))
 
 	tests := []struct {
 		name string                // Name of the test case
@@ -117,9 +182,34 @@ func TestDiagnosticJSON(t *testing.T) {
 				Severity: diagnostic.SeverityWarning,
 				Message:  "Uh oh!",
 				Span: source.Span{
-					File:        source.NewFile("test.http", []byte("hello\nthere\nworld")),
+					File:        warningFile,
 					StartOffset: 1,  // 'e' in "hello"
 					EndOffset:   14, // 'r' in "world"
+				},
+				Labels: []diagnostic.Label{
+					{
+						Message: "previously declared here",
+						Span: source.Span{
+							File:        warningFile,
+							StartOffset: 0, // 'h' in "hello"
+							EndOffset:   5, // end of "hello"
+						},
+					},
+				},
+				Fixes: []diagnostic.Fix{
+					{
+						Message: "replace 'there' with 'world'",
+						Edits: []diagnostic.Edit{
+							{
+								Replacement: "world",
+								Span: source.Span{
+									File:        warningFile,
+									StartOffset: 6,  // 't' in "there"
+									EndOffset:   11, // end of "there"
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -129,9 +219,42 @@ func TestDiagnosticJSON(t *testing.T) {
 				Severity: diagnostic.SeverityError,
 				Message:  "This is broken",
 				Span: source.Span{
-					File:        source.NewFile("test.http", []byte("hello\nthere")),
+					File:        errorFile,
 					StartOffset: 6, // 't' in "there"
 					EndOffset:   6,
+				},
+				Labels: []diagnostic.Label{
+					{
+						Message: "first declared here",
+						Span: source.Span{
+							File:        errorFile,
+							StartOffset: 0, // 'h' in "hello"
+							EndOffset:   5, // end of "hello"
+						},
+					},
+				},
+				Fixes: []diagnostic.Fix{
+					{
+						Message: "rename 'hello' to 'world'",
+						Edits: []diagnostic.Edit{
+							{
+								Replacement: "world",
+								Span: source.Span{
+									File:        errorFile,
+									StartOffset: 0,
+									EndOffset:   5,
+								},
+							},
+							{
+								Replacement: "world",
+								Span: source.Span{
+									File:        errorFile,
+									StartOffset: 6,
+									EndOffset:   11,
+								},
+							},
+						},
+					},
 				},
 			},
 		},

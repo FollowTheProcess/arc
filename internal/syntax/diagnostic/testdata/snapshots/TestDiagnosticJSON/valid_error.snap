@@ -11,5 +11,44 @@ expression: string(content)
       "startOffset": 6,
       "endOffset": 6
     },
+    "labels": [
+      {
+        "message": "first declared here",
+        "span": {
+          "file": {
+            "name": "test.http"
+          },
+          "startOffset": 0,
+          "endOffset": 5
+        }
+      }
+    ],
+    "fixes": [
+      {
+        "message": "rename 'hello' to 'world'",
+        "edits": [
+          {
+            "replacement": "world",
+            "span": {
+              "file": {
+                "name": "test.http"
+              },
+              "startOffset": 0,
+              "endOffset": 5
+            }
+          },
+          {
+            "replacement": "world",
+            "span": {
+              "file": {
+                "name": "test.http"
+              },
+              "startOffset": 6,
+              "endOffset": 11
+            }
+          }
+        ]
+      }
+    ],
     "severity": "error"
   }

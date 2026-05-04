@@ -29,8 +29,8 @@ func (d Diagnostic) String() string {
 // Label is a supplementary span adding further context to a [Diagnostic]
 // by highlighting another region of source related to the primary finding.
 type Label struct {
-	Message string      `json:"message"` // Label text to display, e.g. "previously defined here".
-	Span    source.Span `json:"span"`    // The region of source to which this label refers.
+	Message string      `json:"message,omitempty"` // Label text to display, e.g. "previously defined here".
+	Span    source.Span `json:"span,omitzero"`     // The region of source to which this label refers.
 }
 
 // Fix represents one or more suggested edits to a source span resulting from a [Diagnostic].
@@ -40,12 +40,12 @@ type Label struct {
 // change touches two non-contiguous spans such as renaming a global variable, and then
 // updating all it's call sites.
 type Fix struct {
-	Message string `json:"message"`         // Fix message.
-	Edits   []Edit `json:"edits,omitempty"` // List of suggested edits.
+	Message string `json:"message,omitempty"` // Fix message.
+	Edits   []Edit `json:"edits,omitempty"`   // List of suggested edits.
 }
 
 // Edit represents a single suggested edit resulting from a [Diagnostic].
 type Edit struct {
-	Replacement string      `json:"replacement"` // Use this instead
-	Span        source.Span `json:"span"`        // Range to replace
+	Replacement string      `json:"replacement"`   // Use this instead
+	Span        source.Span `json:"span,omitzero"` // Range to replace
 }
