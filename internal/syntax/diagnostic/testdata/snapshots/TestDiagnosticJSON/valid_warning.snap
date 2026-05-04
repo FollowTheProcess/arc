@@ -1,0 +1,44 @@
+source: diagnostic_test.go
+expression: string(content)
+---
+|-
+  {
+    "message": "duplicate 'Accept' header",
+    "span": {
+      "file": {
+        "name": "test.http"
+      },
+      "startOffset": 31,
+      "endOffset": 37
+    },
+    "labels": [
+      {
+        "message": "first declared here",
+        "span": {
+          "file": {
+            "name": "test.http"
+          },
+          "startOffset": 6,
+          "endOffset": 12
+        }
+      }
+    ],
+    "fixes": [
+      {
+        "message": "remove the duplicate header",
+        "edits": [
+          {
+            "replacement": "",
+            "span": {
+              "file": {
+                "name": "test.http"
+              },
+              "startOffset": 31,
+              "endOffset": 50
+            }
+          }
+        ]
+      }
+    ],
+    "severity": "warning"
+  }

@@ -1,0 +1,14 @@
+source: diagnostic_test.go
+expression: string(content)
+---
+|-
+  {
+    "message": "DELETE with empty body",
+    "span": {
+      "file": {
+        "name": "test.http"
+      },
+      "startOffset": 0,
+      "endOffset": 6
+    }
+  }

@@ -22,6 +22,7 @@
 !**/testdata/**/*.txt
 !**/testdata/**/*.txtar
 !**/testdata/**/*.http
+!**/testdata/**/*.snap
 
 # mise
 !mise.toml
