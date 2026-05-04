@@ -4,7 +4,6 @@ package source
 
 import (
 	"bytes"
-	"fmt"
 	"slices"
 	"strconv"
 )
@@ -69,13 +68,18 @@ func (f *File) Name() string {
 
 // PositionAt returns the [Position] in a [File] of a given byte offset.
 //
-// offset must be 0 <= offset <= len(content). If not, PositionAt panics.
+// Offsets outside 0 <= offset <= len(content) are clamped to the nearest end so that
+// callers always get a valid 1-indexed [Position].
+//
+// A negative offset returns the file start, and an offset past EOF returns the position
+// one past the last byte (the same value returned for offset == len(content)).
 func (f *File) PositionAt(offset int) Position {
-	if offset < 0 || offset > len(f.content) {
-		panic(fmt.Sprintf(
-			"source: PositionAt offset %d out of range [0, %d] for file %q",
-			offset, len(f.content), f.name,
-		))
+	if offset < 0 {
+		offset = 0
+	}
+
+	if offset > len(f.content) {
+		offset = len(f.content)
 	}
 
 	index, found := slices.BinarySearch(f.lineOffsets, offset)

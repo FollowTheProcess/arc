@@ -260,6 +260,59 @@ func TestSpanString(t *testing.T) {
 	}
 }
 
+func TestPositionAtClamp(t *testing.T) {
+	file := source.NewFile("test.http", []byte("abc\ndef\nghi")) // lineOffsets = [0, 4, 8]
+
+	tests := []struct {
+		name   string          // Name of the test case
+		want   source.Position // Expected position after clamping
+		offset int             // Byte offset to look up
+	}{
+		{
+			name:   "negative clamps to file start",
+			offset: -1,
+			want:   source.Position{Line: 1, Col: 1},
+		},
+		{
+			name:   "large negative clamps to file start",
+			offset: -9999,
+			want:   source.Position{Line: 1, Col: 1},
+		},
+		{
+			name:   "in range start",
+			offset: 0,
+			want:   source.Position{Line: 1, Col: 1},
+		},
+		{
+			name:   "in range last byte",
+			offset: 10,
+			want:   source.Position{Line: 3, Col: 3},
+		},
+		{
+			name:   "at EOF",
+			offset: 11,
+			want:   source.Position{Line: 3, Col: 4},
+		},
+		{
+			name:   "past EOF clamps to EOF",
+			offset: 12,
+			want:   source.Position{Line: 3, Col: 4},
+		},
+		{
+			name:   "far past EOF clamps to EOF",
+			offset: 9999,
+			want:   source.Position{Line: 3, Col: 4},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := file.PositionAt(tt.offset)
+			test.Equal(t, got, tt.want)
+		})
+	}
+}
+
 func BenchmarkNewFile(b *testing.B) {
 	file := filepath.Join("testdata", "bench", "lines.txt")
 	data, err := os.ReadFile(file)
