@@ -1,6 +1,7 @@
 package source_test
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -313,7 +314,7 @@ func TestPositionAtClamp(t *testing.T) {
 	}
 }
 
-// FuzzPositionAt checks that [source.PositionAt] doesn't panic for arbitrary
+// FuzzPositionAt checks that [source.File.PositionAt] doesn't panic for arbitrary
 // offset and content and the resulting [source.Position] is always a valid
 // 1-indexed position:
 //
@@ -376,6 +377,55 @@ func FuzzPositionAt(f *testing.F) {
 
 			prev = p
 		}
+	})
+}
+
+// FuzzSnippet checks that [source.Span.Snippet] doesn't panic for any
+// combination of content, span offsets, and contextLines, and that the
+// returned bytes are always a subset of the file content.
+func FuzzSnippet(f *testing.F) {
+	seeds := []struct {
+		content      []byte
+		startOffset  int
+		endOffset    int
+		contextLines int
+	}{
+		{content: []byte(""), startOffset: 0, endOffset: 0, contextLines: 0},
+		{content: []byte("abc"), startOffset: 0, endOffset: 3, contextLines: 0},
+		{content: []byte("abc\ndef\nghi"), startOffset: 4, endOffset: 7, contextLines: 1},
+		{content: []byte("a"), startOffset: 0, endOffset: 0, contextLines: -1},
+		{content: []byte("a\nb"), startOffset: 0, endOffset: 1, contextLines: -100},
+		{content: []byte("abc"), startOffset: 0, endOffset: 0, contextLines: 9999},
+	}
+
+	for _, s := range seeds {
+		f.Add(s.content, s.startOffset, s.endOffset, s.contextLines)
+	}
+
+	f.Fuzz(func(t *testing.T, content []byte, startOffset, endOffset, contextLines int) {
+		// Span requires EndOffset >= StartOffset; normalise so the fuzzer
+		// doesn't waste its time on documented violations.
+		if startOffset > endOffset {
+			startOffset, endOffset = endOffset, startOffset
+		}
+
+		file := source.NewFile("fuzz", content)
+		span := source.Span{
+			File:        file,
+			StartOffset: startOffset,
+			EndOffset:   endOffset,
+		}
+
+		snippet := span.Snippet(contextLines)
+
+		test.True(
+			t,
+			bytes.Contains(content, snippet),
+			test.Context(
+				"snippet is not a substring of content: snippet=%q content=%q contextLines=%d",
+				snippet, content, contextLines,
+			),
+		)
 	})
 }
 

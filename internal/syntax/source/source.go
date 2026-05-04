@@ -74,13 +74,7 @@ func (f *File) Name() string {
 // A negative offset returns the file start, and an offset past EOF returns the position
 // one past the last byte (the same value returned for offset == len(content)).
 func (f *File) PositionAt(offset int) Position {
-	if offset < 0 {
-		offset = 0
-	}
-
-	if offset > len(f.content) {
-		offset = len(f.content)
-	}
+	offset = min(max(offset, 0), len(f.content))
 
 	index, found := slices.BinarySearch(f.lineOffsets, offset)
 	if !found {
@@ -129,7 +123,13 @@ func (s Span) End() Position {
 // Snippet returns the source bytes covering the span plus contextLines of
 // surrounding context on each side. The returned bytes include any line
 // terminators between the lines.
+//
+// contextLines is clamped to a sensible range: negative values are treated
+// as zero, and values larger than the file's line count are capped at it
+// (effectively returning the whole file).
 func (s Span) Snippet(contextLines int) []byte {
+	contextLines = min(max(contextLines, 0), len(s.File.lineOffsets))
+
 	startLine := s.Start().Line
 	endLine := s.End().Line
 
