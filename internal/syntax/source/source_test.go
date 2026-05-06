@@ -3,6 +3,7 @@ package source_test
 import (
 	"bufio"
 	"bytes"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"slices"
@@ -642,6 +643,68 @@ func BenchmarkNewFile(b *testing.B) {
 	for b.Loop() {
 		source.NewFile("bench", data)
 	}
+}
+
+func BenchmarkLines(b *testing.B) {
+	data, err := os.ReadFile(filepath.Join("testdata", "bench", "lines.txt"))
+	test.Ok(b, err)
+
+	file := source.NewFile("bench", data)
+
+	var sink int
+
+	for b.Loop() {
+		for span := range file.Lines() {
+			sink += span.EndOffset - span.StartOffset
+		}
+	}
+
+	_ = sink
+}
+
+func BenchmarkPositionAt(b *testing.B) {
+	data, err := os.ReadFile(filepath.Join("testdata", "bench", "lines.txt"))
+	test.Ok(b, err)
+
+	file := source.NewFile("bench", data)
+	n := len(data)
+
+	cases := []struct {
+		name   string
+		offset int
+	}{
+		{name: "start", offset: 0},
+		{name: "middle", offset: n / 2},
+		{name: "end", offset: n},
+		{name: "random", offset: rand.IntN(n)},
+	}
+
+	for _, c := range cases {
+		b.Run(c.name, func(b *testing.B) {
+			var sink source.Position
+			for b.Loop() {
+				sink = file.PositionAt(c.offset)
+			}
+
+			_ = sink
+		})
+	}
+}
+
+func BenchmarkSnippet(b *testing.B) {
+	data, err := os.ReadFile(filepath.Join("testdata", "bench", "lines.txt"))
+	test.Ok(b, err)
+
+	file := source.NewFile("bench", data)
+	mid := len(data) / 2
+	span := source.Span{File: file, StartOffset: mid, EndOffset: mid + 10}
+
+	var sink []byte
+	for b.Loop() {
+		sink = span.Snippet(2)
+	}
+
+	_ = sink
 }
 
 // srcSpan parses a source string in which the desired span is bracketed by
