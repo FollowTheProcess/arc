@@ -1,12 +1,66 @@
 package block_test
 
 import (
+	"flag"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"go.followtheprocess.codes/arc/internal/syntax/block"
 	"go.followtheprocess.codes/arc/internal/syntax/source"
 	"go.followtheprocess.codes/test"
+	"go.followtheprocess.codes/txtar"
 )
+
+var update = flag.Bool("update", false, "Update txtar golden files")
+
+func TestBlockClassifierValid(t *testing.T) {
+	// Force colour for diffs but only locally
+	test.ColorEnabled(os.Getenv("CI") == "")
+
+	pattern := filepath.Join("testdata", "valid", "*.txtar")
+	files, err := filepath.Glob(pattern)
+	test.Ok(t, err)
+
+	test.True(t, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
+
+	for _, file := range files {
+		name := filepath.Base(file)
+		t.Run(name, func(t *testing.T) {
+			archive, err := txtar.ParseFile(file)
+			test.Ok(t, err)
+
+			src, ok := archive.Read("src.http")
+			test.True(t, ok, test.Context("archive %s missing src.http", file))
+
+			want, ok := archive.Read("want.txt")
+			test.True(t, ok, test.Context("archive %s missing want.txt", file))
+
+			srcFile := source.NewFile("src.http", []byte(src))
+
+			blocks, diagnostics := block.Parse(srcFile)
+
+			// Valid files should have no diagnostics
+			test.Equal(t, len(diagnostics), 0, test.Context("unexpected diagnostics: %v", diagnostics))
+
+			buf := &strings.Builder{}
+			for _, block := range blocks {
+				buf.WriteString(block.String())
+				buf.WriteByte('\n')
+			}
+
+			got := buf.String()
+
+			if *update {
+				test.Ok(t, archive.Write("want.txt", got))
+				test.Ok(t, txtar.DumpFile(file, archive))
+			}
+
+			test.Diff(t, got, want)
+		})
+	}
+}
 
 func TestBlockString(t *testing.T) {
 	// 1: "### login\n"  bytes  0..9   ('\n' at 9)

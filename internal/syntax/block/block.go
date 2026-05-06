@@ -28,35 +28,9 @@ package block
 import (
 	"fmt"
 
+	"go.followtheprocess.codes/arc/internal/syntax/diagnostic"
 	"go.followtheprocess.codes/arc/internal/syntax/source"
 	"go.followtheprocess.codes/arc/internal/syntax/token"
-)
-
-// Kind is the kind of a [Block].
-type Kind int
-
-// Block kind definitions.
-//
-//go:generate stringer -type Kind -linecomment
-const (
-	Blank               Kind = iota // Blank
-	Error                           // Error
-	Separator                       // Separator
-	Comment                         // Comment
-	Directive                       // Directive
-	LocalVariable                   // LocalVariable
-	RequestLine                     // RequestLine
-	URLContinuation                 // URLContinuation
-	Header                          // Header
-	HeaderBodySeparator             // HeaderBodySeparator
-	BodyOpen                        // BodyOpen
-	BodyClose                       // BodyClose
-	BodyContent                     // BodyContent
-	FileBody                        // FileBody
-	PreRequestScript                // PreRequestScript
-	ResponseScript                  // ResponseScript
-	ResponseRedirect                // ResponseRedirect
-	ResponseReference               // ResponseReference
 )
 
 // Block is a typed block of http source.
@@ -74,4 +48,14 @@ func (b Block) String() string {
 	}
 
 	return fmt.Sprintf("<Block::%s start=%s end=%s>", b.Kind, b.Span.Start(), b.Span.End())
+}
+
+// Parse walks the file line by line, recognising regions of content as typed [Block]
+// values. When a block is recognised, it's content is dispatched to an inline
+// tokeniser for further parsing now we know it's type.
+//
+// An invalid line returns a block of type [Error], emits a [diagnostic.Diagnostic]
+// and moves on, creating a naturally resilient parsing step.
+func Parse(file *source.File) ([]Block, []diagnostic.Diagnostic) {
+	return nil, nil
 }

@@ -22,15 +22,17 @@ func _() {
 	_ = x[BodyClose-11]
 	_ = x[BodyContent-12]
 	_ = x[FileBody-13]
-	_ = x[PreRequestScript-14]
-	_ = x[ResponseScript-15]
-	_ = x[ResponseRedirect-16]
-	_ = x[ResponseReference-17]
+	_ = x[PreRequestScriptOpen-14]
+	_ = x[ResponseScriptOpen-15]
+	_ = x[ScriptContent-16]
+	_ = x[ScriptClose-17]
+	_ = x[ResponseRedirect-18]
+	_ = x[ResponseReference-19]
 }
 
-const _Kind_name = "BlankErrorSeparatorCommentDirectiveLocalVariableRequestLineURLContinuationHeaderHeaderBodySeparatorBodyOpenBodyCloseBodyContentFileBodyPreRequestScriptResponseScriptResponseRedirectResponseReference"
+const _Kind_name = "BlankErrorSeparatorCommentDirectiveLocalVariableRequestLineURLContinuationHeaderHeaderBodySeparatorBodyOpenBodyCloseBodyContentFileBodyPreRequestScriptOpenResponseScriptOpenScriptContentScriptCloseResponseRedirectResponseReference"
 
-var _Kind_index = [...]uint8{0, 5, 10, 19, 26, 35, 48, 59, 74, 80, 99, 107, 116, 127, 135, 151, 165, 181, 198}
+var _Kind_index = [...]uint8{0, 5, 10, 19, 26, 35, 48, 59, 74, 80, 99, 107, 116, 127, 135, 155, 173, 186, 197, 213, 230}
 
 func (i Kind) String() string {
 	idx := int(i) - 0
