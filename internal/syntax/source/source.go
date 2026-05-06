@@ -92,7 +92,7 @@ func (f *File) PositionAt(offset int) Position {
 // single terminator. A lone '\r' (not followed by '\n') is not a line
 // break and stays in the line bytes.
 //
-// The final line is yielded even if it does not have a trailing terminator..
+// The final line is yielded even if it does not have a trailing terminator.
 func (f *File) Lines() iter.Seq[Span] {
 	return func(yield func(Span) bool) {
 		// An empty file has no lines
