@@ -4,6 +4,7 @@ package source
 
 import (
 	"bytes"
+	"iter"
 	"slices"
 	"strconv"
 )
@@ -81,6 +82,59 @@ func (f *File) PositionAt(offset int) Position {
 	return Position{
 		Line: index + 1,
 		Col:  offset - f.lineOffsets[index] + 1,
+	}
+}
+
+// Lines returns an iterator over the lines in a file, yielding each
+// as a [Span] covering the line bytes excluding the trailing terminator.
+//
+// A line is terminated by '\n' or '\r\n', and the '\r\n' pair is treated as a
+// single terminator. A lone '\r' (not followed by '\n') is not a line
+// break and stays in the line bytes.
+//
+// The final line is yielded even if it does not have a trailing terminator..
+func (f *File) Lines() iter.Seq[Span] {
+	return func(yield func(Span) bool) {
+		// An empty file has no lines
+		if len(f.content) == 0 {
+			return
+		}
+
+		for i, lineStart := range f.lineOffsets {
+			var (
+				lineEnd   int
+				trimmedLF bool
+			)
+
+			if i+1 < len(f.lineOffsets) {
+				// Non-last line: lineOffsets[i+1] always points to the
+				// byte right after a '\n'.
+				lineEnd = f.lineOffsets[i+1] - 1
+				trimmedLF = true
+			} else {
+				lineEnd = len(f.content)
+				if lineEnd > lineStart && f.content[lineEnd-1] == '\n' {
+					lineEnd--
+					trimmedLF = true
+				}
+			}
+
+			// Strip the '\r' of a '\r\n' pair. A lone trailing '\r'
+			// (no '\n') is preserved, matching bufio.ScanLines.
+			if trimmedLF && lineEnd > lineStart && f.content[lineEnd-1] == '\r' {
+				lineEnd--
+			}
+
+			span := Span{
+				File:        f,
+				StartOffset: lineStart,
+				EndOffset:   lineEnd,
+			}
+
+			if !yield(span) {
+				return
+			}
+		}
 	}
 }
 
