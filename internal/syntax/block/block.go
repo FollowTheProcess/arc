@@ -47,7 +47,7 @@ func (b Block) String() string {
 		return ""
 	}
 
-	return fmt.Sprintf("<Block::%s start=%s end=%s>", b.Kind, b.Span.Start(), b.Span.End())
+	return fmt.Sprintf("<Block::%s start=%s, end=%s>", b.Kind, b.Span.Start(), b.Span.End())
 }
 
 // Parse walks the file line by line, recognising regions of content as typed [Block]
@@ -79,23 +79,34 @@ type parser struct {
 
 // step parses a single span of content.
 func (p *parser) step(span source.Span) {
-	if len(span.Content()) == 0 {
-		switch p.state {
+	kind, next := dispatch(span.Content(), p.state, p.prev)
+	p.emit(kind, span)
+	p.state = next
+}
+
+// dispatch decides what kind of block a line is given the current
+// context and the previously-emitted block kind. It returns the kind
+// for this line and the state the parser should move to afterwards.
+func dispatch(line []byte, state state, prev Kind) (Kind, state) {
+	if len(line) == 0 {
+		switch state {
 		case stateRequestHeaders:
-			p.emit(HeaderBodySeparator, span)
-			p.state = stateRequestBody
+			return HeaderBodySeparator, stateRequestBody
 		case stateRequestBody:
-			p.emit(BodyContent, span)
-			p.state = stateRequestBody
+			// Blank lines inside a body are still the body
+			return BodyContent, stateRequestBody
 		default:
-			p.emit(Blank, span)
+			return Blank, state
 		}
 	}
 
-	switch {
-	case bytes.HasPrefix(span.Content(), []byte("###")):
-		p.emit(Separator, span)
+	if bytes.HasPrefix(line, []byte("###")) {
+		return Separator, stateRequestPrelude
 	}
+
+	// TODO(@FollowTheProcess): All the other stuff... probably
+
+	return Error, state
 }
 
 // flush concludes parsing.

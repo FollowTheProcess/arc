@@ -2,6 +2,7 @@ package block_test
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -46,12 +47,12 @@ func TestBlockClassifierValid(t *testing.T) {
 
 			buf := &strings.Builder{}
 			for _, block := range blocks {
-				buf.WriteString(block.String())
-				buf.WriteByte('\t')
-				buf.WriteByte('"')
-				buf.Write(block.Span.Content())
-				buf.WriteByte('"')
-				buf.WriteByte('\n')
+				fmt.Fprintf(buf, "%s\t%q\n", block, block.Span.Content())
+
+				for _, tok := range block.Tokens {
+					tokSpan := source.Span{File: srcFile, StartOffset: tok.Start, EndOffset: tok.End}
+					fmt.Fprintf(buf, "\t%s\t%q\n", tok, tokSpan.Content())
+				}
 			}
 
 			got := buf.String()
@@ -85,7 +86,7 @@ func TestBlockString(t *testing.T) {
 				Kind: block.Separator,
 				Span: source.Span{File: file, StartOffset: 0, EndOffset: 9},
 			},
-			want: "<Block::Separator start=1:1 end=1:10>",
+			want: "<Block::Separator start=1:1, end=1:10>",
 		},
 		{
 			name: "request line",
@@ -93,7 +94,7 @@ func TestBlockString(t *testing.T) {
 				Kind: block.RequestLine,
 				Span: source.Span{File: file, StartOffset: 10, EndOffset: 20},
 			},
-			want: "<Block::RequestLine start=2:1 end=2:11>",
+			want: "<Block::RequestLine start=2:1, end=2:11>",
 		},
 		{
 			name: "header",
@@ -101,7 +102,7 @@ func TestBlockString(t *testing.T) {
 				Kind: block.Header,
 				Span: source.Span{File: file, StartOffset: 21, EndOffset: 28},
 			},
-			want: "<Block::Header start=3:1 end=3:8>",
+			want: "<Block::Header start=3:1, end=3:8>",
 		},
 		{
 			name: "body open",
@@ -109,7 +110,7 @@ func TestBlockString(t *testing.T) {
 				Kind: block.BodyOpen,
 				Span: source.Span{File: file, StartOffset: 30, EndOffset: 30},
 			},
-			want: "<Block::BodyOpen start=5:1 end=5:1>",
+			want: "<Block::BodyOpen start=5:1, end=5:1>",
 		},
 		{
 			name: "body content",
@@ -117,14 +118,14 @@ func TestBlockString(t *testing.T) {
 				Kind: block.BodyContent,
 				Span: source.Span{File: file, StartOffset: 30, EndOffset: 34},
 			},
-			want: "<Block::BodyContent start=5:1 end=5:5>",
+			want: "<Block::BodyContent start=5:1, end=5:5>",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.block.String()
-			test.Equal(t, got, tt.want)
+			test.Diff(t, got, tt.want)
 		})
 	}
 }

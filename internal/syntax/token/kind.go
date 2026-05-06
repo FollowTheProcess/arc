@@ -9,6 +9,7 @@ type Kind int
 const (
 	EOF           Kind = iota // EOF
 	Error                     // Error
+	Separator                 // Separator
 	Text                      // Text
 	Ident                     // Ident
 	Dollar                    // Dollar

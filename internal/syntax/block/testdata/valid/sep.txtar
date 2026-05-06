@@ -1,4 +1,4 @@
 -- src.http --
 ###
 -- want.txt --
-<Block::Separator start=1:1 end=1:4>	"###"
+<Block::Separator start=1:1, end=1:4>	"###"
