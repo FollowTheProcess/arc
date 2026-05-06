@@ -62,6 +62,11 @@ func NewFile(name string, content []byte) *File {
 	}
 }
 
+// Len returns the number of bytes in the file's content.
+func (f *File) Len() int {
+	return len(f.content)
+}
+
 // PositionAt returns the [Position] in a [File] of a given byte offset.
 //
 // Offsets outside 0 <= offset <= len(content) are clamped to the nearest end so that

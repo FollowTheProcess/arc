@@ -26,6 +26,7 @@
 package block
 
 import (
+	"bytes"
 	"fmt"
 
 	"go.followtheprocess.codes/arc/internal/syntax/diagnostic"
@@ -35,10 +36,9 @@ import (
 
 // Block is a typed block of http source.
 type Block struct {
-	Span    source.Span   // Attached span
-	Content []byte        // Block contents
-	Tokens  []token.Token // Inline tokenised content, populated for blocks that have it
-	Kind    Kind          // The kind of block this is.
+	Span   source.Span   // Attached span
+	Tokens []token.Token // Inline tokenised content, populated for blocks that have it
+	Kind   Kind          // The kind of block this is.
 }
 
 // String returns a string representation of a [Block].
@@ -57,5 +57,59 @@ func (b Block) String() string {
 // An invalid line returns a block of type [Error], emits a [diagnostic.Diagnostic]
 // and moves on, creating a naturally resilient parsing step.
 func Parse(file *source.File) ([]Block, []diagnostic.Diagnostic) {
-	return nil, nil
+	p := &parser{file: file, state: stateInitial}
+	defer p.flush()
+
+	for span := range file.Lines() {
+		p.step(span)
+	}
+
+	return p.blocks, p.diags
+}
+
+// a parser holds the state of block parsing and accumulates parsed
+// blocks and diagnostics.
+type parser struct {
+	file   *source.File            // The src file
+	blocks []Block                 // Parsed blocks
+	diags  []diagnostic.Diagnostic // Diagnostics accumulated during parsing
+	state  state                   // The current parsing state
+	prev   Kind                    // Last non-synthetic block kind; needed for URL continuation lookahead
+}
+
+// step parses a single span of content.
+func (p *parser) step(span source.Span) {
+	if len(span.Content()) == 0 {
+		switch p.state {
+		case stateRequestHeaders:
+			p.emit(HeaderBodySeparator, span)
+			p.state = stateRequestBody
+		case stateRequestBody:
+			p.emit(BodyContent, span)
+			p.state = stateRequestBody
+		default:
+			p.emit(Blank, span)
+		}
+	}
+
+	switch {
+	case bytes.HasPrefix(span.Content(), []byte("###")):
+		p.emit(Separator, span)
+	}
+}
+
+// flush concludes parsing.
+func (p *parser) flush() {
+	// Add a BodyClose if we're in stateRequestBody
+}
+
+// emit appends a block to the accumulator.
+func (p *parser) emit(kind Kind, span source.Span) {
+	block := Block{
+		Span:   span,
+		Tokens: []token.Token{},
+		Kind:   kind,
+	}
+
+	p.blocks = append(p.blocks, block)
 }

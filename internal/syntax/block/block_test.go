@@ -47,6 +47,10 @@ func TestBlockClassifierValid(t *testing.T) {
 			buf := &strings.Builder{}
 			for _, block := range blocks {
 				buf.WriteString(block.String())
+				buf.WriteByte('\t')
+				buf.WriteByte('"')
+				buf.Write(block.Span.Content())
+				buf.WriteByte('"')
 				buf.WriteByte('\n')
 			}
 
