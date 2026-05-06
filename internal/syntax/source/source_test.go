@@ -323,11 +323,17 @@ func TestPositionAtClamp(t *testing.T) {
 	}
 }
 
+// a line is a line of source text expressed in byte offsets.
+type line struct {
+	start int
+	end   int
+}
+
 func TestFileLines(t *testing.T) {
 	tests := []struct {
-		name string   // Name of the test case
-		src  string   // File content
-		want [][2]int // Each entry is the (start, end) byte offsets of a yielded line span
+		name string // Name of the test case
+		src  string // File content
+		want []line // Expected lines
 	}{
 		{
 			name: "empty",
@@ -337,87 +343,138 @@ func TestFileLines(t *testing.T) {
 		{
 			name: "single line no trailing newline",
 			src:  "hello",
-			want: [][2]int{{0, 5}},
+			want: []line{
+				{start: 0, end: 5},
+			},
 		},
 		{
 			name: "single line trailing newline",
 			src:  "hello\n",
-			want: [][2]int{{0, 5}},
+			want: []line{
+				{start: 0, end: 5},
+			},
 		},
 		{
 			name: "just a newline",
 			src:  "\n",
-			want: [][2]int{{0, 0}},
+			want: []line{
+				{start: 0, end: 0},
+			},
 		},
 		{
 			name: "two lines no trailing newline",
 			src:  "foo\nbar",
-			want: [][2]int{{0, 3}, {4, 7}},
+			want: []line{
+				{start: 0, end: 3},
+				{start: 4, end: 7},
+			},
 		},
 		{
 			name: "two lines trailing newline",
 			src:  "foo\nbar\n",
-			want: [][2]int{{0, 3}, {4, 7}},
+			want: []line{
+				{start: 0, end: 3},
+				{start: 4, end: 7},
+			},
 		},
 		{
 			name: "three lines",
 			src:  "one\ntwo\nthree",
-			want: [][2]int{{0, 3}, {4, 7}, {8, 13}},
+			want: []line{
+				{start: 0, end: 3},
+				{start: 4, end: 7},
+				{start: 8, end: 13},
+			},
 		},
 		{
 			name: "blank line in the middle",
 			src:  "name\n\nvalue",
-			want: [][2]int{{0, 4}, {5, 5}, {6, 11}},
+			want: []line{
+				{start: 0, end: 4},
+				{start: 5, end: 5},
+				{start: 6, end: 11},
+			},
 		},
 		{
 			name: "leading blank line",
 			src:  "\nstart",
-			want: [][2]int{{0, 0}, {1, 6}},
+			want: []line{
+				{start: 0, end: 0},
+				{start: 1, end: 6},
+			},
 		},
 		{
 			name: "trailing blank line before EOF",
 			src:  "end\n\n",
-			want: [][2]int{{0, 3}, {4, 4}},
+			want: []line{
+				{start: 0, end: 3},
+				{start: 4, end: 4},
+			},
 		},
 		{
 			name: "only newlines",
 			src:  "\n\n\n",
-			want: [][2]int{{0, 0}, {1, 1}, {2, 2}},
+			want: []line{
+				{start: 0, end: 0},
+				{start: 1, end: 1},
+				{start: 2, end: 2},
+			},
 		},
 		{
 			name: "CRLF treated as a single terminator",
 			src:  "key\r\nval",
-			want: [][2]int{{0, 3}, {5, 8}},
+			want: []line{
+				{start: 0, end: 3},
+				{start: 5, end: 8},
+			},
 		},
 		{
 			name: "CRLF with trailing CRLF",
 			src:  "key\r\nval\r\n",
-			want: [][2]int{{0, 3}, {5, 8}},
+			want: []line{
+				{start: 0, end: 3},
+				{start: 5, end: 8},
+			},
 		},
 		{
 			name: "mixed CRLF and LF",
 			src:  "a\r\nb\nc",
-			want: [][2]int{{0, 1}, {3, 4}, {5, 6}},
+			want: []line{
+				{start: 0, end: 1},
+				{start: 3, end: 4},
+				{start: 5, end: 6},
+			},
 		},
 		{
 			name: "empty CRLF line",
 			src:  "a\r\n\r\nb",
-			want: [][2]int{{0, 1}, {3, 3}, {5, 6}},
+			want: []line{
+				{start: 0, end: 1},
+				{start: 3, end: 3},
+				{start: 5, end: 6},
+			},
 		},
 		{
 			name: "lone CR mid-line is not a line break",
 			src:  "a\rb",
-			want: [][2]int{{0, 3}},
+			want: []line{
+				{start: 0, end: 3},
+			},
 		},
 		{
 			name: "lone trailing CR is stripped at EOF",
 			src:  "abc\r",
-			want: [][2]int{{0, 3}},
+			want: []line{
+				{start: 0, end: 3},
+			},
 		},
 		{
 			name: "multibyte runes use byte offsets",
 			src:  "héllo\nwörld",
-			want: [][2]int{{0, 6}, {7, 13}}, // h(1)+é(2)+llo(3); w(1)+ö(2)+rld(3)
+			want: []line{
+				{start: 0, end: 6},  // h(1)+é(2)+llo(3)
+				{start: 7, end: 13}, // w(1)+ö(2)+rld(3)
+			},
 		},
 	}
 
@@ -425,7 +482,7 @@ func TestFileLines(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			file := source.NewFile(tt.name, []byte(tt.src))
 
-			var got [][2]int
+			var got []line
 
 			for span := range file.Lines() {
 				test.Equal(
@@ -434,7 +491,7 @@ func TestFileLines(t *testing.T) {
 					file,
 					test.Context("span at offset %d references the wrong file", span.StartOffset),
 				)
-				got = append(got, [2]int{span.StartOffset, span.EndOffset})
+				got = append(got, line{start: span.StartOffset, end: span.EndOffset})
 			}
 
 			test.EqualFunc(t, got, tt.want, slices.Equal)
