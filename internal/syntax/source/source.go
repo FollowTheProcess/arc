@@ -88,9 +88,10 @@ func (f *File) PositionAt(offset int) Position {
 // Lines returns an iterator over the lines in a file, yielding each
 // as a [Span] covering the line bytes excluding the trailing terminator.
 //
-// A line is terminated by '\n' or '\r\n', and the '\r\n' pair is treated as a
-// single terminator. A lone '\r' (not followed by '\n') is not a line
-// break and stays in the line bytes.
+// Line splitting matches [bufio.ScanLines], a line is terminated by '\n'
+// or '\r\n', and any trailing '\r' is stripped (whether or not it was
+// followed by '\n'). A lone '\r' that is not at the end of a line is
+// preserved.
 //
 // The final line is yielded even if it does not have a trailing terminator.
 func (f *File) Lines() iter.Seq[Span] {
@@ -101,27 +102,23 @@ func (f *File) Lines() iter.Seq[Span] {
 		}
 
 		for i, lineStart := range f.lineOffsets {
-			var (
-				lineEnd   int
-				trimmedLF bool
-			)
+			var lineEnd int
 
 			if i+1 < len(f.lineOffsets) {
 				// Non-last line: lineOffsets[i+1] always points to the
 				// byte right after a '\n'.
 				lineEnd = f.lineOffsets[i+1] - 1
-				trimmedLF = true
 			} else {
 				lineEnd = len(f.content)
 				if lineEnd > lineStart && f.content[lineEnd-1] == '\n' {
 					lineEnd--
-					trimmedLF = true
 				}
 			}
 
-			// Strip the '\r' of a '\r\n' pair. A lone trailing '\r'
-			// (no '\n') is preserved, matching bufio.ScanLines.
-			if trimmedLF && lineEnd > lineStart && f.content[lineEnd-1] == '\r' {
+			// Strip a trailing '\r', whether it was the leading half of
+			// a '\r\n' pair or a lone '\r' at EOF. Matches the dropCR
+			// step in bufio.ScanLines.
+			if lineEnd > lineStart && f.content[lineEnd-1] == '\r' {
 				lineEnd--
 			}
 

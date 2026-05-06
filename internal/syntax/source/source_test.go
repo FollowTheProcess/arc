@@ -1,6 +1,7 @@
 package source_test
 
 import (
+	"bufio"
 	"bytes"
 	"os"
 	"path/filepath"
@@ -408,9 +409,9 @@ func TestFileLines(t *testing.T) {
 			want: [][2]int{{0, 3}},
 		},
 		{
-			name: "lone trailing CR is preserved",
+			name: "lone trailing CR is stripped at EOF",
 			src:  "abc\r",
-			want: [][2]int{{0, 4}},
+			want: [][2]int{{0, 3}},
 		},
 		{
 			name: "multibyte runes use byte offsets",
@@ -551,6 +552,84 @@ func FuzzSnippet(f *testing.F) {
 				"snippet is not a substring of content: snippet=%q content=%q contextLines=%d",
 				snippet, content, contextLines,
 			),
+		)
+	})
+}
+
+// FuzzLines checks that [source.File.Lines] doesn't panic on arbitrary input,
+// and that the yielded spans are valid (in range, ordered etc.) and that the
+// line content precisely matches [bufio.ScanLines] as a reference implementation.
+func FuzzLines(f *testing.F) {
+	seeds := [][]byte{
+		nil,
+		[]byte(""),
+		[]byte("\n"),
+		[]byte("a"),
+		[]byte("a\nb"),
+		[]byte("a\nb\n"),
+		[]byte("\n\n\n"),
+		[]byte("a\r\nb"),
+		[]byte("a\r\nb\r\n"),
+		[]byte("a\rb"),
+		[]byte("abc\r"),
+		[]byte("a\n\r\nb"),
+		[]byte("héllo\nwörld"),
+	}
+
+	for _, s := range seeds {
+		f.Add(s)
+	}
+
+	f.Fuzz(func(t *testing.T, content []byte) {
+		file := source.NewFile("fuzz", content)
+		spans := slices.Collect(file.Lines())
+
+		// Each span must live inside content and start
+		// at or after the previous span's end.
+		prevEnd := 0
+
+		for i, span := range spans {
+			test.Equal(t, span.File, file, test.Context("span %d points at the wrong file", i))
+
+			valid := span.StartOffset >= prevEnd && // Must start at or after previous end
+				span.EndOffset >= span.StartOffset && // End must be >= Start
+				span.EndOffset <= len(content) // End must be within content
+
+			test.True(
+				t,
+				valid,
+				test.Context(
+					"span %d offsets out of order or out of bounds: prevEnd=%d span={%d,%d} len=%d",
+					i, prevEnd, span.StartOffset, span.EndOffset, len(content),
+				),
+			)
+
+			prevEnd = span.EndOffset
+		}
+
+		// The yielded line bytes must match bufio.ScanLines exactly.
+		got := make([]string, 0, len(spans))
+		for _, span := range spans {
+			got = append(got, string(content[span.StartOffset:span.EndOffset]))
+		}
+
+		scanner := bufio.NewScanner(bytes.NewReader(content))
+		// Buffer big enough that fuzz inputs never blow the default MaxScanTokenSize cap.
+		scanner.Buffer(make([]byte, 0, 1024), max(len(content)+1, 1024))
+
+		var want []string
+		for scanner.Scan() {
+			want = append(want, scanner.Text())
+		}
+
+		test.Ok(t, scanner.Err())
+
+		test.EqualFunc(
+			t,
+			got,
+			want,
+			slices.Equal,
+			test.Context("Lines diverged from bufio.ScanLines for content %q: got=%q want=%q", content, got, want),
 		)
 	})
 }
