@@ -166,6 +166,22 @@ func (s Span) End() Position {
 	return s.File.PositionAt(s.EndOffset)
 }
 
+// Content returns the chunk of raw source text in the span.
+//
+// Spans with offsets outside 0 <= offset <= len(content) are clamped to the nearest
+// end so that callers always get a valid slice of content.
+func (s Span) Content() []byte {
+	if s.File == nil {
+		return nil
+	}
+
+	n := len(s.File.content)
+	start := min(max(s.StartOffset, 0), n)
+	end := min(max(s.EndOffset, start), n)
+
+	return s.File.content[start:end]
+}
+
 // Snippet returns the source bytes covering the span plus contextLines of
 // surrounding context on each side. The returned bytes include any line
 // terminators between the lines.
