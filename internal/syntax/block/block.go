@@ -3,14 +3,14 @@
 // A .http file is fundamentally line-oriented at the top level: separators, request
 // lines, headers, and directives are one line per construct.
 //
-// The block classifier walks the source line by line and produces a stream
+// The block parser walks the source line by line and produces a stream
 // of typed [Block] values, each carrying a span into the original source.
 //
 // Inline content within a block (interpolations, header values, URLs) is
 // tokenised by the lex package into token.Token values; this pass only
 // decides what each line is and dispatches to the right inline tokeniser.
 //
-// The classifier carries a small amount of context. Lines are not always
+// The parser carries a small amount of context. Lines are not always
 // distinguishable by leading characters alone: "Key: value" is only a
 // header within a request, and "@x = ..." is a global directive at file
 // scope but a local variable inside a request prelude. Body regions are
@@ -18,11 +18,11 @@
 // never have to detect body boundaries themselves.
 //
 // The pass is fault tolerant. A malformed line becomes its own block
-// kind with an attached diagnostic and classification continues.
+// kind with an attached diagnostic and parsing continues.
 //
 // This is the block half of the two-pass model common to markdown
-// parsers, a block pass carves the file into typed regions, then an
-// inline pass tokenises sub-line content.
+// parsers: the block pass carves the file into typed regions, and an inline
+// tokeniser tokenises what's inside each one.
 package block
 
 import (
