@@ -8,6 +8,7 @@ require (
 	go.followtheprocess.codes/msg v1.10.0
 	go.followtheprocess.codes/snapshot v0.10.1
 	go.followtheprocess.codes/test v1.4.0
+	go.followtheprocess.codes/txtar v0.8.0
 )
 
 require (

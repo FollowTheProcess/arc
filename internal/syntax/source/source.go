@@ -62,6 +62,11 @@ func NewFile(name string, content []byte) *File {
 	}
 }
 
+// Len returns the number of bytes in the file's content.
+func (f *File) Len() int {
+	return len(f.content)
+}
+
 // PositionAt returns the [Position] in a [File] of a given byte offset.
 //
 // Offsets outside 0 <= offset <= len(content) are clamped to the nearest end so that
@@ -164,6 +169,22 @@ func (s Span) Start() Position {
 // (one past the last byte of the span).
 func (s Span) End() Position {
 	return s.File.PositionAt(s.EndOffset)
+}
+
+// Content returns the chunk of raw source text in the span.
+//
+// Spans with offsets outside 0 <= offset <= len(content) are clamped to the nearest
+// end so that callers always get a valid slice of content.
+func (s Span) Content() []byte {
+	if s.File == nil {
+		return nil
+	}
+
+	n := len(s.File.content)
+	start := min(max(s.StartOffset, 0), n)
+	end := min(max(s.EndOffset, start), n)
+
+	return s.File.content[start:end]
 }
 
 // Snippet returns the source bytes covering the span plus contextLines of

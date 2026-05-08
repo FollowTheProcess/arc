@@ -1,0 +1,6 @@
+-- src.http --
+wat
+-- want.txt --
+<Block::Error start=1:1, end=1:4>	"wat"
+-- diagnostics.txt --
+[error] src.http:1:1: unrecognised line in this context

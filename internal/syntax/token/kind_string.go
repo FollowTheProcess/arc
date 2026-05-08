@@ -10,26 +10,27 @@ func _() {
 	var x [1]struct{}
 	_ = x[EOF-0]
 	_ = x[Error-1]
-	_ = x[Text-2]
-	_ = x[Ident-3]
-	_ = x[Dollar-4]
-	_ = x[Dot-5]
-	_ = x[LParen-6]
-	_ = x[RParen-7]
-	_ = x[Comma-8]
-	_ = x[Colon-9]
-	_ = x[Eq-10]
-	_ = x[StringLiteral-11]
-	_ = x[Number-12]
-	_ = x[OpenInterp-13]
-	_ = x[CloseInterp-14]
-	_ = x[OpenScript-15]
-	_ = x[CloseScript-16]
+	_ = x[Separator-2]
+	_ = x[Text-3]
+	_ = x[Ident-4]
+	_ = x[Dollar-5]
+	_ = x[Dot-6]
+	_ = x[LParen-7]
+	_ = x[RParen-8]
+	_ = x[Comma-9]
+	_ = x[Colon-10]
+	_ = x[Eq-11]
+	_ = x[StringLiteral-12]
+	_ = x[Number-13]
+	_ = x[OpenInterp-14]
+	_ = x[CloseInterp-15]
+	_ = x[OpenScript-16]
+	_ = x[CloseScript-17]
 }
 
-const _Kind_name = "EOFErrorTextIdentDollarDotLParenRParenCommaColonEqStringLiteralNumberOpenInterpCloseInterpOpenScriptCloseScript"
+const _Kind_name = "EOFErrorSeparatorTextIdentDollarDotLParenRParenCommaColonEqStringLiteralNumberOpenInterpCloseInterpOpenScriptCloseScript"
 
-var _Kind_index = [...]uint8{0, 3, 8, 12, 17, 23, 26, 32, 38, 43, 48, 50, 63, 69, 79, 90, 100, 111}
+var _Kind_index = [...]uint8{0, 3, 8, 17, 21, 26, 32, 35, 41, 47, 52, 57, 59, 72, 78, 88, 99, 109, 120}
 
 func (i Kind) String() string {
 	idx := int(i) - 0

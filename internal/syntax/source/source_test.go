@@ -270,6 +270,126 @@ func TestSpanString(t *testing.T) {
 	}
 }
 
+func TestSpanContent(t *testing.T) {
+	tests := []struct {
+		name string      // Name of the test case
+		want string      // Expected content bytes
+		span source.Span // Span under test
+	}{
+		{
+			name: "nil file",
+			span: source.Span{},
+			want: "",
+		},
+		{
+			name: "empty file zero-width span",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("")),
+				StartOffset: 0,
+				EndOffset:   0,
+			},
+			want: "",
+		},
+		{
+			name: "full file",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("hello\nworld")),
+				StartOffset: 0,
+				EndOffset:   11,
+			},
+			want: "hello\nworld",
+		},
+		{
+			name: "interior slice",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("hello\nworld")),
+				StartOffset: 6,
+				EndOffset:   11,
+			},
+			want: "world",
+		},
+		{
+			name: "zero-width span mid file",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("hello")),
+				StartOffset: 2,
+				EndOffset:   2,
+			},
+			want: "",
+		},
+		{
+			name: "negative start clamps to file start",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("abc")),
+				StartOffset: -5,
+				EndOffset:   2,
+			},
+			want: "ab",
+		},
+		{
+			name: "end past EOF clamps to file end",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("abc")),
+				StartOffset: 1,
+				EndOffset:   100,
+			},
+			want: "bc",
+		},
+		{
+			name: "both offsets negative",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("abc")),
+				StartOffset: -10,
+				EndOffset:   -1,
+			},
+			want: "",
+		},
+		{
+			name: "both offsets past EOF",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("abc")),
+				StartOffset: 50,
+				EndOffset:   100,
+			},
+			want: "",
+		},
+		{
+			name: "end before start collapses to empty",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("abcdef")),
+				StartOffset: 4,
+				EndOffset:   2,
+			},
+			want: "",
+		},
+		{
+			name: "spans entirely outside content",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("abc")),
+				StartOffset: -10,
+				EndOffset:   100,
+			},
+			want: "abc",
+		},
+		{
+			name: "multibyte content uses byte offsets",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("héllo")),
+				StartOffset: 0,
+				EndOffset:   3, // h(1) + é(2)
+			},
+			want: "hé",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.span.Content()
+			test.Diff(t, string(got), tt.want)
+		})
+	}
+}
+
 func TestPositionAtClamp(t *testing.T) {
 	file := source.NewFile("test.http", []byte("abc\ndef\nghi")) // lineOffsets = [0, 4, 8]
 
