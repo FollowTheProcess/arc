@@ -21,41 +21,46 @@ func TestSeparator(t *testing.T) {
 	// Force colour for diffs but only locally
 	test.ColorEnabled(os.Getenv("CI") == "")
 
-	pattern := filepath.Join("testdata", "separator", "*.txtar")
-	files, err := filepath.Glob(pattern)
-	test.Ok(t, err)
-
-	test.True(t, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
-
-	for _, file := range files {
-		want, err := txtar.ParseFile(file)
+	t.Run("valid", func(t *testing.T) {
+		pattern := filepath.Join("testdata", "separator", "valid", "*.txtar")
+		files, err := filepath.Glob(pattern)
 		test.Ok(t, err)
 
-		src, ok := want.Read("src.http")
-		test.True(t, ok, test.Context("archive %s missing src.http", file))
+		test.True(t, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
 
-		test.True(t, want.Has("tokens.txt"), test.Context("archive %q missing tokens.txt", file))
-		test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
+		for _, file := range files {
+			name := filepath.Base(file)
+			t.Run(name, func(t *testing.T) {
+				want, err := txtar.ParseFile(file)
+				test.Ok(t, err)
 
-		srcFile := source.NewFile("src.http", []byte(src))
+				src, ok := want.Read("src.http")
+				test.True(t, ok, test.Context("archive %s missing src.http", file))
 
-		tokens, diagnostics := lex.Separator([]byte(src), srcFile, 0)
+				test.True(t, want.Has("tokens.txt"), test.Context("archive %q missing tokens.txt", file))
+				test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
 
-		got, err := txtar.New(
-			txtar.WithFile("src.http", src),
-			txtar.WithFile("tokens.txt", formatTokens(tokens)),
-			txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
-		)
-		test.Ok(t, err)
+				srcFile := source.NewFile("src.http", []byte(src))
 
-		if *update {
-			test.Ok(t, txtar.DumpFile(file, got))
+				tokens, diagnostics := lex.Separator([]byte(src), srcFile, 0)
 
-			return
+				got, err := txtar.New(
+					txtar.WithFile("src.http", src),
+					txtar.WithFile("tokens.txt", formatTokens(tokens)),
+					txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
+				)
+				test.Ok(t, err)
+
+				if *update {
+					test.Ok(t, txtar.DumpFile(file, got))
+
+					return
+				}
+
+				test.Diff(t, got.String(), want.String())
+			})
 		}
-
-		test.Diff(t, got.String(), want.String())
-	}
+	})
 }
 
 func formatTokens(tokens []token.Token) string {

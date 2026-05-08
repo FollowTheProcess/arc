@@ -32,11 +32,19 @@ import (
 // The '###' results in a [token.Separator] and the request
 // name, if present, becomes a [token.Ident].
 //
-// It assumes the '###' has already been encountered.
+// It assumes the '###' has already been recognised as the next input,
+// the caller is responsible for ensuring '###' are the next bytes in src.
 func Separator(src []byte, file *source.File, base int) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(src, file, base)
 	s.takeExact("###") // We know this is next
 	s.emit(token.Separator)
+
+	s.skip(isLineSpace)
+
+	if isAlpha(s.peek()) {
+		s.takeWhile(isIdent)
+		s.emit(token.Ident)
+	}
 
 	return s.tokens, s.diagnostics
 }

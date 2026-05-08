@@ -18,10 +18,10 @@ const eof = rune(-1)
 // src one utf8 rune at a time until a token is recognised. The token
 // is then "emitted" into the accumulator.
 type scanner struct {
+	file        *source.File            // The file we're currently in
 	src         []byte                  // Raw input text
 	tokens      []token.Token           // Token accumulator, emitted tokens land here
 	diagnostics []diagnostic.Diagnostic // Diagnostics gathered during scanning
-	file        *source.File            // The file we're currently in
 	pos         int                     // The scanner's current (byte offset) position in src
 	start       int                     // The start position of the current token
 	base        int                     // The base offset from which to transform relative offsets to absolute
@@ -93,6 +93,7 @@ func (s *scanner) next() rune {
 // same rune over and over again.
 func (s *scanner) peek() rune {
 	char, _ := s.char()
+
 	return char
 }
 
@@ -128,6 +129,7 @@ func (s *scanner) skip(predicate func(r rune) bool) {
 func (s *scanner) take(valid string) bool {
 	if strings.ContainsRune(valid, s.peek()) {
 		s.next()
+
 		return true
 	}
 
@@ -215,4 +217,30 @@ func (s *scanner) error(msg string) {
 // errorf calls [scanner.error] with a formatted error message.
 func (s *scanner) errorf(format string, a ...any) {
 	s.error(fmt.Sprintf(format, a...))
+}
+
+// isLineSpace reports whether r in a non line-terminating whitespace
+// character, imagine [unicode.IsSpace] but without '\n' or '\r'.
+func isLineSpace(r rune) bool {
+	return r == ' ' || r == '\t'
+}
+
+// isAlpha reports whether r is an alpha character.
+func isAlpha(r rune) bool {
+	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
+}
+
+// isDigit reports whether r is a valid ASCII digit.
+func isDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}
+
+// isAlphaNumeric reports whether r is a valid alpha-numeric character.
+func isAlphaNumeric(r rune) bool {
+	return isAlpha(r) || isDigit(r)
+}
+
+// isIdent reports whether r is a valid identifier character.
+func isIdent(r rune) bool {
+	return isAlphaNumeric(r) || r == '_' || r == '-'
 }
