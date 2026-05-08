@@ -27,6 +27,9 @@ import (
 	"go.followtheprocess.codes/arc/internal/syntax/token"
 )
 
+// Tokeniser is an inline tokeniser.
+type Tokeniser func(span source.Span) ([]token.Token, []diagnostic.Diagnostic)
+
 // Separator is the tokeniser for a separator block.
 //
 // The '###' results in a [token.Separator] and the request
