@@ -133,6 +133,16 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 	switch kind {
 	case Separator:
 		return lex.Separator(span)
+	case Error:
+		// The dispatch couldn't classify the line; surface that to the
+		// user rather than treating it as a missing implementation.
+		return nil, []diagnostic.Diagnostic{
+			{
+				Message:  "unrecognised line in this context",
+				Span:     span,
+				Severity: diagnostic.SeverityError,
+			},
+		}
 	default:
 		return nil, []diagnostic.Diagnostic{
 			{

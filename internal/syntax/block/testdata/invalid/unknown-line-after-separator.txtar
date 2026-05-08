@@ -1,7 +1,10 @@
 -- src.http --
 ### login
+wat
 -- want.txt --
 <Block::Separator start=1:1, end=1:10>	"### login"
 	<Token::Separator start=0, end=3>	"###"
 	<Token::Ident start=4, end=9>	"login"
+<Block::Error start=2:1, end=2:4>	"wat"
 -- diagnostics.txt --
+[error] src.http:2:1: unrecognised line in this context
