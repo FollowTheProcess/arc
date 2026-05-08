@@ -58,7 +58,7 @@ func (b Block) String() string {
 // An invalid line returns a block of type [Error], emits a [diagnostic.Diagnostic]
 // and moves on, creating a naturally resilient parsing step.
 func Parse(file *source.File) ([]Block, []diagnostic.Diagnostic) {
-	p := &parser{file: file, state: stateInitial}
+	p := newParser(file)
 	defer p.flush()
 
 	for span := range file.Lines() {
@@ -76,6 +76,14 @@ type parser struct {
 	diags  []diagnostic.Diagnostic // Diagnostics accumulated during parsing
 	state  state                   // The current parsing state
 	prev   Kind                    // Last non-synthetic block kind; needed for URL continuation lookahead
+}
+
+// newParser creates and returns a new [parser].
+func newParser(file *source.File) *parser {
+	return &parser{
+		file:  file,
+		state: stateInitial,
+	}
 }
 
 // step parses a single span of content.
