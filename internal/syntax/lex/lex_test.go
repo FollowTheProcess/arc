@@ -104,6 +104,87 @@ func TestSeparator(t *testing.T) {
 	})
 }
 
+func FuzzSeparator(f *testing.F) {
+	// Add all txtar src.http as fuzz corpus
+	var seeds []string
+
+	pattern := filepath.Join("testdata", "*", "*", "*.txtar")
+	files, err := filepath.Glob(pattern)
+	test.Ok(f, err)
+
+	for _, file := range files {
+		archive, err := txtar.ParseFile(file)
+		test.Ok(f, err)
+
+		src, ok := archive.Read("src.http")
+		test.True(f, ok, test.Context("archive %s missing 'src.http'", file))
+
+		seeds = append(seeds, src)
+	}
+
+	for _, s := range seeds {
+		f.Add(s)
+	}
+
+	f.Fuzz(func(t *testing.T, src string) {
+		span := lineSpan(src)
+		content := span.Content()
+
+		tokens, diagnostics := lex.Separator(span)
+
+		// Tokens must be ordered, non-overlapping, and within span bounds.
+		prevEnd := span.StartOffset
+		for i, tok := range tokens {
+			valid := tok.Start >= span.StartOffset &&
+				tok.End >= tok.Start &&
+				tok.End <= span.EndOffset &&
+				tok.Start >= prevEnd
+
+			test.True(
+				t,
+				valid,
+				test.Context(
+					"token %d out of order or out of bounds: span={%d,%d} prevEnd=%d token={%d,%d} kind=%s content=%q",
+					i, span.StartOffset, span.EndOffset, prevEnd, tok.Start, tok.End, tok.Kind, content,
+				),
+			)
+
+			prevEnd = tok.End
+		}
+
+		// Every diagnostic must align with an Error token at the same span.
+		errorTokens := 0
+
+		for _, tok := range tokens {
+			if tok.Kind == token.Error {
+				errorTokens++
+			}
+		}
+
+		test.Equal(
+			t,
+			len(diagnostics),
+			errorTokens,
+			test.Context("diagnostics %d != error tokens %d for content %q", len(diagnostics), errorTokens, content),
+		)
+
+		for i, d := range diagnostics {
+			valid := d.Span.StartOffset >= span.StartOffset &&
+				d.Span.EndOffset >= d.Span.StartOffset &&
+				d.Span.EndOffset <= span.EndOffset
+
+			test.True(
+				t,
+				valid,
+				test.Context(
+					"diagnostic %d span out of bounds: span={%d,%d} diag={%d,%d} msg=%q",
+					i, span.StartOffset, span.EndOffset, d.Span.StartOffset, d.Span.EndOffset, d.Message,
+				),
+			)
+		}
+	})
+}
+
 // lineSpan builds a [source.Span] from a single line of test input,
 // mirroring what the block parser hands the inline tokeniser:
 // a span over the line bytes excluding the trailing terminator.

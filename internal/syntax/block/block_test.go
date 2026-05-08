@@ -169,6 +169,93 @@ func TestBlockString(t *testing.T) {
 	}
 }
 
+func FuzzBlockParser(f *testing.F) {
+	// Add all txtar src.http as fuzz corpus
+	var seeds [][]byte
+
+	pattern := filepath.Join("testdata", "*", "*.txtar")
+	files, err := filepath.Glob(pattern)
+	test.Ok(f, err)
+
+	for _, file := range files {
+		archive, err := txtar.ParseFile(file)
+		test.Ok(f, err)
+
+		src, ok := archive.Read("src.http")
+		test.True(f, ok, test.Context("archive %s missing 'src.http'", file))
+
+		seeds = append(seeds, []byte(src))
+	}
+
+	for _, s := range seeds {
+		f.Add(s)
+	}
+
+	f.Fuzz(func(t *testing.T, content []byte) {
+		file := source.NewFile("fuzz", content)
+
+		blocks, diagnostics := block.Parse(file)
+
+		// Every block span must point at the file we just parsed and
+		// stay within its bounds.
+		prevStart := 0
+
+		for i, block := range blocks {
+			test.Equal(t, block.Span.File, file, test.Context("block %d points at the wrong file", i))
+
+			valid := block.Span.StartOffset >= 0 &&
+				block.Span.EndOffset >= block.Span.StartOffset &&
+				block.Span.EndOffset <= len(content) &&
+				block.Span.StartOffset >= prevStart
+
+			test.True(
+				t,
+				valid,
+				test.Context(
+					"block %d span out of order or out of bounds: prevStart=%d span={%d,%d} len=%d kind=%s",
+					i, prevStart, block.Span.StartOffset, block.Span.EndOffset, len(content), block.Kind,
+				),
+			)
+
+			prevStart = block.Span.StartOffset
+
+			// Tokens must live inside their owning block.
+			for j, tok := range block.Tokens {
+				tokValid := tok.Start >= block.Span.StartOffset &&
+					tok.End >= tok.Start &&
+					tok.End <= block.Span.EndOffset
+
+				test.True(
+					t,
+					tokValid,
+					test.Context(
+						"block %d token %d out of bounds: block={%d,%d} token={%d,%d} kind=%s",
+						i, j, block.Span.StartOffset, block.Span.EndOffset, tok.Start, tok.End, tok.Kind,
+					),
+				)
+			}
+		}
+
+		// Every diagnostic span must point at the file and stay within bounds.
+		for i, d := range diagnostics {
+			test.Equal(t, d.Span.File, file, test.Context("diagnostic %d points at the wrong file", i))
+
+			valid := d.Span.StartOffset >= 0 &&
+				d.Span.EndOffset >= d.Span.StartOffset &&
+				d.Span.EndOffset <= len(content)
+
+			test.True(
+				t,
+				valid,
+				test.Context(
+					"diagnostic %d span out of bounds: span={%d,%d} len=%d msg=%q",
+					i, d.Span.StartOffset, d.Span.EndOffset, len(content), d.Message,
+				),
+			)
+		}
+	})
+}
+
 func formatBlocks(file *source.File, blocks []block.Block) string {
 	b := &strings.Builder{}
 	for _, block := range blocks {
