@@ -110,9 +110,22 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 	return Error, state
 }
 
-// flush concludes parsing.
+// flush concludes parsing, it inserts any necessary closing blocks
+// before the parser returns so blocks are not left unterminated.
 func (p *parser) flush() {
-	// Add a BodyClose if we're in stateRequestBody
+	// If we're still in a request body by the time flush is called
+	// then we've prematurely stopped parsing but still need to
+	// emit a [BodyClose] block so the [BodyOpen] is not left
+	// unterminated.
+	if p.state == stateRequestBody {
+		span := source.Span{
+			File:        p.file,
+			StartOffset: p.file.Len(),
+			EndOffset:   p.file.Len(),
+		}
+
+		p.emit(BodyClose, span)
+	}
 }
 
 // emit appends a block to the accumulator.
