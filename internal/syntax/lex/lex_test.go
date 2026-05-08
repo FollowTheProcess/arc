@@ -17,100 +17,89 @@ import (
 
 var update = flag.Bool("update", false, "Update txtar golden files")
 
-func TestSeparator(t *testing.T) {
+func TestTokenisers(t *testing.T) {
 	// Force colour for diffs but only locally
 	test.ColorEnabled(os.Getenv("CI") == "")
 
-	t.Run("valid", func(t *testing.T) {
-		pattern := filepath.Join("testdata", "separator", "valid", "*.txtar")
-		files, err := filepath.Glob(pattern)
-		test.Ok(t, err)
+	tests := []struct {
+		tokeniser lex.Tokeniser // The tokeniser to test
+		name      string        // Name of the test group (and testdata/{name} sub directory)
+	}{
+		{name: "separator", tokeniser: lex.Separator},
+	}
 
-		test.True(t, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
-
-		for _, file := range files {
-			name := filepath.Base(file)
-			t.Run(name, func(t *testing.T) {
-				want, err := txtar.ParseFile(file)
-				test.Ok(t, err)
-
-				src, ok := want.Read("src.http")
-				test.True(t, ok, test.Context("archive %s missing src.http", file))
-
-				test.True(t, want.Has("tokens.txt"), test.Context("archive %q missing tokens.txt", file))
-				test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
-
-				span := lineSpan(src)
-
-				tokens, diagnostics := lex.Separator(span)
-
-				got, err := txtar.New(
-					txtar.WithFile("src.http", src),
-					txtar.WithFile("tokens.txt", formatTokens(tokens)),
-					txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
-				)
-				test.Ok(t, err)
-
-				if *update {
-					test.Ok(t, txtar.DumpFile(file, got))
-
-					return
-				}
-
-				test.Diff(t, got.String(), want.String())
-			})
-		}
-	})
-
-	t.Run("invalid", func(t *testing.T) {
-		pattern := filepath.Join("testdata", "separator", "invalid", "*.txtar")
-		files, err := filepath.Glob(pattern)
-		test.Ok(t, err)
-
-		test.True(t, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
-
-		for _, file := range files {
-			name := filepath.Base(file)
-			t.Run(name, func(t *testing.T) {
-				want, err := txtar.ParseFile(file)
-				test.Ok(t, err)
-
-				src, ok := want.Read("src.http")
-				test.True(t, ok, test.Context("archive %s missing src.http", file))
-
-				test.True(t, want.Has("tokens.txt"), test.Context("archive %q missing tokens.txt", file))
-				test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
-
-				span := lineSpan(src)
-
-				tokens, diagnostics := lex.Separator(span)
-
-				got, err := txtar.New(
-					txtar.WithFile("src.http", src),
-					txtar.WithFile("tokens.txt", formatTokens(tokens)),
-					txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
-				)
-				test.Ok(t, err)
-
-				if *update {
-					test.Ok(t, txtar.DumpFile(file, got))
-
-					return
-				}
-
-				test.Diff(t, got.String(), want.String())
-			})
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			runLexTest(t, tt.name, tt.tokeniser)
+		})
+	}
 }
 
 func FuzzSeparator(f *testing.F) {
-	// Add all txtar src.http as fuzz corpus
-	var seeds []string
+	// Unfortunately there's no f.Run so we can't do the same table
+	// driven approach here
+	fuzzTokeniser(f, "separator", lex.Separator)
+}
 
-	pattern := filepath.Join("testdata", "*", "*", "*.txtar")
+// runLexTest runs txtar based tests for a [lex.Tokeniser] against
+// testdata/{name}/{valid,invalid}/*.txtar.
+func runLexTest(t *testing.T, name string, tokeniser lex.Tokeniser) {
+	t.Helper()
+
+	for _, kind := range []string{"valid", "invalid"} {
+		t.Run(kind, func(t *testing.T) {
+			pattern := filepath.Join("testdata", name, kind, "*.txtar")
+			files, err := filepath.Glob(pattern)
+			test.Ok(t, err)
+
+			test.True(t, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
+
+			for _, file := range files {
+				t.Run(filepath.Base(file), func(t *testing.T) {
+					want, err := txtar.ParseFile(file)
+					test.Ok(t, err)
+
+					src, ok := want.Read("src.http")
+					test.True(t, ok, test.Context("archive %s missing src.http", file))
+
+					test.True(t, want.Has("tokens.txt"), test.Context("archive %q missing tokens.txt", file))
+					test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
+
+					span := lineSpan(src)
+
+					// Do the actual tokenising
+					tokens, diagnostics := tokeniser(span)
+
+					got, err := txtar.New(
+						txtar.WithFile("src.http", src),
+						txtar.WithFile("tokens.txt", formatTokens(tokens)),
+						txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
+					)
+					test.Ok(t, err)
+
+					if *update {
+						test.Ok(t, txtar.DumpFile(file, got))
+
+						return
+					}
+
+					test.Diff(t, got.String(), want.String())
+				})
+			}
+		})
+	}
+}
+
+// fuzzTokeniser is a fuzz test harness that asserts a set of universal
+// invariants that must hold for any [lex.Tokeniser].
+func fuzzTokeniser(f *testing.F, name string, tokeniser lex.Tokeniser) {
+	f.Helper()
+
+	pattern := filepath.Join("testdata", name, "*", "*.txtar")
 	files, err := filepath.Glob(pattern)
 	test.Ok(f, err)
+
+	test.True(f, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
 
 	for _, file := range files {
 		archive, err := txtar.ParseFile(file)
@@ -119,18 +108,15 @@ func FuzzSeparator(f *testing.F) {
 		src, ok := archive.Read("src.http")
 		test.True(f, ok, test.Context("archive %s missing 'src.http'", file))
 
-		seeds = append(seeds, src)
-	}
-
-	for _, s := range seeds {
-		f.Add(s)
+		f.Add(src)
 	}
 
 	f.Fuzz(func(t *testing.T, src string) {
 		span := lineSpan(src)
 		content := span.Content()
 
-		tokens, diagnostics := lex.Separator(span)
+		// Do the actual tokenising
+		tokens, diagnostics := tokeniser(span)
 
 		// Tokens must be ordered, non-overlapping, and within span bounds.
 		prevEnd := span.StartOffset
