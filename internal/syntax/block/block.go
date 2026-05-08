@@ -30,6 +30,7 @@ import (
 	"fmt"
 
 	"go.followtheprocess.codes/arc/internal/syntax/diagnostic"
+	"go.followtheprocess.codes/arc/internal/syntax/lex"
 	"go.followtheprocess.codes/arc/internal/syntax/source"
 	"go.followtheprocess.codes/arc/internal/syntax/token"
 )
@@ -116,11 +117,29 @@ func (p *parser) flush() {
 
 // emit appends a block to the accumulator.
 func (p *parser) emit(kind Kind, span source.Span) {
+	tokens, diagnostics := p.tokenise(kind, span)
 	block := Block{
 		Span:   span,
-		Tokens: []token.Token{},
+		Tokens: tokens,
 		Kind:   kind,
 	}
 
 	p.blocks = append(p.blocks, block)
+	p.diags = append(p.diags, diagnostics...)
+}
+
+// tokenise dispatches a block to it's dedicated inline tokeniser.
+func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	switch kind {
+	case Separator:
+		return lex.Separator(span)
+	default:
+		return nil, []diagnostic.Diagnostic{
+			{
+				Message:  fmt.Sprintf("unhandled block kind: %s", kind),
+				Span:     span,
+				Severity: diagnostic.SeverityError,
+			},
+		}
+	}
 }

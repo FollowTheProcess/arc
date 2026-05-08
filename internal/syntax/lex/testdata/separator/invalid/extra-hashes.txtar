@@ -1,0 +1,7 @@
+-- src.http --
+####
+-- tokens.txt --
+<Token::Separator start=0, end=3>
+<Token::Error start=3, end=4>
+-- diagnostics.txt --
+[error] src.http:1:4: invalid character '#' in separator

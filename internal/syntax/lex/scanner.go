@@ -30,11 +30,11 @@ type scanner struct {
 // newScanner returns a new [scanner] given a chunk of source text
 // and a base offset. The scanner uses the base offset to turn relative
 // offsets into absolute ones within the larger context of the file.
-func newScanner(src []byte, file *source.File, base int) *scanner {
+func newScanner(span source.Span) *scanner {
 	return &scanner{
-		src:  src,
-		file: file,
-		base: base,
+		src:  span.Content(),
+		file: span.File,
+		base: span.StartOffset,
 	}
 }
 
@@ -126,7 +126,7 @@ func (s *scanner) skip(predicate func(r rune) bool) {
 
 // take consumes the next rune if it's from the valid set, and
 // returns whether it was accepted.
-func (s *scanner) take(valid string) bool {
+func (s *scanner) take(valid string) bool { //nolint:unused // Will need this later
 	if strings.ContainsRune(valid, s.peek()) {
 		s.next()
 
@@ -151,7 +151,7 @@ func (s *scanner) takeWhile(predicate func(r rune) bool) {
 // returns, [scanner.next] returns the offending rune.
 //
 // It also implicitly stops on [utf8.RuneError] and [eof].
-func (s *scanner) takeUntil(runes ...rune) {
+func (s *scanner) takeUntil(runes ...rune) { //nolint:unused // Will need this later
 	for {
 		next := s.peek()
 		if next == utf8.RuneError || next == eof {

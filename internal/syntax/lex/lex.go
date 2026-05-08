@@ -34,16 +34,36 @@ import (
 //
 // It assumes the '###' has already been recognised as the next input,
 // the caller is responsible for ensuring '###' are the next bytes in src.
-func Separator(src []byte, file *source.File, base int) ([]token.Token, []diagnostic.Diagnostic) {
-	s := newScanner(src, file, base)
-	s.takeExact("###") // We know this is next
-	s.emit(token.Separator)
+func Separator(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+	if !s.takeExact("###") {
+		s.errorf("expected '###' got %s", s.src[s.pos:])
+	} else {
+		s.emit(token.Separator)
+	}
 
-	s.skip(isLineSpace)
+	for {
+		s.skip(isLineSpace)
 
-	if isAlpha(s.peek()) {
-		s.takeWhile(isIdent)
-		s.emit(token.Ident)
+		if s.atEOF() {
+			break
+		}
+
+		if isAlpha(s.peek()) {
+			s.takeWhile(isIdent)
+			s.emit(token.Ident)
+
+			continue
+		}
+
+		// Not a valid identifier leader. Emit a precise per-rune diagnostic
+		// and let the loop pick up any trailing valid identifier.
+		r := s.next()
+		if isIdent(r) {
+			s.errorf("identifier cannot start with %q", r)
+		} else {
+			s.errorf("invalid character %q in separator", r)
+		}
 	}
 
 	return s.tokens, s.diagnostics
