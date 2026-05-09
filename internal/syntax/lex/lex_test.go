@@ -2,6 +2,8 @@ package lex_test
 
 import (
 	"flag"
+	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,7 +32,16 @@ func TestTokenisers(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			runLexTest(t, tt.name, tt.tokeniser)
+			for _, kind := range []string{"valid", "invalid"} {
+				t.Run(kind, func(t *testing.T) {
+					root := filepath.Join("testdata", tt.name, kind)
+					n := walkTxtarCases(t, root, func(t *testing.T, file string) {
+						t.Helper()
+						runLexCase(t, tt.tokeniser, file)
+					})
+					test.True(t, n > 0, test.Context("no .txtar files found under %s", root))
+				})
+			}
 		})
 	}
 }
@@ -41,53 +52,81 @@ func FuzzSeparator(f *testing.F) {
 	fuzzTokeniser(f, "separator", lex.Separator)
 }
 
-// runLexTest runs txtar based tests for a [lex.Tokeniser] against
-// testdata/{name}/{valid,invalid}/*.txtar.
-func runLexTest(t *testing.T, name string, tokeniser lex.Tokeniser) {
+// walkTxtarCases recursively walks root, nesting a subtest per directory and
+// invoking fn for every .txtar file. This mirrors the testdata directory layout
+// in the test name hierarchy so individual cases, whole directories, or the
+// full group can be selected via -run. Returns the total number of .txtar files
+// processed across the tree.
+func walkTxtarCases(t *testing.T, root string, fn func(t *testing.T, path string)) int {
 	t.Helper()
 
-	for _, kind := range []string{"valid", "invalid"} {
-		t.Run(kind, func(t *testing.T) {
-			pattern := filepath.Join("testdata", name, kind, "*.txtar")
-			files, err := filepath.Glob(pattern)
-			test.Ok(t, err)
+	entries, err := os.ReadDir(root)
+	test.Ok(t, err)
 
-			test.True(t, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
+	total := 0
 
-			for _, file := range files {
-				t.Run(filepath.Base(file), func(t *testing.T) {
-					want, err := txtar.ParseFile(file)
-					test.Ok(t, err)
+	for _, entry := range entries {
+		path := filepath.Join(root, entry.Name())
 
-					src, ok := want.Read("src.http")
-					test.True(t, ok, test.Context("archive %s missing src.http", file))
+		if entry.IsDir() {
+			var sub int
 
-					test.True(t, want.Has("tokens.txt"), test.Context("archive %q missing tokens.txt", file))
-					test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
+			t.Run(entry.Name(), func(t *testing.T) {
+				sub = walkTxtarCases(t, path, fn)
+			})
 
-					span := lineSpan(src)
+			total += sub
 
-					// Do the actual tokenising
-					tokens, diagnostics := tokeniser(span)
+			continue
+		}
 
-					got, err := txtar.New(
-						txtar.WithFile("src.http", src),
-						txtar.WithFile("tokens.txt", formatTokens(tokens)),
-						txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
-					)
-					test.Ok(t, err)
+		if filepath.Ext(entry.Name()) != ".txtar" {
+			continue
+		}
 
-					if *update {
-						test.Ok(t, txtar.DumpFile(file, got))
-
-						return
-					}
-
-					test.Diff(t, got.String(), want.String())
-				})
-			}
+		t.Run(entry.Name(), func(t *testing.T) {
+			fn(t, path)
 		})
+
+		total++
 	}
+
+	return total
+}
+
+// runLexCase exercises tokeniser against a single txtar archive, either
+// updating the archive in place when -update is set or diffing the observed
+// output against the recorded expectations.
+func runLexCase(t *testing.T, tokeniser lex.Tokeniser, file string) {
+	t.Helper()
+
+	want, err := txtar.ParseFile(file)
+	test.Ok(t, err)
+
+	src, ok := want.Read("src.http")
+	test.True(t, ok, test.Context("archive %s missing src.http", file))
+
+	test.True(t, want.Has("tokens.txt"), test.Context("archive %q missing tokens.txt", file))
+	test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
+
+	span := lineSpan(src)
+
+	tokens, diagnostics := tokeniser(span)
+
+	got, err := txtar.New(
+		txtar.WithFile("src.http", src),
+		txtar.WithFile("tokens.txt", formatTokens(tokens)),
+		txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
+	)
+	test.Ok(t, err)
+
+	if *update {
+		test.Ok(t, txtar.DumpFile(file, got))
+
+		return
+	}
+
+	test.Diff(t, got.String(), want.String())
 }
 
 // fuzzTokeniser is a fuzz test harness that asserts a set of universal
@@ -95,21 +134,37 @@ func runLexTest(t *testing.T, name string, tokeniser lex.Tokeniser) {
 func fuzzTokeniser(f *testing.F, name string, tokeniser lex.Tokeniser) {
 	f.Helper()
 
-	pattern := filepath.Join("testdata", name, "*", "*.txtar")
-	files, err := filepath.Glob(pattern)
-	test.Ok(f, err)
+	root := filepath.Join("testdata", name)
 
-	test.True(f, len(files) > 0, test.Context("no test files matching pattern %s", pattern))
+	// Walk the tokeniser's testdata tree so corpus seeds are picked up
+	// regardless of how cases are grouped into subdirectories.
+	seeded := 0
+	walk := func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 
-	for _, file := range files {
-		archive, err := txtar.ParseFile(file)
-		test.Ok(f, err)
+		if d.IsDir() || filepath.Ext(d.Name()) != ".txtar" {
+			return nil
+		}
+
+		archive, err := txtar.ParseFile(path)
+		if err != nil {
+			return fmt.Errorf("parsing %s: %w", path, err)
+		}
 
 		src, ok := archive.Read("src.http")
-		test.True(f, ok, test.Context("archive %s missing 'src.http'", file))
+		test.True(f, ok, test.Context("archive %s missing 'src.http'", path))
 
 		f.Add(src)
+
+		seeded++
+
+		return nil
 	}
+
+	test.Ok(f, filepath.WalkDir(root, walk))
+	test.True(f, seeded > 0, test.Context("no .txtar files found under %s", root))
 
 	f.Fuzz(func(t *testing.T, src string) {
 		span := lineSpan(src)

@@ -54,5 +54,9 @@
 !/.typos.toml
 !/.copier-answers.yml
 
+# Zed needs to not auto-format txtar files as they
+# contain trailing spaces and stuff to test the parser
+!.zed/settings.json
+
 # ...even if they are in subdirectories
 !*/
