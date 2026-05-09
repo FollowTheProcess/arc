@@ -89,7 +89,19 @@ func newParser(file *source.File) *parser {
 // step parses a single span of content.
 func (p *parser) step(span source.Span) {
 	kind, next := dispatch(span.Content(), p.state, p.prev)
+
+	// Leaving body, emit a BodyClose marker
+	if p.state == stateRequestBody && next != stateRequestBody {
+		p.emit(BodyClose, zeroWidthAt(span, span.StartOffset))
+	}
+
 	p.emit(kind, span)
+
+	// Entering body, emit a BodyOpen marker
+	if p.state != stateRequestBody && next == stateRequestBody {
+		p.emit(BodyOpen, zeroWidthAt(span, span.EndOffset))
+	}
+
 	p.state = next
 }
 
@@ -97,25 +109,39 @@ func (p *parser) step(span source.Span) {
 // context and the previously-emitted block kind. It returns the kind
 // for this line and the state the parser should move to afterwards.
 func dispatch(line []byte, state state, prev Kind) (Kind, state) {
-	if len(line) == 0 {
-		switch state {
-		case stateRequestHeaders:
-			return HeaderBodySeparator, stateRequestBody
-		case stateRequestBody:
-			// Blank lines inside a body are still the body
-			return BodyContent, stateRequestBody
+	// In a request body, only ###/<>/>> at column 0 break the body.
+	if state == stateRequestBody {
+		switch {
+		case lineStartsWith(line, "###"):
+			return Separator, stateRequestPrelude
+		case lineStartsWith(line, "<>"):
+			return ResponseReference, stateRequestPostBody
+		case lineStartsWith(line, ">>"):
+			return ResponseRedirect, stateRequestPostBody
 		default:
-			return Blank, state
+			return BodyContent, stateRequestBody
 		}
 	}
 
-	if bytes.HasPrefix(line, []byte("###")) {
-		return Separator, stateRequestPrelude
+	// Blank lines need to be treated specially depending on the current state.
+	if len(line) == 0 {
+		if state == stateRequestHeaders {
+			// If blank after a run of headers, it marks the transition to the body
+			return HeaderBodySeparator, stateRequestBody
+		}
+
+		// Otherwise normal blank
+		return Blank, state
 	}
 
-	// TODO(@FollowTheProcess): All the other stuff... probably
-
-	return Error, state
+	switch {
+	case lineStartsWith(line, "###"):
+		return Separator, stateRequestPrelude
+	case lineStartsWith(line, "#"), lineStartsWith(line, "//"):
+		return Comment, state // State unchanged by a comment
+	default:
+		return Error, state
+	}
 }
 
 // flush concludes parsing, it inserts any necessary closing blocks
@@ -154,6 +180,9 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 	switch kind {
 	case Separator:
 		return lex.Separator(span)
+	case Comment:
+		// Nothing to tokenise for a comment, just emit the raw block
+		return nil, nil
 	case Error:
 		// The dispatch couldn't classify the line; surface that to the
 		// user rather than treating it as a missing implementation.
@@ -173,4 +202,23 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 			},
 		}
 	}
+}
+
+// lineStartsWith reports whether line begins with prefix.
+//
+// Exists for pure readability as lineStartsWith(line, "###") is nicer
+// than the bytes.HasPrefix equivalent, particularly in switch cases
+// where multiple "startsWith" conditions are present in a branch.
+//
+// The compiler inlines this anyway and []byte(prefix) will not allocate.
+func lineStartsWith(line []byte, prefix string) bool {
+	return bytes.HasPrefix(line, []byte(prefix))
+}
+
+// zeroWidthAt is a convenience function for created a new zero-width
+// [source.Span] at a particular offset.
+//
+// Used for "marker" blocks like [BodyOpen]/[BodyClose].
+func zeroWidthAt(span source.Span, offset int) source.Span {
+	return source.Span{File: span.File, StartOffset: offset, EndOffset: offset}
 }

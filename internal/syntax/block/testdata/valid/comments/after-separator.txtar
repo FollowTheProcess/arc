@@ -1,0 +1,14 @@
+-- src.http --
+# I'm a top level comment
+// So am I
+###
+# I'm a request level comment
+// So am I
+-- want.txt --
+<Block::Comment start=1:1, end=1:26>	"# I'm a top level comment"
+<Block::Comment start=2:1, end=2:11>	"// So am I"
+<Block::Separator start=3:1, end=3:4>	"###"
+	<Token::Separator start=37, end=40>	"###"
+<Block::Comment start=4:1, end=4:30>	"# I'm a request level comment"
+<Block::Comment start=5:1, end=5:11>	"// So am I"
+-- diagnostics.txt --
