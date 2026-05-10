@@ -88,7 +88,7 @@ func TestDiagnosticString(t *testing.T) {
 					},
 				},
 			},
-			want: "[warning] test.http:1:5: use https for transport security",
+			want: "[warning] test.http:1:5-9: use https for transport security",
 		},
 		{
 			name: "valid error",
@@ -126,7 +126,7 @@ func TestDiagnosticString(t *testing.T) {
 					},
 				},
 			},
-			want: "[error] test.http:1:1: unknown HTTP method 'GETT'",
+			want: "[error] test.http:1:1-5: unknown HTTP method 'GETT'",
 		},
 	}
 

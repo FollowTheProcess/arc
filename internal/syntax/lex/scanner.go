@@ -230,6 +230,11 @@ func isAlpha(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
 }
 
+// isUpperAlpha reports whether r is an upper-case ASCII alpha character.
+func isUpperAlpha(r rune) bool {
+	return r >= 'A' && r <= 'Z'
+}
+
 // isDigit reports whether r is a valid ASCII digit.
 func isDigit(r rune) bool {
 	return r >= '0' && r <= '9'
@@ -243,4 +248,13 @@ func isAlphaNumeric(r rune) bool {
 // isIdent reports whether r is a valid identifier character.
 func isIdent(r rune) bool {
 	return isAlphaNumeric(r) || r == '_' || r == '-'
+}
+
+// isURL reports whether r is valid in a URL.
+func isURL(r rune) bool {
+	if r == eof || r == utf8.RuneError {
+		return false
+	}
+
+	return isAlphaNumeric(r) || strings.ContainsRune("$-_.+!*'(),:/?#[]@&;=", r)
 }

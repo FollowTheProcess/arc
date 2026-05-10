@@ -1,0 +1,6 @@
+-- src.http --
+TRACE https://example.com
+-- tokens.txt --
+<Token::Ident start=0, end=5>
+<Token::Text start=6, end=25>
+-- diagnostics.txt --

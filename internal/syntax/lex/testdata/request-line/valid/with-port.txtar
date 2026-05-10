@@ -1,0 +1,6 @@
+-- src.http --
+GET https://example.com:8080/api
+-- tokens.txt --
+<Token::Ident start=0, end=3>
+<Token::Text start=4, end=32>
+-- diagnostics.txt --

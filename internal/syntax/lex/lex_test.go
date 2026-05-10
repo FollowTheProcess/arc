@@ -28,6 +28,7 @@ func TestTokenisers(t *testing.T) {
 		name      string        // Name of the test group (and testdata/{name} sub directory)
 	}{
 		{name: "separator", tokeniser: lex.Separator},
+		{name: "request-line", tokeniser: lex.RequestLine},
 	}
 
 	for _, tt := range tests {
@@ -50,6 +51,10 @@ func FuzzSeparator(f *testing.F) {
 	// Unfortunately there's no f.Run so we can't do the same table
 	// driven approach here
 	fuzzTokeniser(f, "separator", lex.Separator)
+}
+
+func FuzzRequestLine(f *testing.F) {
+	fuzzTokeniser(f, "request-line", lex.RequestLine)
 }
 
 // walkTxtarCases recursively walks root, nesting a subtest per directory and
@@ -114,6 +119,7 @@ func runLexCase(t *testing.T, tokeniser lex.Tokeniser, file string) {
 	tokens, diagnostics := tokeniser(span)
 
 	got, err := txtar.New(
+		txtar.WithComment(want.Comment()),
 		txtar.WithFile("src.http", src),
 		txtar.WithFile("tokens.txt", formatTokens(tokens)),
 		txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),

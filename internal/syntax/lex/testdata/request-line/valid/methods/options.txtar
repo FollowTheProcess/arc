@@ -1,0 +1,6 @@
+-- src.http --
+OPTIONS https://example.com
+-- tokens.txt --
+<Token::Ident start=0, end=7>
+<Token::Text start=8, end=27>
+-- diagnostics.txt --

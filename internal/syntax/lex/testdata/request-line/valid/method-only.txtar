@@ -1,0 +1,5 @@
+-- src.http --
+GET
+-- tokens.txt --
+<Token::Ident start=0, end=3>
+-- diagnostics.txt --

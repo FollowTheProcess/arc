@@ -3,10 +3,6 @@
 -- tokens.txt --
 <Token::Separator start=0, end=3>
 <Token::Ident start=4, end=9>
-<Token::Error start=9, end=10>
-<Token::Error start=10, end=11>
-<Token::Error start=11, end=12>
+<Token::Error start=9, end=12>
 -- diagnostics.txt --
-[error] src.http:1:10: invalid character '!' in separator
-[error] src.http:1:11: invalid character '@' in separator
-[error] src.http:1:12: invalid character '#' in separator
+[error] src.http:1:10-13: invalid character '!' in separator

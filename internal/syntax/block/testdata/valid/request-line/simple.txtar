@@ -1,0 +1,10 @@
+-- src.http --
+###
+GET https://example.com/users/123
+-- want.txt --
+<Block::Separator start=1:1, end=1:4>	"###"
+	<Token::Separator start=0, end=3>	"###"
+<Block::RequestLine start=2:1, end=2:34>	"GET https://example.com/users/123"
+	<Token::Ident start=4, end=7>	"GET"
+	<Token::Text start=8, end=37>	"https://example.com/users/123"
+-- diagnostics.txt --

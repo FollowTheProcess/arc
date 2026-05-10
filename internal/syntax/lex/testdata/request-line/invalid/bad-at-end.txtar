@@ -1,0 +1,8 @@
+-- src.http --
+GET https://example.com<<<
+-- tokens.txt --
+<Token::Ident start=0, end=3>
+<Token::Text start=4, end=23>
+<Token::Error start=23, end=26>
+-- diagnostics.txt --
+[error] src.http:1:24-27: invalid character '<' in URL

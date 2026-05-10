@@ -3,4 +3,4 @@ wat
 -- want.txt --
 <Block::Error start=1:1, end=1:4>	"wat"
 -- diagnostics.txt --
-[error] src.http:1:1: unrecognised line in this context
+[error] src.http:1:1-4: unexpected line in this context: Initial

@@ -152,12 +152,27 @@ type Span struct {
 }
 
 // String returns a string representation of a [Span].
+//
+// A zero-width span renders as "name:line:col". A non-zero-width span on a
+// single line collapses to "name:line:start-end"; one that crosses lines
+// renders as "name:line:col-line:col". The end column is exclusive, matching
+// the underlying byte offset semantics.
 func (s Span) String() string {
 	if s.File == nil {
 		return ""
 	}
 
-	return s.File.Name + ":" + s.Start().String()
+	start := s.Start()
+	if s.EndOffset == s.StartOffset {
+		return s.File.Name + ":" + start.String()
+	}
+
+	end := s.End()
+	if end.Line == start.Line {
+		return s.File.Name + ":" + start.String() + "-" + strconv.Itoa(end.Col)
+	}
+
+	return s.File.Name + ":" + start.String() + "-" + end.String()
 }
 
 // Start returns the line and column of the span start.

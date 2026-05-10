@@ -1,0 +1,6 @@
+-- src.http --
+DELETE https://api.example.com/users/1
+-- tokens.txt --
+<Token::Ident start=0, end=6>
+<Token::Text start=7, end=38>
+-- diagnostics.txt --
