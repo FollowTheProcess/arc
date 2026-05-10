@@ -1,0 +1,6 @@
+-- src.http --
+PATCH https://api.example.com/users/1
+-- tokens.txt --
+<Token::Ident start=0, end=5>
+<Token::Text start=6, end=37>
+-- diagnostics.txt --

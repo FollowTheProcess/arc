@@ -234,11 +234,11 @@ func TestSpanString(t *testing.T) {
 			want: "test.http:2:1",
 		},
 		{
-			name: "mid line 2",
+			name: "mid line 2 zero width",
 			span: source.Span{
 				File:        source.NewFile("test.http", []byte("hello\nthere")),
 				StartOffset: 8,
-				EndOffset:   8, // Doesn't matter, String() returns start
+				EndOffset:   8,
 			},
 			want: "test.http:2:3",
 		},
@@ -252,13 +252,31 @@ func TestSpanString(t *testing.T) {
 			want: "test.http:1:6",
 		},
 		{
-			name: "multi-line span renders start only",
+			name: "single byte same line",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("hello\nthere")),
+				StartOffset: 1, // 'e' in "hello"
+				EndOffset:   2, // exclusive end one past 'e'
+			},
+			want: "test.http:1:2-3",
+		},
+		{
+			name: "multi byte same line",
+			span: source.Span{
+				File:        source.NewFile("test.http", []byte("hello\nthere")),
+				StartOffset: 1, // 'e' in "hello"
+				EndOffset:   5, // exclusive end one past 'o'
+			},
+			want: "test.http:1:2-6",
+		},
+		{
+			name: "multi-line span",
 			span: source.Span{
 				File:        source.NewFile("test.http", []byte("hello\nthere\nworld")),
 				StartOffset: 1,  // 'e' in "hello"
-				EndOffset:   14, // 'r' in "world"
+				EndOffset:   14, // exclusive end one past 'r' in "world"
 			},
-			want: "test.http:1:2",
+			want: "test.http:1:2-3:3",
 		},
 	}
 

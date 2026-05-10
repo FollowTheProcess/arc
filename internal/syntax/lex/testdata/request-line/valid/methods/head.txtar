@@ -1,0 +1,6 @@
+-- src.http --
+HEAD https://example.com
+-- tokens.txt --
+<Token::Ident start=0, end=4>
+<Token::Text start=5, end=24>
+-- diagnostics.txt --

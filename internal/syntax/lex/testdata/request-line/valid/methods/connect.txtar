@@ -1,0 +1,6 @@
+-- src.http --
+CONNECT example.com:443
+-- tokens.txt --
+<Token::Ident start=0, end=7>
+<Token::Text start=8, end=23>
+-- diagnostics.txt --

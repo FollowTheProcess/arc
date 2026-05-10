@@ -1,0 +1,8 @@
+-- src.http --
+GET https://example.com/users/café
+-- tokens.txt --
+<Token::Ident start=0, end=3>
+<Token::Text start=4, end=33>
+<Token::Error start=33, end=35>
+-- diagnostics.txt --
+[error] src.http:1:34-36: invalid character 'é' in URL

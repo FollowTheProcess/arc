@@ -40,7 +40,7 @@ type Tokeniser func(span source.Span) ([]token.Token, []diagnostic.Diagnostic)
 func Separator(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(span)
 	if !s.takeExact("###") {
-		s.errorf("expected '###' got %s", s.src[s.pos:])
+		s.errorf("expected '###' got %q", span.Content())
 	} else {
 		s.emit(token.Separator)
 	}
@@ -59,14 +59,68 @@ func Separator(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 			continue
 		}
 
-		// Not a valid identifier leader. Emit a precise per-rune diagnostic
-		// and let the loop pick up any trailing valid identifier.
-		r := s.next()
-		if isIdent(r) {
-			s.errorf("identifier cannot start with %q", r)
-		} else {
-			s.errorf("invalid character %q in separator", r)
+		// Not a valid identifier leader. Take the contiguous run of bad
+		// characters and surface it as a single diagnostic; the first rune
+		// of the run picks the message category. The loop then resumes and
+		// can pick up any trailing valid identifier.
+		first := s.peek()
+		s.next()
+
+		for !s.atEOF() && !isAlpha(s.peek()) && !isLineSpace(s.peek()) {
+			s.next()
 		}
+
+		if isIdent(first) {
+			s.errorf("identifier cannot start with %q", first)
+		} else {
+			s.errorf("invalid character %q in separator", first)
+		}
+	}
+
+	return s.tokens, s.diagnostics
+}
+
+// RequestLine is the tokeniser for a request line.
+//
+// It turns 'GET https://example.com' into a [token.Ident]
+// followed by a [token.Text].
+//
+// The method ident is any contiguous run of uppercase ASCII letters; whether
+// it is a known HTTP method is validated by the AST assembler downstream, not
+// here. The caller (block classifier) is responsible for ensuring the line
+// begins with such a run.
+func RequestLine(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+
+	s.takeWhile(isUpperAlpha)
+	s.emit(token.Ident)
+
+	for {
+		s.skip(isLineSpace)
+
+		if s.atEOF() {
+			break
+		}
+
+		if isURL(s.peek()) {
+			s.takeWhile(isURL)
+			s.emit(token.Text)
+
+			continue
+		}
+
+		// Not a valid URL char. Take the contiguous run of bad characters,
+		// stopping at the next URL char or whitespace, and surface it as a
+		// single diagnostic. The loop then resumes and can pick up trailing
+		// valid URL bytes.
+		first := s.peek()
+		s.next()
+
+		for !s.atEOF() && !isURL(s.peek()) && !isLineSpace(s.peek()) {
+			s.next()
+		}
+
+		s.errorf("invalid character %q in URL", first)
 	}
 
 	return s.tokens, s.diagnostics

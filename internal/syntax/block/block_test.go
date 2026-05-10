@@ -93,6 +93,7 @@ func runBlockParserTest(t *testing.T, file string) {
 	blocks, diagnostics := block.Parse(srcFile)
 
 	got, err := txtar.New(
+		txtar.WithComment(want.Comment()),
 		txtar.WithFile("src.http", src),
 		txtar.WithFile("want.txt", formatBlocks(srcFile, blocks)),
 		txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),

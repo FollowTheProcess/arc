@@ -1,0 +1,8 @@
+-- src.http --
+### 111login
+-- tokens.txt --
+<Token::Separator start=0, end=3>
+<Token::Error start=4, end=7>
+<Token::Ident start=7, end=12>
+-- diagnostics.txt --
+[error] src.http:1:5-8: identifier cannot start with '1'

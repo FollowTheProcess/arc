@@ -139,6 +139,8 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		return Separator, stateRequestPrelude
 	case lineStartsWith(line, "#"), lineStartsWith(line, "//"):
 		return Comment, state // State unchanged by a comment
+	case isMethodPrefix(line):
+		return RequestLine, stateRequestHeaders
 	default:
 		return Error, state
 	}
@@ -178,17 +180,19 @@ func (p *parser) emit(kind Kind, span source.Span) {
 // tokenise dispatches a block to it's dedicated inline tokeniser.
 func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	switch kind {
+	case Blank, Comment:
+		// Markers / lines with no inline content to tokenise.
+		return nil, nil
 	case Separator:
 		return lex.Separator(span)
-	case Comment:
-		// Nothing to tokenise for a comment, just emit the raw block
-		return nil, nil
+	case RequestLine:
+		return lex.RequestLine(span)
 	case Error:
 		// The dispatch couldn't classify the line; surface that to the
 		// user rather than treating it as a missing implementation.
 		return nil, []diagnostic.Diagnostic{
 			{
-				Message:  "unrecognised line in this context",
+				Message:  fmt.Sprintf("unexpected line in this context: %s", p.state),
 				Span:     span,
 				Severity: diagnostic.SeverityError,
 			},
@@ -213,6 +217,31 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 // The compiler inlines this anyway and []byte(prefix) will not allocate.
 func lineStartsWith(line []byte, prefix string) bool {
 	return bytes.HasPrefix(line, []byte(prefix))
+}
+
+// isMethodPrefix reports whether the line begins like a request line: a
+// non-empty run of uppercase ASCII letters followed by either a line-space
+// character or the end of the line.
+//
+// This is a recognition check, not a validation: bare prefixes like "GETS"
+// or unknown idents like "FROBNICATE" return true here so the assembler can
+// later report a precise "unknown HTTP method" diagnostic. Only a complete
+// uppercase ident at the start of the line counts; "/path" or "get" do not.
+func isMethodPrefix(line []byte) bool {
+	n := 0
+	for n < len(line) && line[n] >= 'A' && line[n] <= 'Z' {
+		n++
+	}
+
+	if n == 0 {
+		return false
+	}
+
+	if n == len(line) {
+		return true
+	}
+
+	return line[n] == ' ' || line[n] == '\t'
 }
 
 // zeroWidthAt is a convenience function for created a new zero-width
