@@ -1,3 +1,6 @@
+# Valid in the structural sense, a later stage validates that "GETS" is
+# not a HTTP method
+
 -- src.http --
 GETS https://example.com
 -- want.txt --
