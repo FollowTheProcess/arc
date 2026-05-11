@@ -1,0 +1,8 @@
+-- src.http --
+{{ 123 }}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Error start=3, end=6>
+<Token::CloseInterp start=7, end=9>
+-- diagnostics.txt --
+[error] src.http:1:4-7: unexpected character in interpolation: '1'

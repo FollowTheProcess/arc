@@ -1,0 +1,12 @@
+-- src.http --
+https://{{ region }}.api.com/{{ id }}
+-- tokens.txt --
+<Token::Text start=0, end=8>
+<Token::OpenInterp start=8, end=10>
+<Token::Ident start=11, end=17>
+<Token::CloseInterp start=18, end=20>
+<Token::Text start=20, end=29>
+<Token::OpenInterp start=29, end=31>
+<Token::Ident start=32, end=34>
+<Token::CloseInterp start=35, end=37>
+-- diagnostics.txt --

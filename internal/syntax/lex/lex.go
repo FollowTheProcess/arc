@@ -102,21 +102,30 @@ func RequestLine(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 			break
 		}
 
+		if s.restStartsWith("{{") {
+			scanInterp(s)
+
+			continue
+		}
+
 		if isURL(s.peek()) {
-			s.takeWhile(isURL)
+			for !s.atEOF() && isURL(s.peek()) && !s.restStartsWith("{{") {
+				s.next()
+			}
+
 			s.emit(token.Text)
 
 			continue
 		}
 
 		// Not a valid URL char. Take the contiguous run of bad characters,
-		// stopping at the next URL char or whitespace, and surface it as a
-		// single diagnostic. The loop then resumes and can pick up trailing
-		// valid URL bytes.
+		// stopping at the next URL char, whitespace, or interp marker, and
+		// surface it as a single diagnostic. The loop then resumes and can
+		// pick up trailing valid URL bytes.
 		first := s.peek()
 		s.next()
 
-		for !s.atEOF() && !isURL(s.peek()) && !isLineSpace(s.peek()) {
+		for !s.atEOF() && !isURL(s.peek()) && !isLineSpace(s.peek()) && !s.restStartsWith("{{") {
 			s.next()
 		}
 
@@ -124,4 +133,79 @@ func RequestLine(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	}
 
 	return s.tokens, s.diagnostics
+}
+
+// InterpolatedText is the tokeniser for a run of text that may contain interpolation
+// fragments ("{{ ... }}").
+func InterpolatedText(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+
+	for !s.atEOF() {
+		if s.restStartsWith("{{") {
+			scanInterp(s)
+
+			continue
+		}
+
+		for !s.atEOF() && !s.restStartsWith("{{") {
+			s.next()
+		}
+
+		if s.pos > s.start {
+			s.emit(token.Text)
+		}
+	}
+
+	return s.tokens, s.diagnostics
+}
+
+// scanInterp handles the actual "{{ ... }}" block.
+func scanInterp(s *scanner) {
+	if !s.takeExact("{{") {
+		s.errorf("expected '{{' got: %q", s.src[s.pos:])
+	} else {
+		s.emit(token.OpenInterp)
+	}
+
+	s.skip(isLineSpace)
+
+	if s.atEOF() {
+		s.error("unexpected EOF in interpolation")
+
+		return
+	}
+
+	if s.restStartsWith("}}") {
+		s.error("empty interpolation")
+		s.takeExact("}}")
+		s.emit(token.CloseInterp)
+
+		return
+	}
+
+	switch {
+	case isAlpha(s.peek()):
+		s.takeWhile(isIdent)
+		s.emit(token.Ident)
+	default:
+		// TODO(@FollowTheProcess): Do all the other things that can appear inside {{ ... }}
+		// Take the contiguous run of unrecognised characters so the rest of
+		// the interp can resume from a known boundary (whitespace, '}}', or EOF).
+		bad := s.peek()
+		s.next()
+
+		for !s.atEOF() && !isLineSpace(s.peek()) && !s.restStartsWith("}}") {
+			s.next()
+		}
+
+		s.errorf("unexpected character in interpolation: %q", bad)
+	}
+
+	s.skip(isLineSpace)
+
+	if !s.takeExact("}}") {
+		s.error("unterminated interpolation")
+	} else {
+		s.emit(token.CloseInterp)
+	}
 }

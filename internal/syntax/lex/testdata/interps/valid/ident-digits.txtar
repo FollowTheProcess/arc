@@ -1,0 +1,7 @@
+-- src.http --
+{{ user123 }}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Ident start=3, end=10>
+<Token::CloseInterp start=11, end=13>
+-- diagnostics.txt --

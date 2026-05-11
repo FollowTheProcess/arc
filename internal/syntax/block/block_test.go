@@ -205,44 +205,60 @@ func FuzzBlockParser(f *testing.F) {
 		blocks, diagnostics := block.Parse(file)
 
 		// Every block span must point at the file we just parsed and
-		// stay within its bounds.
+		// stay within its bounds. BodyOpen and BodyClose markers must be
+		// paired - every BodyOpen is followed by a matching BodyClose with
+		// no intervening BodyOpen, and a BodyClose is never seen first.
 		prevStart := 0
+		inBody := false
 
-		for i, block := range blocks {
-			test.Equal(t, block.Span.File, file, test.Context("block %d points at the wrong file", i))
+		for i, blk := range blocks {
+			test.Equal(t, blk.Span.File, file, test.Context("block %d points at the wrong file", i))
 
-			valid := block.Span.StartOffset >= 0 &&
-				block.Span.EndOffset >= block.Span.StartOffset &&
-				block.Span.EndOffset <= len(content) &&
-				block.Span.StartOffset >= prevStart
+			valid := blk.Span.StartOffset >= 0 &&
+				blk.Span.EndOffset >= blk.Span.StartOffset &&
+				blk.Span.EndOffset <= len(content) &&
+				blk.Span.StartOffset >= prevStart
 
 			test.True(
 				t,
 				valid,
 				test.Context(
 					"block %d span out of order or out of bounds: prevStart=%d span={%d,%d} len=%d kind=%s",
-					i, prevStart, block.Span.StartOffset, block.Span.EndOffset, len(content), block.Kind,
+					i, prevStart, blk.Span.StartOffset, blk.Span.EndOffset, len(content), blk.Kind,
 				),
 			)
 
-			prevStart = block.Span.StartOffset
+			prevStart = blk.Span.StartOffset
 
 			// Tokens must live inside their owning block.
-			for j, tok := range block.Tokens {
-				tokValid := tok.Start >= block.Span.StartOffset &&
+			for j, tok := range blk.Tokens {
+				tokValid := tok.Start >= blk.Span.StartOffset &&
 					tok.End >= tok.Start &&
-					tok.End <= block.Span.EndOffset
+					tok.End <= blk.Span.EndOffset
 
 				test.True(
 					t,
 					tokValid,
 					test.Context(
 						"block %d token %d out of bounds: block={%d,%d} token={%d,%d} kind=%s",
-						i, j, block.Span.StartOffset, block.Span.EndOffset, tok.Start, tok.End, tok.Kind,
+						i, j, blk.Span.StartOffset, blk.Span.EndOffset, tok.Start, tok.End, tok.Kind,
 					),
 				)
 			}
+
+			switch blk.Kind {
+			case block.BodyOpen:
+				test.False(t, inBody, test.Context("block %d: BodyOpen while already in body", i))
+				inBody = true
+			case block.BodyClose:
+				test.True(t, inBody, test.Context("block %d: BodyClose without matching BodyOpen", i))
+				inBody = false
+			default:
+				// Other block kinds don't participate in body framing.
+			}
 		}
+
+		test.True(t, !inBody, test.Context("BodyOpen at end of input without matching BodyClose"))
 
 		// Every diagnostic span must point at the file and stay within bounds.
 		for i, d := range diagnostics {

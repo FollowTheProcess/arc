@@ -1,0 +1,10 @@
+-- src.http --
+GET https://api.com/{{ 123 }}
+-- tokens.txt --
+<Token::Ident start=0, end=3>
+<Token::Text start=4, end=20>
+<Token::OpenInterp start=20, end=22>
+<Token::Error start=23, end=26>
+<Token::CloseInterp start=27, end=29>
+-- diagnostics.txt --
+[error] src.http:1:24-27: unexpected character in interpolation: '1'

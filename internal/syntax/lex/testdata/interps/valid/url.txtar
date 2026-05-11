@@ -1,0 +1,9 @@
+-- src.http --
+https://api.com/{{ user }}/address
+-- tokens.txt --
+<Token::Text start=0, end=16>
+<Token::OpenInterp start=16, end=18>
+<Token::Ident start=19, end=23>
+<Token::CloseInterp start=24, end=26>
+<Token::Text start=26, end=34>
+-- diagnostics.txt --

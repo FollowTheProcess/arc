@@ -1,0 +1,8 @@
+-- src.http --
+{{ }}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Error start=3, end=3>
+<Token::CloseInterp start=3, end=5>
+-- diagnostics.txt --
+[error] src.http:1:4: empty interpolation

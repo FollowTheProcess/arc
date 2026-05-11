@@ -1,0 +1,9 @@
+-- src.http --
+GET {{ baseURL }}/users
+-- tokens.txt --
+<Token::Ident start=0, end=3>
+<Token::OpenInterp start=4, end=6>
+<Token::Ident start=7, end=14>
+<Token::CloseInterp start=15, end=17>
+<Token::Text start=17, end=23>
+-- diagnostics.txt --

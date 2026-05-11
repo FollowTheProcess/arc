@@ -1,0 +1,9 @@
+-- src.http --
+prefix {{ user
+-- tokens.txt --
+<Token::Text start=0, end=7>
+<Token::OpenInterp start=7, end=9>
+<Token::Ident start=10, end=14>
+<Token::Error start=14, end=14>
+-- diagnostics.txt --
+[error] src.http:1:15: unterminated interpolation
