@@ -24,6 +24,9 @@
 !**/testdata/**/*.http
 !**/testdata/**/*.snap
 
+# Go fuzz corpus entries are hashes with no extension
+!**/testdata/fuzz/**
+
 # mise
 !mise.toml
 
