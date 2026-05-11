@@ -1,0 +1,10 @@
+-- src.http --
+X-Signed-Token: {{ token }} signed
+-- tokens.txt --
+<Token::Ident start=0, end=14>
+<Token::Colon start=14, end=15>
+<Token::OpenInterp start=16, end=18>
+<Token::Ident start=19, end=24>
+<Token::CloseInterp start=25, end=27>
+<Token::Text start=27, end=34>
+-- diagnostics.txt --

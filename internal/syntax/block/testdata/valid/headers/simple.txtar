@@ -1,0 +1,16 @@
+-- src.http --
+### headers
+GET https://example.com/users/123
+Content-Type: application/json
+-- want.txt --
+<Block::Separator start=1:1, end=1:12>	"### headers"
+	<Token::Separator start=0, end=3>	"###"
+	<Token::Ident start=4, end=11>	"headers"
+<Block::RequestLine start=2:1, end=2:34>	"GET https://example.com/users/123"
+	<Token::Ident start=12, end=15>	"GET"
+	<Token::Text start=16, end=45>	"https://example.com/users/123"
+<Block::Header start=3:1, end=3:31>	"Content-Type: application/json"
+	<Token::Ident start=46, end=58>	"Content-Type"
+	<Token::Colon start=58, end=59>	":"
+	<Token::Text start=60, end=76>	"application/json"
+-- diagnostics.txt --

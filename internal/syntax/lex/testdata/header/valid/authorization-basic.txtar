@@ -1,0 +1,7 @@
+-- src.http --
+Authorization: Basic dXNlcjpwYXNzd29yZA==
+-- tokens.txt --
+<Token::Ident start=0, end=13>
+<Token::Colon start=13, end=14>
+<Token::Text start=15, end=41>
+-- diagnostics.txt --

@@ -1,0 +1,9 @@
+-- src.http --
+X-API-Key: {{ apiKey }}
+-- tokens.txt --
+<Token::Ident start=0, end=9>
+<Token::Colon start=9, end=10>
+<Token::OpenInterp start=11, end=13>
+<Token::Ident start=14, end=20>
+<Token::CloseInterp start=21, end=23>
+-- diagnostics.txt --

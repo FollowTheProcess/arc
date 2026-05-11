@@ -1,0 +1,7 @@
+-- src.http --
+Accept: text/html, application/json, */*
+-- tokens.txt --
+<Token::Ident start=0, end=6>
+<Token::Colon start=6, end=7>
+<Token::Text start=8, end=40>
+-- diagnostics.txt --

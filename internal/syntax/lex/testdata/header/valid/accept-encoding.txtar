@@ -1,0 +1,7 @@
+-- src.http --
+Accept-Encoding: gzip, deflate, br
+-- tokens.txt --
+<Token::Ident start=0, end=15>
+<Token::Colon start=15, end=16>
+<Token::Text start=17, end=34>
+-- diagnostics.txt --

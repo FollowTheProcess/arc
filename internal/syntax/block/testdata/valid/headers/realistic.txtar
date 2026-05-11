@@ -1,0 +1,41 @@
+-- src.http --
+### create-user
+POST https://api.example.com/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.signature
+Content-Type: application/json; charset=utf-8
+Accept: application/json, text/plain;q=0.9
+User-Agent: arc/0.1.0 (https://github.com/FollowTheProcess/arc)
+X-Request-ID: 7c6f8d8e-1a2b-4c3d-9e8f-7a6b5c4d3e2f
+Cache-Control: no-cache
+-- want.txt --
+<Block::Separator start=1:1, end=1:16>	"### create-user"
+	<Token::Separator start=0, end=3>	"###"
+	<Token::Ident start=4, end=15>	"create-user"
+<Block::RequestLine start=2:1, end=2:35>	"POST https://api.example.com/users"
+	<Token::Ident start=16, end=20>	"POST"
+	<Token::Text start=21, end=50>	"https://api.example.com/users"
+<Block::Header start=3:1, end=3:73>	"Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.signature"
+	<Token::Ident start=51, end=64>	"Authorization"
+	<Token::Colon start=64, end=65>	":"
+	<Token::Text start=66, end=123>	"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.signature"
+<Block::Header start=4:1, end=4:46>	"Content-Type: application/json; charset=utf-8"
+	<Token::Ident start=124, end=136>	"Content-Type"
+	<Token::Colon start=136, end=137>	":"
+	<Token::Text start=138, end=169>	"application/json; charset=utf-8"
+<Block::Header start=5:1, end=5:43>	"Accept: application/json, text/plain;q=0.9"
+	<Token::Ident start=170, end=176>	"Accept"
+	<Token::Colon start=176, end=177>	":"
+	<Token::Text start=178, end=212>	"application/json, text/plain;q=0.9"
+<Block::Header start=6:1, end=6:64>	"User-Agent: arc/0.1.0 (https://github.com/FollowTheProcess/arc)"
+	<Token::Ident start=213, end=223>	"User-Agent"
+	<Token::Colon start=223, end=224>	":"
+	<Token::Text start=225, end=276>	"arc/0.1.0 (https://github.com/FollowTheProcess/arc)"
+<Block::Header start=7:1, end=7:51>	"X-Request-ID: 7c6f8d8e-1a2b-4c3d-9e8f-7a6b5c4d3e2f"
+	<Token::Ident start=277, end=289>	"X-Request-ID"
+	<Token::Colon start=289, end=290>	":"
+	<Token::Text start=291, end=327>	"7c6f8d8e-1a2b-4c3d-9e8f-7a6b5c4d3e2f"
+<Block::Header start=8:1, end=8:24>	"Cache-Control: no-cache"
+	<Token::Ident start=328, end=341>	"Cache-Control"
+	<Token::Colon start=341, end=342>	":"
+	<Token::Text start=343, end=351>	"no-cache"
+-- diagnostics.txt --

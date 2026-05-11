@@ -126,7 +126,7 @@ func (s *scanner) skip(predicate func(r rune) bool) {
 
 // take consumes the next rune if it's from the valid set, and
 // returns whether it was accepted.
-func (s *scanner) take(valid string) bool { //nolint:unused // Will need this later
+func (s *scanner) take(valid string) bool {
 	if strings.ContainsRune(valid, s.peek()) {
 		s.next()
 
@@ -151,7 +151,7 @@ func (s *scanner) takeWhile(predicate func(r rune) bool) {
 // returns, [scanner.next] returns the offending rune.
 //
 // It also implicitly stops on [utf8.RuneError] and [eof].
-func (s *scanner) takeUntil(runes ...rune) { //nolint:unused // Will need this later
+func (s *scanner) takeUntil(runes ...rune) {
 	for {
 		next := s.peek()
 		if next == utf8.RuneError || next == eof {

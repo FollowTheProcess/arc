@@ -59,10 +59,9 @@ func Separator(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 			continue
 		}
 
-		// Not a valid identifier leader. Take the contiguous run of bad
-		// characters and surface it as a single diagnostic; the first rune
-		// of the run picks the message category. The loop then resumes and
-		// can pick up any trailing valid identifier.
+		// Not isAlpha, so let's grab the run of any invalid characters
+		// as one diagnostic. Then the loop goes around again and will pick up
+		// any more valid ident chars.
 		first := s.peek()
 		s.next()
 
@@ -118,10 +117,7 @@ func RequestLine(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 			continue
 		}
 
-		// Not a valid URL char. Take the contiguous run of bad characters,
-		// stopping at the next URL char, whitespace, or interp marker, and
-		// surface it as a single diagnostic. The loop then resumes and can
-		// pick up trailing valid URL bytes.
+		// Same trick, slurp up all bad chars into one diagnostic
 		first := s.peek()
 		s.next()
 
@@ -139,7 +135,49 @@ func RequestLine(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 // fragments ("{{ ... }}").
 func InterpolatedText(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(span)
+	scanInterpolatedText(s)
 
+	return s.tokens, s.diagnostics
+}
+
+// Header is the inline tokeniser for a header line.
+func Header(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+	s.skip(isLineSpace)
+
+	// name e.g. 'Content-Type', run of idents
+	if !isAlpha(s.peek()) {
+		// Invalid header, slurp up to ':' or EOF as one diagnostic
+		s.takeUntil(':') // Implicitly includes eof
+		s.error("invalid header name")
+	} else {
+		s.takeWhile(isIdent)
+		s.emit(token.Ident)
+	}
+
+	s.skip(isLineSpace)
+
+	// ':'
+	if s.take(":") {
+		s.emit(token.Colon)
+	} else {
+		if !s.atEOF() {
+			s.next()
+		}
+
+		s.error("header line missing ':'")
+	}
+
+	// value e.g. 'application/json'
+	s.skip(isLineSpace)
+	scanInterpolatedText(s)
+
+	return s.tokens, s.diagnostics
+}
+
+// scanInterpolatedText scans a chunk of text that may or may not
+// contain "{{ ... }}" blocks.
+func scanInterpolatedText(s *scanner) {
 	for !s.atEOF() {
 		if s.restStartsWith("{{") {
 			scanInterp(s)
@@ -155,8 +193,6 @@ func InterpolatedText(span source.Span) ([]token.Token, []diagnostic.Diagnostic)
 			s.emit(token.Text)
 		}
 	}
-
-	return s.tokens, s.diagnostics
 }
 
 // scanInterp handles the actual "{{ ... }}" block.
