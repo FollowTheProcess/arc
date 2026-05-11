@@ -1,0 +1,10 @@
+-- src.http --
+{{ a }}{{ b }}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Ident start=3, end=4>
+<Token::CloseInterp start=5, end=7>
+<Token::OpenInterp start=7, end=9>
+<Token::Ident start=10, end=11>
+<Token::CloseInterp start=12, end=14>
+-- diagnostics.txt --

@@ -1,0 +1,5 @@
+-- src.http --
+path/{single}/here
+-- tokens.txt --
+<Token::Text start=0, end=18>
+-- diagnostics.txt --

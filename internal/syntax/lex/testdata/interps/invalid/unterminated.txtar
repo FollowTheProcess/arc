@@ -1,0 +1,10 @@
+-- src.http --
+This is some text with an {{ interp that wasn't closed
+-- tokens.txt --
+<Token::Text start=0, end=26>
+<Token::OpenInterp start=26, end=28>
+<Token::Ident start=29, end=35>
+<Token::Error start=36, end=36>
+<Token::Text start=36, end=54>
+-- diagnostics.txt --
+[error] src.http:1:37: unterminated interpolation

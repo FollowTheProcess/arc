@@ -1,0 +1,9 @@
+-- src.http --
+hello {{ name }} world
+-- tokens.txt --
+<Token::Text start=0, end=6>
+<Token::OpenInterp start=6, end=8>
+<Token::Ident start=9, end=13>
+<Token::CloseInterp start=14, end=16>
+<Token::Text start=16, end=22>
+-- diagnostics.txt --

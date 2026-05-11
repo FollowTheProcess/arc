@@ -1,0 +1,7 @@
+-- src.http --
+{{token}}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Ident start=2, end=7>
+<Token::CloseInterp start=7, end=9>
+-- diagnostics.txt --

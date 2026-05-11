@@ -1,0 +1,5 @@
+-- src.http --
+text with no interpolations at all
+-- tokens.txt --
+<Token::Text start=0, end=34>
+-- diagnostics.txt --

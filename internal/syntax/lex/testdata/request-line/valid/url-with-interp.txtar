@@ -1,0 +1,10 @@
+-- src.http --
+GET https://api.com/{{ user }}/items
+-- tokens.txt --
+<Token::Ident start=0, end=3>
+<Token::Text start=4, end=20>
+<Token::OpenInterp start=20, end=22>
+<Token::Ident start=23, end=27>
+<Token::CloseInterp start=28, end=30>
+<Token::Text start=30, end=36>
+-- diagnostics.txt --

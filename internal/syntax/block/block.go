@@ -59,11 +59,12 @@ func (b Block) String() string {
 // and moves on, creating a naturally resilient parsing step.
 func Parse(file *source.File) ([]Block, []diagnostic.Diagnostic) {
 	p := newParser(file)
-	defer p.flush()
 
 	for span := range file.Lines() {
 		p.step(span)
 	}
+
+	p.flush()
 
 	return p.blocks, p.diags
 }
