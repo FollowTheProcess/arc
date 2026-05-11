@@ -1,0 +1,8 @@
+-- src.http --
+1234abc: value
+-- tokens.txt --
+<Token::Error start=0, end=7>
+<Token::Colon start=7, end=8>
+<Token::Text start=9, end=14>
+-- diagnostics.txt --
+[error] src.http:1:1-8: invalid header name

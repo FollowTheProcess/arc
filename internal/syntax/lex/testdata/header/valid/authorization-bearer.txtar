@@ -1,0 +1,7 @@
+-- src.http --
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dQw4w9WgXcQ
+-- tokens.txt --
+<Token::Ident start=0, end=13>
+<Token::Colon start=13, end=14>
+<Token::Text start=15, end=98>
+-- diagnostics.txt --

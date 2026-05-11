@@ -142,6 +142,8 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		return Comment, state // State unchanged by a comment
 	case isMethodPrefix(line):
 		return RequestLine, stateRequestHeaders
+	case state == stateRequestHeaders:
+		return Header, state
 	default:
 		return Error, state
 	}
@@ -188,6 +190,8 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 		return lex.Separator(span)
 	case RequestLine:
 		return lex.RequestLine(span)
+	case Header:
+		return lex.Header(span)
 	case Error:
 		// The dispatch couldn't classify the line; surface that to the
 		// user rather than treating it as a missing implementation.

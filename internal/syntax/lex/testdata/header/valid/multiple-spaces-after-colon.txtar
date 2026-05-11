@@ -1,0 +1,7 @@
+-- src.http --
+Accept:   application/json
+-- tokens.txt --
+<Token::Ident start=0, end=6>
+<Token::Colon start=6, end=7>
+<Token::Text start=10, end=26>
+-- diagnostics.txt --

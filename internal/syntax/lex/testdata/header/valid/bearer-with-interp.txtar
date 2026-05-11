@@ -1,0 +1,10 @@
+-- src.http --
+Authorization: Bearer {{ token }}
+-- tokens.txt --
+<Token::Ident start=0, end=13>
+<Token::Colon start=13, end=14>
+<Token::Text start=15, end=22>
+<Token::OpenInterp start=22, end=24>
+<Token::Ident start=25, end=30>
+<Token::CloseInterp start=31, end=33>
+-- diagnostics.txt --

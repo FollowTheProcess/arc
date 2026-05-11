@@ -1,0 +1,14 @@
+-- src.http --
+Cookie: session={{ sessionId }}; csrf={{ csrfToken }}
+-- tokens.txt --
+<Token::Ident start=0, end=6>
+<Token::Colon start=6, end=7>
+<Token::Text start=8, end=16>
+<Token::OpenInterp start=16, end=18>
+<Token::Ident start=19, end=28>
+<Token::CloseInterp start=29, end=31>
+<Token::Text start=31, end=38>
+<Token::OpenInterp start=38, end=40>
+<Token::Ident start=41, end=50>
+<Token::CloseInterp start=51, end=53>
+-- diagnostics.txt --
