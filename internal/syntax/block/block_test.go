@@ -31,84 +31,6 @@ func TestBlockClassifier(t *testing.T) {
 	}
 }
 
-// walkTxtarCases recursively walks root, nesting a subtest per directory and
-// invoking fn for every .txtar file. This mirrors the testdata directory layout
-// in the test name hierarchy so individual cases, whole directories, or the
-// full group can be selected via -run. Returns the total number of .txtar files
-// processed across the tree.
-func walkTxtarCases(t *testing.T, root string, fn func(t *testing.T, path string)) int {
-	t.Helper()
-
-	entries, err := os.ReadDir(root)
-	test.Ok(t, err)
-
-	total := 0
-
-	for _, entry := range entries {
-		path := filepath.Join(root, entry.Name())
-
-		if entry.IsDir() {
-			var sub int
-
-			t.Run(entry.Name(), func(t *testing.T) {
-				sub = walkTxtarCases(t, path, fn)
-			})
-
-			total += sub
-
-			continue
-		}
-
-		if filepath.Ext(entry.Name()) != ".txtar" {
-			continue
-		}
-
-		t.Run(entry.Name(), func(t *testing.T) {
-			fn(t, path)
-		})
-
-		total++
-	}
-
-	return total
-}
-
-// runBlockParserTest exercises the block parser against a single txtar archive,
-// either updating the archive in place when -update is set or diffing the
-// observed output against the recorded expectations.
-func runBlockParserTest(t *testing.T, file string) {
-	t.Helper()
-
-	want, err := txtar.ParseFile(file)
-	test.Ok(t, err)
-
-	src, ok := want.Read("src.http")
-	test.True(t, ok, test.Context("archive %s missing src.http", file))
-
-	test.True(t, want.Has("want.txt"), test.Context("archive %q missing want.txt", file))
-	test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
-
-	srcFile := source.NewFile("src.http", []byte(src))
-
-	blocks, diagnostics := block.Parse(srcFile)
-
-	got, err := txtar.New(
-		txtar.WithComment(want.Comment()),
-		txtar.WithFile("src.http", src),
-		txtar.WithFile("want.txt", formatBlocks(srcFile, blocks)),
-		txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
-	)
-	test.Ok(t, err)
-
-	if *update {
-		test.Ok(t, txtar.DumpFile(file, got))
-
-		return
-	}
-
-	test.Diff(t, got.String(), want.String())
-}
-
 func TestBlockString(t *testing.T) {
 	// 1: "### login\n"  bytes  0..9   ('\n' at 9)
 	// 2: "GET /users\n" bytes 10..20  ('\n' at 20)
@@ -206,7 +128,7 @@ func FuzzBlockParser(f *testing.F) {
 
 		// Every block span must point at the file we just parsed and
 		// stay within its bounds. BodyOpen and BodyClose markers must be
-		// paired - every BodyOpen is followed by a matching BodyClose with
+		// paired i.e. every BodyOpen is followed by a matching BodyClose with
 		// no intervening BodyOpen, and a BodyClose is never seen first.
 		prevStart := 0
 		inBody := false
@@ -302,4 +224,82 @@ func formatDiagnostics(diagnostics []diagnostic.Diagnostic) string {
 	}
 
 	return b.String()
+}
+
+// walkTxtarCases recursively walks root, nesting a subtest per directory and
+// invoking fn for every .txtar file. This mirrors the testdata directory layout
+// in the test name hierarchy so individual cases, whole directories, or the
+// full group can be selected via -run. Returns the total number of .txtar files
+// processed across the tree.
+func walkTxtarCases(t *testing.T, root string, fn func(t *testing.T, path string)) int {
+	t.Helper()
+
+	entries, err := os.ReadDir(root)
+	test.Ok(t, err)
+
+	total := 0
+
+	for _, entry := range entries {
+		path := filepath.Join(root, entry.Name())
+
+		if entry.IsDir() {
+			var sub int
+
+			t.Run(entry.Name(), func(t *testing.T) {
+				sub = walkTxtarCases(t, path, fn)
+			})
+
+			total += sub
+
+			continue
+		}
+
+		if filepath.Ext(entry.Name()) != ".txtar" {
+			continue
+		}
+
+		t.Run(entry.Name(), func(t *testing.T) {
+			fn(t, path)
+		})
+
+		total++
+	}
+
+	return total
+}
+
+// runBlockParserTest exercises the block parser against a single txtar archive,
+// either updating the archive in place when -update is set or diffing the
+// observed output against the recorded expectations.
+func runBlockParserTest(t *testing.T, file string) {
+	t.Helper()
+
+	want, err := txtar.ParseFile(file)
+	test.Ok(t, err)
+
+	src, ok := want.Read("src.http")
+	test.True(t, ok, test.Context("archive %s missing src.http", file))
+
+	test.True(t, want.Has("want.txt"), test.Context("archive %q missing want.txt", file))
+	test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
+
+	srcFile := source.NewFile("src.http", []byte(src))
+
+	blocks, diagnostics := block.Parse(srcFile)
+
+	got, err := txtar.New(
+		txtar.WithComment(want.Comment()),
+		txtar.WithFile("src.http", src),
+		txtar.WithFile("want.txt", formatBlocks(srcFile, blocks)),
+		txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
+	)
+	test.Ok(t, err)
+
+	if *update {
+		test.Ok(t, txtar.DumpFile(file, got))
+
+		return
+	}
+
+	test.Diff(t, got.String(), want.String())
 }
