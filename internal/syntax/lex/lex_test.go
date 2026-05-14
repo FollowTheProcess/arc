@@ -25,7 +25,7 @@ func TestTokenisers(t *testing.T) {
 
 	tests := []struct {
 		tokeniser lex.Tokeniser // The tokeniser to test
-		name      string        // Name of the test group (and testdata/{name} sub directory)
+		name      string        // Name of the test group (and testdata/{valid,invalid}/{name} sub directory)
 	}{
 		{name: "separator", tokeniser: lex.Separator},
 		{name: "request-line", tokeniser: lex.RequestLine},
@@ -33,11 +33,11 @@ func TestTokenisers(t *testing.T) {
 		{name: "header", tokeniser: lex.Header},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			for _, kind := range []string{"valid", "invalid"} {
-				t.Run(kind, func(t *testing.T) {
-					root := filepath.Join("testdata", tt.name, kind)
+	for _, kind := range []string{"valid", "invalid"} {
+		t.Run(kind, func(t *testing.T) {
+			for _, tt := range tests {
+				t.Run(tt.name, func(t *testing.T) {
+					root := filepath.Join("testdata", kind, tt.name)
 					n := walkTxtarCases(t, root, func(t *testing.T, file string) {
 						t.Helper()
 						runLexCase(t, tt.tokeniser, file)
@@ -150,8 +150,6 @@ func runLexCase(t *testing.T, tokeniser lex.Tokeniser, file string) {
 func fuzzTokeniser(f *testing.F, name string, tokeniser lex.Tokeniser) {
 	f.Helper()
 
-	root := filepath.Join("testdata", name)
-
 	// Walk the tokeniser's testdata tree so corpus seeds are picked up
 	// regardless of how cases are grouped into subdirectories.
 	seeded := 0
@@ -179,8 +177,11 @@ func fuzzTokeniser(f *testing.F, name string, tokeniser lex.Tokeniser) {
 		return nil
 	}
 
-	test.Ok(f, filepath.WalkDir(root, walk))
-	test.True(f, seeded > 0, test.Context("no .txtar files found under %s", root))
+	for _, kind := range []string{"valid", "invalid"} {
+		test.Ok(f, filepath.WalkDir(filepath.Join("testdata", kind, name), walk))
+	}
+
+	test.True(f, seeded > 0, test.Context("no .txtar files found for tokeniser %s", name))
 
 	f.Fuzz(func(t *testing.T, src string) {
 		span := lineSpan(src)
