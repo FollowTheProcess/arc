@@ -175,6 +175,51 @@ func Header(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	return s.tokens, s.diagnostics
 }
 
+// Directive scans a directive line, e.g. a global or
+// request variable or config such as @no-redirect.
+//
+// The caller (the block parser) is responsible for ensuring the next
+// byte when this is called is '@'.
+func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+
+	// '@'
+	if !s.takeExact("@") {
+		s.errorf("expected '@' got %q", span.Content())
+	} else {
+		s.emit(token.At)
+	}
+
+	// 'baseURL'
+	if !isAlpha(s.peek()) {
+		s.errorf("expected an ident following '@', got %q", s.peek())
+	} else {
+		s.takeWhile(isIdent)
+		s.emit(token.Ident)
+	}
+
+	s.skip(isLineSpace)
+
+	// The '=' is optional
+	if s.take("=") {
+		s.emit(token.Eq)
+	}
+
+	s.skip(isLineSpace)
+
+	// Value e.g. "https://example.com"
+	if !isDigit(s.peek()) {
+		scanInterpolatedText(s)
+	} else {
+		// TODO(@FollowTheProcess): Handle floats
+		// takeWhile(isDigit) on "3.14" would just take "3"
+		s.takeWhile(isDigit)
+		s.emit(token.Number)
+	}
+
+	return s.tokens, s.diagnostics
+}
+
 // scanInterpolatedText scans a chunk of text that may or may not
 // contain "{{ ... }}" blocks.
 func scanInterpolatedText(s *scanner) {

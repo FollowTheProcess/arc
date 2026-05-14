@@ -13,6 +13,7 @@ const (
 	Text                      // Text
 	Ident                     // Ident
 	Dollar                    // Dollar
+	At                        // At
 	Dot                       // Dot
 	LParen                    // LParen
 	RParen                    // RParen

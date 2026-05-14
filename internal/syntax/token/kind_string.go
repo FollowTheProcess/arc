@@ -14,23 +14,24 @@ func _() {
 	_ = x[Text-3]
 	_ = x[Ident-4]
 	_ = x[Dollar-5]
-	_ = x[Dot-6]
-	_ = x[LParen-7]
-	_ = x[RParen-8]
-	_ = x[Comma-9]
-	_ = x[Colon-10]
-	_ = x[Eq-11]
-	_ = x[StringLiteral-12]
-	_ = x[Number-13]
-	_ = x[OpenInterp-14]
-	_ = x[CloseInterp-15]
-	_ = x[OpenScript-16]
-	_ = x[CloseScript-17]
+	_ = x[At-6]
+	_ = x[Dot-7]
+	_ = x[LParen-8]
+	_ = x[RParen-9]
+	_ = x[Comma-10]
+	_ = x[Colon-11]
+	_ = x[Eq-12]
+	_ = x[StringLiteral-13]
+	_ = x[Number-14]
+	_ = x[OpenInterp-15]
+	_ = x[CloseInterp-16]
+	_ = x[OpenScript-17]
+	_ = x[CloseScript-18]
 }
 
-const _Kind_name = "EOFErrorSeparatorTextIdentDollarDotLParenRParenCommaColonEqStringLiteralNumberOpenInterpCloseInterpOpenScriptCloseScript"
+const _Kind_name = "EOFErrorSeparatorTextIdentDollarAtDotLParenRParenCommaColonEqStringLiteralNumberOpenInterpCloseInterpOpenScriptCloseScript"
 
-var _Kind_index = [...]uint8{0, 3, 8, 17, 21, 26, 32, 35, 41, 47, 52, 57, 59, 72, 78, 88, 99, 109, 120}
+var _Kind_index = [...]uint8{0, 3, 8, 17, 21, 26, 32, 34, 37, 43, 49, 54, 59, 61, 74, 80, 90, 101, 111, 122}
 
 func (i Kind) String() string {
 	idx := int(i) - 0
