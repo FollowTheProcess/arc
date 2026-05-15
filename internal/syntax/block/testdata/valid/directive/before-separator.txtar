@@ -1,0 +1,13 @@
+-- src.http --
+@host = "https://api.example.com"
+### getItem
+-- want.txt --
+<Block::Directive start=1:1, end=1:34>	"@host = \"https://api.example.com\""
+	<Token::At start=0, end=1>	"@"
+	<Token::Ident start=1, end=5>	"host"
+	<Token::Eq start=6, end=7>	"="
+	<Token::Text start=8, end=33>	"\"https://api.example.com\""
+<Block::Separator start=2:1, end=2:12>	"### getItem"
+	<Token::Separator start=34, end=37>	"###"
+	<Token::Ident start=38, end=45>	"getItem"
+-- diagnostics.txt --

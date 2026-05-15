@@ -178,10 +178,23 @@ func Header(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 // Directive scans a directive line, e.g. a global or
 // request variable or config such as @no-redirect.
 //
-// The caller (the block parser) is responsible for ensuring the next
-// byte when this is called is '@'.
+// The caller (the block parser) is responsible for ensuring the line
+// is directive-shaped: an optional comment prefix ('#' or '//') and
+// whitespace, then '@'. Both bare ('@x = y') and comment-disguised
+// ('# @x = y') forms are accepted; the comment prefix is skipped
+// without emitting any tokens for it.
 func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(span)
+
+	// Optional comment prefix. Either marker is consumed silently;
+	// downstream consumers care about the directive's shape, not
+	// whether it was disguised as a comment.
+	if !s.takeExact("//") {
+		s.takeExact("#")
+	}
+
+	s.discard()
+	s.skip(isLineSpace)
 
 	// '@'
 	if !s.takeExact("@") {

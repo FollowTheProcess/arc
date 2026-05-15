@@ -1,0 +1,8 @@
+-- src.http --
+#   @host = "https://example.com"
+-- tokens.txt --
+<Token::At start=4, end=5>
+<Token::Ident start=5, end=9>
+<Token::Eq start=10, end=11>
+<Token::Text start=12, end=33>
+-- diagnostics.txt --

@@ -13,26 +13,25 @@ func _() {
 	_ = x[Separator-2]
 	_ = x[Comment-3]
 	_ = x[Directive-4]
-	_ = x[LocalVariable-5]
-	_ = x[RequestLine-6]
-	_ = x[URLContinuation-7]
-	_ = x[Header-8]
-	_ = x[HeaderBodySeparator-9]
-	_ = x[BodyOpen-10]
-	_ = x[BodyClose-11]
-	_ = x[BodyContent-12]
-	_ = x[FileBody-13]
-	_ = x[PreRequestScriptOpen-14]
-	_ = x[ResponseScriptOpen-15]
-	_ = x[ScriptContent-16]
-	_ = x[ScriptClose-17]
-	_ = x[ResponseRedirect-18]
-	_ = x[ResponseReference-19]
+	_ = x[RequestLine-5]
+	_ = x[URLContinuation-6]
+	_ = x[Header-7]
+	_ = x[HeaderBodySeparator-8]
+	_ = x[BodyOpen-9]
+	_ = x[BodyClose-10]
+	_ = x[BodyContent-11]
+	_ = x[FileBody-12]
+	_ = x[PreRequestScriptOpen-13]
+	_ = x[ResponseScriptOpen-14]
+	_ = x[ScriptContent-15]
+	_ = x[ScriptClose-16]
+	_ = x[ResponseRedirect-17]
+	_ = x[ResponseReference-18]
 }
 
-const _Kind_name = "BlankErrorSeparatorCommentDirectiveLocalVariableRequestLineURLContinuationHeaderHeaderBodySeparatorBodyOpenBodyCloseBodyContentFileBodyPreRequestScriptOpenResponseScriptOpenScriptContentScriptCloseResponseRedirectResponseReference"
+const _Kind_name = "BlankErrorSeparatorCommentDirectiveRequestLineURLContinuationHeaderHeaderBodySeparatorBodyOpenBodyCloseBodyContentFileBodyPreRequestScriptOpenResponseScriptOpenScriptContentScriptCloseResponseRedirectResponseReference"
 
-var _Kind_index = [...]uint8{0, 5, 10, 19, 26, 35, 48, 59, 74, 80, 99, 107, 116, 127, 135, 155, 173, 186, 197, 213, 230}
+var _Kind_index = [...]uint8{0, 5, 10, 19, 26, 35, 46, 61, 67, 86, 94, 103, 114, 122, 142, 160, 173, 184, 200, 217}
 
 func (i Kind) String() string {
 	idx := int(i) - 0

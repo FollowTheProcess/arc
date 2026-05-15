@@ -1,0 +1,11 @@
+-- src.http --
+# Configuration block
+@host = "https://api.example.com"
+-- want.txt --
+<Block::Comment start=1:1, end=1:22>	"# Configuration block"
+<Block::Directive start=2:1, end=2:34>	"@host = \"https://api.example.com\""
+	<Token::At start=22, end=23>	"@"
+	<Token::Ident start=23, end=27>	"host"
+	<Token::Eq start=28, end=29>	"="
+	<Token::Text start=30, end=55>	"\"https://api.example.com\""
+-- diagnostics.txt --

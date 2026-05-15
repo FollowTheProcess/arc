@@ -12,7 +12,6 @@ const (
 	Separator                        // Separator
 	Comment                          // Comment
 	Directive                        // Directive
-	LocalVariable                    // LocalVariable
 	RequestLine                      // RequestLine
 	URLContinuation                  // URLContinuation
 	Header                           // Header

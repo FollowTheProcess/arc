@@ -1,0 +1,38 @@
+-- src.http --
+@host = "https://api.example.com"
+# this comment-disguised form is just a comment at file scope
+# @timeout = 30
+
+### getItem
+# @retries = 3
+@local = "value"
+GET {{ host }}/items
+-- want.txt --
+<Block::Directive start=1:1, end=1:34>	"@host = \"https://api.example.com\""
+	<Token::At start=0, end=1>	"@"
+	<Token::Ident start=1, end=5>	"host"
+	<Token::Eq start=6, end=7>	"="
+	<Token::Text start=8, end=33>	"\"https://api.example.com\""
+<Block::Comment start=2:1, end=2:62>	"# this comment-disguised form is just a comment at file scope"
+<Block::Comment start=3:1, end=3:16>	"# @timeout = 30"
+<Block::Blank start=4:1, end=4:1>	""
+<Block::Separator start=5:1, end=5:12>	"### getItem"
+	<Token::Separator start=113, end=116>	"###"
+	<Token::Ident start=117, end=124>	"getItem"
+<Block::Directive start=6:1, end=6:15>	"# @retries = 3"
+	<Token::At start=127, end=128>	"@"
+	<Token::Ident start=128, end=135>	"retries"
+	<Token::Eq start=136, end=137>	"="
+	<Token::Number start=138, end=139>	"3"
+<Block::Directive start=7:1, end=7:17>	"@local = \"value\""
+	<Token::At start=140, end=141>	"@"
+	<Token::Ident start=141, end=146>	"local"
+	<Token::Eq start=147, end=148>	"="
+	<Token::Text start=149, end=156>	"\"value\""
+<Block::RequestLine start=8:1, end=8:21>	"GET {{ host }}/items"
+	<Token::Ident start=157, end=160>	"GET"
+	<Token::OpenInterp start=161, end=163>	"{{"
+	<Token::Ident start=164, end=168>	"host"
+	<Token::CloseInterp start=169, end=171>	"}}"
+	<Token::Text start=171, end=177>	"/items"
+-- diagnostics.txt --
