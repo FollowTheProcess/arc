@@ -207,14 +207,12 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 
 	s.skip(isLineSpace)
 
-	// Value e.g. "https://example.com"
-	if !isDigit(s.peek()) {
-		scanInterpolatedText(s)
+	// Value
+	if next := s.peek(); isDigit(next) || next == '+' || next == '-' || next == '.' {
+		scanNumber(s)
 	} else {
-		// TODO(@FollowTheProcess): Handle floats
-		// takeWhile(isDigit) on "3.14" would just take "3"
-		s.takeWhile(isDigit)
-		s.emit(token.Number)
+		// Normal text value, possibly with interpolations
+		scanInterpolatedText(s)
 	}
 
 	return s.tokens, s.diagnostics
@@ -289,4 +287,63 @@ func scanInterp(s *scanner) {
 	} else {
 		s.emit(token.CloseInterp)
 	}
+}
+
+// scanNumber scans a number literal, either integer or float.
+func scanNumber(s *scanner) {
+	// TODO(@FollowTheProcess): Hex and imaginary from Rob Pikes slides
+	// I doubt we'll *need* them in most .http files but it's easy to
+	// support so why not?
+	// https://go.dev/talks/2011/lex.slide#35
+	s.take("+-") // Optional leading sign
+
+	beforeInt := s.pos
+	s.takeWhile(isDigit)
+	sawDigit := s.pos > beforeInt
+
+	// Floats
+	if s.take(".") {
+		beforeFrac := s.pos
+		s.takeWhile(isDigit)
+		sawDigit = sawDigit || s.pos > beforeFrac
+	}
+
+	// A sign or dot with no digits is not a number. Slurp the rest of the
+	// number-ish run so the user sees one focused error rather than partial
+	// recovery.
+	if !sawDigit {
+		for !s.atEOF() {
+			r := s.peek()
+			if !isAlphaNumeric(r) && r != '.' && r != '+' && r != '-' {
+				break
+			}
+
+			s.next()
+		}
+
+		s.error("number must have digits")
+
+		return
+	}
+
+	// Powers
+	if s.take("eE") {
+		s.take("+-")
+		s.takeWhile(isDigit)
+	}
+
+	// Bad trailing characters, eat the whole thing as a diagnostic
+	if bad := s.peek(); isAlphaNumeric(bad) || bad == '.' {
+		s.emit(token.Number)
+
+		for !s.atEOF() && (isAlphaNumeric(s.peek()) || s.peek() == '.') {
+			s.next()
+		}
+
+		s.errorf("unexpected %q in number", bad)
+
+		return
+	}
+
+	s.emit(token.Number)
 }

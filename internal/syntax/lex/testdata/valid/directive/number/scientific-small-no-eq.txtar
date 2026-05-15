@@ -1,0 +1,7 @@
+-- src.http --
+@twoHundred 2E2
+-- tokens.txt --
+<Token::At start=0, end=1>
+<Token::Ident start=1, end=11>
+<Token::Number start=12, end=15>
+-- diagnostics.txt --

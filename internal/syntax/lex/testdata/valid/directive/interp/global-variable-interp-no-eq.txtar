@@ -1,0 +1,18 @@
+-- src.http --
+@host "https://example.com"
+@api "/users"
+
+@baseURL "{{ host }}/{{ api }}"
+-- tokens.txt --
+<Token::At start=0, end=1>
+<Token::Ident start=1, end=5>
+<Token::Text start=6, end=53>
+<Token::OpenInterp start=53, end=55>
+<Token::Ident start=56, end=60>
+<Token::CloseInterp start=61, end=63>
+<Token::Text start=63, end=64>
+<Token::OpenInterp start=64, end=66>
+<Token::Ident start=67, end=70>
+<Token::CloseInterp start=71, end=73>
+<Token::Text start=73, end=74>
+-- diagnostics.txt --
