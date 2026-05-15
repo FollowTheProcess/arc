@@ -1,0 +1,8 @@
+-- src.http --
+# @local = "value"
+-- tokens.txt --
+<Token::At start=2, end=3>
+<Token::Ident start=3, end=8>
+<Token::Eq start=9, end=10>
+<Token::Text start=11, end=18>
+-- diagnostics.txt --

@@ -1,0 +1,8 @@
+-- src.http --
+// @timeout = 30
+-- tokens.txt --
+<Token::At start=3, end=4>
+<Token::Ident start=4, end=11>
+<Token::Eq start=12, end=13>
+<Token::Number start=14, end=16>
+-- diagnostics.txt --

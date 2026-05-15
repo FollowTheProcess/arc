@@ -135,9 +135,15 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		return Blank, state
 	}
 
-	switch {
-	case lineStartsWith(line, "###"):
+	if lineStartsWith(line, "###") {
 		return Separator, stateRequestPrelude
+	}
+
+	if isDirective(line, state) {
+		return Directive, state
+	}
+
+	switch {
 	case lineStartsWith(line, "#"), lineStartsWith(line, "//"):
 		return Comment, state // State unchanged by a comment
 	case isMethodPrefix(line):
@@ -146,6 +152,31 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		return Header, state
 	default:
 		return Error, state
+	}
+}
+
+// isDirective reports whether line is a directive in the current state.
+//
+// The bare form ('@x = y') is the global directive, valid at file scope
+// or in a request prelude.
+//
+// The comment-disguised form ('# @x = y' or '// @x = y') is the
+// JetBrains/REST Client convention for request-scoped variables; it is
+// only meaningful inside a request. At file scope a '#' or '//' line is
+// a comment regardless of what follows the marker.
+func isDirective(line []byte, state state) bool {
+	bare := lineStartsWith(line, "@")
+	disguised := lineStartsWith(line, "# @") || lineStartsWith(line, "// @")
+
+	switch state {
+	case stateInitial:
+		return bare
+	case stateRequestPrelude:
+		return bare || disguised
+	case stateRequestHeaders:
+		return disguised
+	default:
+		return false
 	}
 }
 
@@ -192,6 +223,8 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 		return lex.RequestLine(span)
 	case Header:
 		return lex.Header(span)
+	case Directive:
+		return lex.Directive(span)
 	case Error:
 		// The dispatch couldn't classify the line; surface that to the
 		// user rather than treating it as a missing implementation.

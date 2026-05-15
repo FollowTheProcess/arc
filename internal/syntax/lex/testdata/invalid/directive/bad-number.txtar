@@ -1,0 +1,10 @@
+-- src.http --
+@bad = 3.14.159
+-- tokens.txt --
+<Token::At start=0, end=1>
+<Token::Ident start=1, end=4>
+<Token::Eq start=5, end=6>
+<Token::Number start=7, end=11>
+<Token::Error start=11, end=15>
+-- diagnostics.txt --
+[error] src.http:1:12-16: unexpected '.' in number

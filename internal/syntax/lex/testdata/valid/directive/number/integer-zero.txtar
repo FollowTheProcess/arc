@@ -1,0 +1,8 @@
+-- src.http --
+@x = 0
+-- tokens.txt --
+<Token::At start=0, end=1>
+<Token::Ident start=1, end=2>
+<Token::Eq start=3, end=4>
+<Token::Number start=5, end=6>
+-- diagnostics.txt --
