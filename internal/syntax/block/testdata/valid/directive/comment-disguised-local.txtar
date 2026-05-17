@@ -4,20 +4,20 @@
 // @or = "this"
 GET https://api.example.com/items
 -- want.txt --
-<Block::Separator start=1:1, end=1:12>	"### getItem"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Ident start=4, end=11>	"getItem"
-<Block::Directive start=2:1, end=2:19>	"# @local = \"value\""
-	<Token::At start=14, end=15>	"@"
-	<Token::Ident start=15, end=20>	"local"
-	<Token::Eq start=21, end=22>	"="
-	<Token::Text start=23, end=30>	"\"value\""
-<Block::Directive start=3:1, end=3:16>	"// @or = \"this\""
-	<Token::At start=34, end=35>	"@"
-	<Token::Ident start=35, end=37>	"or"
-	<Token::Eq start=38, end=39>	"="
-	<Token::Text start=40, end=46>	"\"this\""
-<Block::RequestLine start=4:1, end=4:34>	"GET https://api.example.com/items"
-	<Token::Ident start=47, end=50>	"GET"
-	<Token::Text start=51, end=80>	"https://api.example.com/items"
+<Block::Separator start=1:1, end=1:12>	`### getItem`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=11>	`getItem`
+<Block::Directive start=2:1, end=2:19>	`# @local = "value"`
+	<Token::At start=14, end=15>	`@`
+	<Token::Ident start=15, end=20>	`local`
+	<Token::Eq start=21, end=22>	`=`
+	<Token::Text start=23, end=30>	`"value"`
+<Block::Directive start=3:1, end=3:16>	`// @or = "this"`
+	<Token::At start=34, end=35>	`@`
+	<Token::Ident start=35, end=37>	`or`
+	<Token::Eq start=38, end=39>	`=`
+	<Token::Text start=40, end=46>	`"this"`
+<Block::RequestLine start=4:1, end=4:34>	`GET https://api.example.com/items`
+	<Token::Ident start=47, end=50>	`GET`
+	<Token::Text start=51, end=80>	`https://api.example.com/items`
 -- diagnostics.txt --

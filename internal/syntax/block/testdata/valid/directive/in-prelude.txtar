@@ -3,15 +3,15 @@
 @retries = 3
 GET https://api.example.com/items
 -- want.txt --
-<Block::Separator start=1:1, end=1:12>	"### getItem"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Ident start=4, end=11>	"getItem"
-<Block::Directive start=2:1, end=2:13>	"@retries = 3"
-	<Token::At start=12, end=13>	"@"
-	<Token::Ident start=13, end=20>	"retries"
-	<Token::Eq start=21, end=22>	"="
-	<Token::Number start=23, end=24>	"3"
-<Block::RequestLine start=3:1, end=3:34>	"GET https://api.example.com/items"
-	<Token::Ident start=25, end=28>	"GET"
-	<Token::Text start=29, end=58>	"https://api.example.com/items"
+<Block::Separator start=1:1, end=1:12>	`### getItem`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=11>	`getItem`
+<Block::Directive start=2:1, end=2:13>	`@retries = 3`
+	<Token::At start=12, end=13>	`@`
+	<Token::Ident start=13, end=20>	`retries`
+	<Token::Eq start=21, end=22>	`=`
+	<Token::Number start=23, end=24>	`3`
+<Block::RequestLine start=3:1, end=3:34>	`GET https://api.example.com/items`
+	<Token::Ident start=25, end=28>	`GET`
+	<Token::Text start=29, end=58>	`https://api.example.com/items`
 -- diagnostics.txt --

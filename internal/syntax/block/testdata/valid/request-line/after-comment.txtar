@@ -2,8 +2,8 @@
 # greeting
 GET https://example.com
 -- want.txt --
-<Block::Comment start=1:1, end=1:11>	"# greeting"
-<Block::RequestLine start=2:1, end=2:24>	"GET https://example.com"
-	<Token::Ident start=11, end=14>	"GET"
-	<Token::Text start=15, end=34>	"https://example.com"
+<Block::Comment start=1:1, end=1:11>	`# greeting`
+<Block::RequestLine start=2:1, end=2:24>	`GET https://example.com`
+	<Token::Ident start=11, end=14>	`GET`
+	<Token::Text start=15, end=34>	`https://example.com`
 -- diagnostics.txt --

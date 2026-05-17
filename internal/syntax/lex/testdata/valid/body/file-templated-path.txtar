@@ -1,0 +1,10 @@
+-- src.http --
+<@ {{ env }}/body.json
+-- tokens.txt --
+<Token::LAngle start=0, end=1>
+<Token::At start=1, end=2>
+<Token::OpenInterp start=3, end=5>
+<Token::Ident start=6, end=9>
+<Token::CloseInterp start=10, end=12>
+<Token::Text start=12, end=22>
+-- diagnostics.txt --

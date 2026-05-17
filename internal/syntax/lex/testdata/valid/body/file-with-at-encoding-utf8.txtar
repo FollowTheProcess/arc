@@ -1,0 +1,8 @@
+-- src.http --
+<@utf8 path/to/body.json
+-- tokens.txt --
+<Token::LAngle start=0, end=1>
+<Token::At start=1, end=2>
+<Token::Ident start=2, end=6>
+<Token::Text start=7, end=24>
+-- diagnostics.txt --

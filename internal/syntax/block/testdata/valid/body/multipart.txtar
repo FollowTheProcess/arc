@@ -1,0 +1,45 @@
+-- src.http --
+### upload
+POST https://api.com/upload
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="first"; filename="input.txt"
+
+< ./input.txt
+--boundary
+Content-Disposition: form-data; name="second"
+
+Hello world
+--boundary--
+-- want.txt --
+<Block::Separator start=1:1, end=1:11>	`### upload`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=10>	`upload`
+<Block::RequestLine start=2:1, end=2:28>	`POST https://api.com/upload`
+	<Token::Ident start=11, end=15>	`POST`
+	<Token::Text start=16, end=38>	`https://api.com/upload`
+<Block::Header start=3:1, end=3:53>	`Content-Type: multipart/form-data; boundary=boundary`
+	<Token::Ident start=39, end=51>	`Content-Type`
+	<Token::Colon start=51, end=52>	`:`
+	<Token::Text start=53, end=91>	`multipart/form-data; boundary=boundary`
+<Block::HeaderBodySeparator start=4:1, end=4:1>	``
+<Block::Body start=5:1, end=13:13>	`--boundary
+Content-Disposition: form-data; name="first"; filename="input.txt"
+
+< ./input.txt
+--boundary
+Content-Disposition: form-data; name="second"
+
+Hello world
+--boundary--`
+	<Token::Text start=93, end=268>	`--boundary
+Content-Disposition: form-data; name="first"; filename="input.txt"
+
+< ./input.txt
+--boundary
+Content-Disposition: form-data; name="second"
+
+Hello world
+--boundary--`
+-- diagnostics.txt --

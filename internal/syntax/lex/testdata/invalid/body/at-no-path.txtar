@@ -1,0 +1,8 @@
+-- src.http --
+<@
+-- tokens.txt --
+<Token::LAngle start=0, end=1>
+<Token::At start=1, end=2>
+<Token::Error start=2, end=2>
+-- diagnostics.txt --
+[error] src.http:1:3: expected filepath

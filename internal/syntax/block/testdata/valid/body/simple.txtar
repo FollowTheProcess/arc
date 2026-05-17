@@ -1,0 +1,36 @@
+-- src.http --
+### createUser
+POST https://api.something.com/users
+Content-Type: application/json
+
+{
+  "name": "Tom",
+  "projects": ["arc", "too many", "rarely finished"],
+  "born": 1994,
+  "alive": true
+}
+-- want.txt --
+<Block::Separator start=1:1, end=1:15>	`### createUser`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=14>	`createUser`
+<Block::RequestLine start=2:1, end=2:37>	`POST https://api.something.com/users`
+	<Token::Ident start=15, end=19>	`POST`
+	<Token::Text start=20, end=51>	`https://api.something.com/users`
+<Block::Header start=3:1, end=3:31>	`Content-Type: application/json`
+	<Token::Ident start=52, end=64>	`Content-Type`
+	<Token::Colon start=64, end=65>	`:`
+	<Token::Text start=66, end=82>	`application/json`
+<Block::HeaderBodySeparator start=4:1, end=4:1>	``
+<Block::Body start=5:1, end=10:2>	`{
+  "name": "Tom",
+  "projects": ["arc", "too many", "rarely finished"],
+  "born": 1994,
+  "alive": true
+}`
+	<Token::Text start=84, end=190>	`{
+  "name": "Tom",
+  "projects": ["arc", "too many", "rarely finished"],
+  "born": 1994,
+  "alive": true
+}`
+-- diagnostics.txt --

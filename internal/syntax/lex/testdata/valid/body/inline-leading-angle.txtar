@@ -1,0 +1,5 @@
+-- src.http --
+<html><body>Hello</body></html>
+-- tokens.txt --
+<Token::Text start=0, end=31>
+-- diagnostics.txt --

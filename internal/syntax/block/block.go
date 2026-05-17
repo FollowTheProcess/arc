@@ -109,20 +109,53 @@ func (p *parser) step(span source.Span) {
 		return
 	}
 
-	kind, next := dispatch(span.Content(), p.state, p.prev)
+	if p.state != stateRequestBody {
+		kind, next := dispatch(span.Content(), p.state, p.prev)
 
-	// A '< {%' (or '> {%') opener with no matching '%}' on the same line
-	// starts a multi-line script.
-	if kind == Script && isMultilineScriptOpen(span.Content()) {
-		p.scriptStart = span.StartOffset
-		p.prevState = p.state
-		p.state = stateScript
+		// A '< {%' (or '> {%') opener with no matching '%}' on the same line
+		// starts a multi-line script.
+		if kind == Script && isMultilineScriptOpen(span.Content()) {
+			p.scriptStart = span.StartOffset
+			p.prevState = p.state
+			p.state = stateScript
+
+			return
+		}
+
+		p.emit(kind, span)
+
+		p.state = next
 
 		return
 	}
 
-	p.emit(kind, span)
+	kind, next := dispatch(span.Content(), p.state, p.prev)
+	if kind == Body {
+		// Still inside a body
+		if len(bytes.TrimSpace(span.Content())) > 0 {
+			if p.bodyStart == 0 {
+				p.bodyStart = span.StartOffset
+			}
 
+			p.lastNonBlankBodyEnd = span.EndOffset
+		}
+
+		return
+	}
+
+	// First time seeing a non-body thing, time to pinch off the body
+	if p.lastNonBlankBodyEnd > p.bodyStart {
+		p.emit(Body, source.Span{
+			File:        p.file,
+			StartOffset: p.bodyStart,
+			EndOffset:   p.lastNonBlankBodyEnd,
+		})
+	}
+
+	// Clean up
+	p.bodyStart, p.lastNonBlankBodyEnd = 0, 0
+
+	p.emit(kind, span)
 	p.state = next
 }
 
@@ -232,6 +265,16 @@ func (p *parser) flush() {
 			StartOffset: p.scriptStart,
 			EndOffset:   p.file.Len(),
 		})
+
+		p.diags = append(p.diags, diagnostic.Diagnostic{
+			Message: "unterminated script, expected '%}' before EOF",
+			Span: source.Span{
+				File:        p.file,
+				StartOffset: p.scriptStart,
+				EndOffset:   p.file.Len(),
+			},
+			Severity: diagnostic.SeverityError,
+		})
 	default:
 		// Nothing
 	}
@@ -331,7 +374,7 @@ func isMethodPrefix(line []byte) bool {
 //
 // The path form ('< path/to/script.js') and the inline form with the close
 // on the same line ('< {% ... %}') are both single-line and classify as a
-// single [RequestScript] block.
+// single [Script] block.
 //
 // Only an open '{%' with no matching '%}' returns true.
 func isMultilineScriptOpen(line []byte) bool {

@@ -3,10 +3,10 @@
 
 GET https://example.com
 -- want.txt --
-<Block::Separator start=1:1, end=1:4>	"###"
-	<Token::Separator start=0, end=3>	"###"
-<Block::Blank start=2:1, end=2:1>	""
-<Block::RequestLine start=3:1, end=3:24>	"GET https://example.com"
-	<Token::Ident start=5, end=8>	"GET"
-	<Token::Text start=9, end=28>	"https://example.com"
+<Block::Separator start=1:1, end=1:4>	`###`
+	<Token::Separator start=0, end=3>	`###`
+<Block::Blank start=2:1, end=2:1>	``
+<Block::RequestLine start=3:1, end=3:24>	`GET https://example.com`
+	<Token::Ident start=5, end=8>	`GET`
+	<Token::Text start=9, end=28>	`https://example.com`
 -- diagnostics.txt --

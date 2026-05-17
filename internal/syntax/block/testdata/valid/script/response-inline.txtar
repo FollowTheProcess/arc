@@ -4,15 +4,15 @@ GET https://api.com/items
 
 > {% console.log("response") %}
 -- want.txt --
-<Block::Separator start=1:1, end=1:10>	"### thing"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Ident start=4, end=9>	"thing"
-<Block::RequestLine start=2:1, end=2:26>	"GET https://api.com/items"
-	<Token::Ident start=10, end=13>	"GET"
-	<Token::Text start=14, end=35>	"https://api.com/items"
-<Block::HeaderBodySeparator start=3:1, end=3:1>	""
-<Block::Script start=4:1, end=4:32>	"> {% console.log(\"response\") %}"
-	<Token::RAngle start=37, end=38>	">"
-	<Token::OpenScript start=39, end=41>	"{%"
-	<Token::CloseScript start=66, end=68>	"%}"
+<Block::Separator start=1:1, end=1:10>	`### thing`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=9>	`thing`
+<Block::RequestLine start=2:1, end=2:26>	`GET https://api.com/items`
+	<Token::Ident start=10, end=13>	`GET`
+	<Token::Text start=14, end=35>	`https://api.com/items`
+<Block::HeaderBodySeparator start=3:1, end=3:1>	``
+<Block::Script start=4:1, end=4:32>	`> {% console.log("response") %}`
+	<Token::RAngle start=37, end=38>	`>`
+	<Token::OpenScript start=39, end=41>	`{%`
+	<Token::CloseScript start=66, end=68>	`%}`
 -- diagnostics.txt --

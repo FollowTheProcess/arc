@@ -1,0 +1,19 @@
+-- src.http --
+{
+  "this": "is",
+  "some": [
+    "valid",
+    "json",
+    "stuff"
+  ]
+  "body": true,
+  "numbers": [42, 69]
+  "vars": "{{ something }}"
+}
+-- tokens.txt --
+<Token::Text start=0, end=120>
+<Token::OpenInterp start=120, end=122>
+<Token::Ident start=123, end=132>
+<Token::CloseInterp start=133, end=135>
+<Token::Text start=135, end=138>
+-- diagnostics.txt --

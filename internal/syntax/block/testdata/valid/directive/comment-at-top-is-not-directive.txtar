@@ -2,6 +2,6 @@
 # @host = "https://api.example.com"
 // @port = 8080
 -- want.txt --
-<Block::Comment start=1:1, end=1:36>	"# @host = \"https://api.example.com\""
-<Block::Comment start=2:1, end=2:16>	"// @port = 8080"
+<Block::Comment start=1:1, end=1:36>	`# @host = "https://api.example.com"`
+<Block::Comment start=2:1, end=2:16>	`// @port = 8080`
 -- diagnostics.txt --

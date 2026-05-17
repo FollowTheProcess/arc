@@ -303,13 +303,116 @@ func Script(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 
 // Body tokenises a request body.
 //
-//   - < body.json (get body verbatim from the file)
-//   - <@ body.json (as above but run through interpolation)
-//   - inline
+//   - < body.json (literal, the file bytes are sent verbatim)
+//   - <@ body.json (templated, run the file contents through interpolation)
+//   - <@{encoding} body.json (templated, with explicit source encoding)
+//   - inline (raw text with possible '{{ ... }}' interpolations)
+//
+// A leading '<' marks a file-ref body only when followed by whitespace, '@',
+// a line terminator, or EOF. Otherwise the '<' is just the first character of
+// an inline body (e.g. '<html>...</html>').
+//
+// The path of a file-ref body occupies the rest of its line. Anything past
+// that line is unexpected content and gets diagnosed.
 func Body(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(span)
 
+	if !isFileRefOpener(s) {
+		scanInterpolatedText(s)
+
+		return s.tokens, s.diagnostics
+	}
+
+	s.take("<")
+	s.emit(token.LAngle)
+
+	// '@' is only significant after a '<'
+	if s.take("@") {
+		s.emit(token.At)
+	}
+
+	// Is there an encoding? e.g. '<@utf8'
+	if isAlpha(s.peek()) {
+		s.takeWhile(isIdent)
+		s.emit(token.Ident)
+	}
+
+	s.skip(isLineSpace)
+
+	if s.atEOF() || isLineTerminator(s.peek()) {
+		s.error("expected filepath")
+
+		return s.tokens, s.diagnostics
+	}
+
+	// The path lives on this line only; the tokeniser must not cross the
+	// newline so that any trailing content can be flagged separately.
+	scanInterpolatedTextLine(s)
+
+	// Step over the line terminator so the trailing-content diagnostic
+	// points at the offending bytes, not the newline.
+	s.skip(isLineTerminator)
+
+	if !s.atEOF() {
+		for !s.atEOF() {
+			s.next()
+		}
+
+		s.error("unexpected content after file-ref body")
+	}
+
 	return s.tokens, s.diagnostics
+}
+
+// isFileRefOpener reports whether the scanner is positioned at a '<' that
+// introduces a file-ref body (as opposed to an inline body that happens to
+// begin with '<').
+//
+// The byte immediately following the '<' is the disambiguator: whitespace,
+// '@', a line terminator, or EOF mean file-ref; anything else means inline
+// content. A bare '<' at EOF is reported as a malformed file-ref by the main
+// flow rather than silently treated as inline content.
+func isFileRefOpener(s *scanner) bool {
+	if s.peek() != '<' {
+		return false
+	}
+
+	if s.pos+1 >= len(s.src) {
+		return true
+	}
+
+	switch s.src[s.pos+1] {
+	case ' ', '\t', '@', '\n', '\r':
+		return true
+	}
+
+	return false
+}
+
+// isLineTerminator reports whether r is '\n' or '\r'.
+func isLineTerminator(r rune) bool {
+	return r == '\n' || r == '\r'
+}
+
+// scanInterpolatedTextLine is [scanInterpolatedText] but stops at the first
+// line terminator. Used where the text must not cross a newline boundary
+// (e.g. a file-ref body's path).
+func scanInterpolatedTextLine(s *scanner) {
+	for !s.atEOF() && !isLineTerminator(s.peek()) {
+		if s.restStartsWith("{{") {
+			scanInterp(s)
+
+			continue
+		}
+
+		for !s.atEOF() && !s.restStartsWith("{{") && !isLineTerminator(s.peek()) {
+			s.next()
+		}
+
+		if s.pos > s.start {
+			s.emit(token.Text)
+		}
+	}
 }
 
 // scanInterpolatedText scans a chunk of text that may or may not

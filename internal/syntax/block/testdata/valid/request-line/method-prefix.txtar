@@ -4,7 +4,7 @@
 -- src.http --
 GETS https://example.com
 -- want.txt --
-<Block::RequestLine start=1:1, end=1:25>	"GETS https://example.com"
-	<Token::Ident start=0, end=4>	"GETS"
-	<Token::Text start=5, end=24>	"https://example.com"
+<Block::RequestLine start=1:1, end=1:25>	`GETS https://example.com`
+	<Token::Ident start=0, end=4>	`GETS`
+	<Token::Text start=5, end=24>	`https://example.com`
 -- diagnostics.txt --

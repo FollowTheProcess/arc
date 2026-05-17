@@ -3,15 +3,15 @@
 GET https://api.example.com/users
 1234bad: value
 -- want.txt --
-<Block::Separator start=1:1, end=1:8>	"### get"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Ident start=4, end=7>	"get"
-<Block::RequestLine start=2:1, end=2:34>	"GET https://api.example.com/users"
-	<Token::Ident start=8, end=11>	"GET"
-	<Token::Text start=12, end=41>	"https://api.example.com/users"
-<Block::Header start=3:1, end=3:15>	"1234bad: value"
-	<Token::Error start=42, end=49>	"1234bad"
-	<Token::Colon start=49, end=50>	":"
-	<Token::Text start=51, end=56>	"value"
+<Block::Separator start=1:1, end=1:8>	`### get`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=7>	`get`
+<Block::RequestLine start=2:1, end=2:34>	`GET https://api.example.com/users`
+	<Token::Ident start=8, end=11>	`GET`
+	<Token::Text start=12, end=41>	`https://api.example.com/users`
+<Block::Header start=3:1, end=3:15>	`1234bad: value`
+	<Token::Error start=42, end=49>	`1234bad`
+	<Token::Colon start=49, end=50>	`:`
+	<Token::Text start=51, end=56>	`value`
 -- diagnostics.txt --
 [error] src.http:3:1-8: invalid header name

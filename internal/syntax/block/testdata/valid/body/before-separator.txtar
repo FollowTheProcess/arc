@@ -1,0 +1,30 @@
+-- src.http --
+### first
+POST https://api.com/items
+Content-Type: application/json
+
+{"id": 1}
+
+### second
+GET https://api.com/items
+-- want.txt --
+<Block::Separator start=1:1, end=1:10>	`### first`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=9>	`first`
+<Block::RequestLine start=2:1, end=2:27>	`POST https://api.com/items`
+	<Token::Ident start=10, end=14>	`POST`
+	<Token::Text start=15, end=36>	`https://api.com/items`
+<Block::Header start=3:1, end=3:31>	`Content-Type: application/json`
+	<Token::Ident start=37, end=49>	`Content-Type`
+	<Token::Colon start=49, end=50>	`:`
+	<Token::Text start=51, end=67>	`application/json`
+<Block::HeaderBodySeparator start=4:1, end=4:1>	``
+<Block::Body start=5:1, end=5:10>	`{"id": 1}`
+	<Token::Text start=69, end=78>	`{"id": 1}`
+<Block::Separator start=7:1, end=7:11>	`### second`
+	<Token::Separator start=80, end=83>	`###`
+	<Token::Ident start=84, end=90>	`second`
+<Block::RequestLine start=8:1, end=8:26>	`GET https://api.com/items`
+	<Token::Ident start=91, end=94>	`GET`
+	<Token::Text start=95, end=116>	`https://api.com/items`
+-- diagnostics.txt --
