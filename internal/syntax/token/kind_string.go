@@ -27,11 +27,14 @@ func _() {
 	_ = x[CloseInterp-16]
 	_ = x[OpenScript-17]
 	_ = x[CloseScript-18]
+	_ = x[ResponseRedirect-19]
+	_ = x[ResponseRedirectForce-20]
+	_ = x[Comment-21]
 }
 
-const _Kind_name = "ErrorSeparatorTextIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScript"
+const _Kind_name = "ErrorSeparatorTextIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceComment"
 
-var _Kind_index = [...]uint8{0, 5, 14, 18, 23, 29, 31, 34, 40, 46, 52, 58, 63, 68, 70, 76, 86, 97, 107, 118}
+var _Kind_index = [...]uint8{0, 5, 14, 18, 23, 29, 31, 34, 40, 46, 52, 58, 63, 68, 70, 76, 86, 97, 107, 118, 134, 155, 162}
 
 func (i Kind) String() string {
 	idx := int(i) - 0

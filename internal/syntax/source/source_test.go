@@ -726,7 +726,7 @@ func FuzzSnippet(f *testing.F) {
 	}
 
 	f.Fuzz(func(t *testing.T, content []byte, startOffset, endOffset, contextLines int) {
-		// Span requires EndOffset >= StartOffset; normalise so the fuzzer
+		// Span requires EndOffset >= StartOffset, normalise so the fuzzer
 		// doesn't waste its time on documented violations.
 		if startOffset > endOffset {
 			startOffset, endOffset = endOffset, startOffset

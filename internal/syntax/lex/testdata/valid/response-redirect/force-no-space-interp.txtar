@@ -1,0 +1,9 @@
+-- src.http --
+>>!{{ name }}.json
+-- tokens.txt --
+<Token::ResponseRedirectForce start=0, end=3>
+<Token::OpenInterp start=3, end=5>
+<Token::Ident start=6, end=10>
+<Token::CloseInterp start=11, end=13>
+<Token::Text start=13, end=18>
+-- diagnostics.txt --

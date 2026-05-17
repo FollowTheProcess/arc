@@ -23,7 +23,7 @@ func (p Position) String() string {
 
 // File represents a single file of .http source text.
 //
-// Construct with [NewFile]; the zero value is not valid.
+// Construct with [NewFile], the zero value is not valid.
 type File struct {
 	Name        string `json:"name"` // Name of the file, or "-" for stdin.
 	content     []byte // Raw file contents.
@@ -79,7 +79,7 @@ func (f *File) PositionAt(offset int) Position {
 
 	index, found := slices.BinarySearch(f.lineOffsets, offset)
 	if !found {
-		// slices.BinarySearch returns the insertion point when not found;
+		// slices.BinarySearch returns the insertion point when not found,
 		// step back to the line whose start is <= offset.
 		index--
 	}
@@ -142,7 +142,7 @@ func (f *File) Lines() iter.Seq[Span] {
 
 // Span represents a span of source text.
 //
-// StartOffset is inclusive and EndOffset is exclusive, like a Go slice; the
+// StartOffset is inclusive and EndOffset is exclusive, like a Go slice, the
 // span covers the bytes [StartOffset, EndOffset) of File. EndOffset must be
 // >= StartOffset.
 type Span struct {
@@ -154,7 +154,7 @@ type Span struct {
 // String returns a string representation of a [Span].
 //
 // A zero-width span renders as "name:line:col". A non-zero-width span on a
-// single line collapses to "name:line:start-end"; one that crosses lines
+// single line collapses to "name:line:start-end", one that crosses lines
 // renders as "name:line:col-line:col". The end column is exclusive, matching
 // the underlying byte offset semantics.
 func (s Span) String() string {

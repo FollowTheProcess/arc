@@ -1,0 +1,9 @@
+-- src.http --
+>> {{ foo
+-- tokens.txt --
+<Token::ResponseRedirect start=0, end=2>
+<Token::OpenInterp start=3, end=5>
+<Token::Ident start=6, end=9>
+<Token::Error start=9, end=9>
+-- diagnostics.txt --
+[error] src.http:1:10: unterminated interpolation

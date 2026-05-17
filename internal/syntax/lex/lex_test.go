@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"unicode"
+	"unicode/utf8"
 
 	"go.followtheprocess.codes/arc/internal/syntax/diagnostic"
 	"go.followtheprocess.codes/arc/internal/syntax/lex"
@@ -34,6 +36,7 @@ func TestTokenisers(t *testing.T) {
 		{name: "directive", tokeniser: lex.Directive},
 		{name: "script", tokeniser: lex.Script},
 		{name: "body", tokeniser: lex.Body},
+		{name: "response-redirect", tokeniser: lex.ResponseRedirect},
 	}
 
 	for _, kind := range []string{"valid", "invalid"} {
@@ -80,6 +83,10 @@ func FuzzScript(f *testing.F) {
 
 func FuzzBody(f *testing.F) {
 	fuzzTokeniser(f, "body", lex.Body)
+}
+
+func FuzzResponseRedirect(f *testing.F) {
+	fuzzTokeniser(f, "response-redirect", lex.ResponseRedirect)
 }
 
 // walkTxtarCases recursively walks root, nesting a subtest per directory and
@@ -201,68 +208,143 @@ func fuzzTokeniser(f *testing.F, name string, tokeniser lex.Tokeniser) {
 	f.Fuzz(func(t *testing.T, src string) {
 		span := lineSpan(src)
 		content := span.Content()
-
-		// Do the actual tokenising
 		tokens, diagnostics := tokeniser(span)
 
-		// Tokens must be ordered, non-overlapping, and within span bounds.
-		prevEnd := span.StartOffset
-		for i, tok := range tokens {
-			valid := tok.Start >= span.StartOffset &&
-				tok.End >= tok.Start &&
-				tok.End <= span.EndOffset &&
-				tok.Start >= prevEnd
+		assertTokenOrder(t, span, content, tokens)
+		assertDiagnosticsMatchErrors(t, content, tokens, diagnostics)
+		assertDiagnosticBounds(t, span, tokens, diagnostics)
+		assertNoSilentDataLoss(t, span, content, tokens, diagnostics)
+	})
+}
 
-			test.True(
-				t,
-				valid,
-				test.Context(
-					"token %d out of order or out of bounds: span={%d,%d} prevEnd=%d token={%d,%d} kind=%s content=%q",
-					i, span.StartOffset, span.EndOffset, prevEnd, tok.Start, tok.End, tok.Kind, content,
-				),
-			)
+// assertTokenOrder checks tokens are ordered, non-overlapping, and within
+// the span bounds.
+func assertTokenOrder(t *testing.T, span source.Span, content []byte, tokens []token.Token) {
+	t.Helper()
 
-			prevEnd = tok.End
-		}
+	prevEnd := span.StartOffset
+	for i, tok := range tokens {
+		valid := tok.Start >= span.StartOffset &&
+			tok.End >= tok.Start &&
+			tok.End <= span.EndOffset &&
+			tok.Start >= prevEnd
 
-		// Every diagnostic must align with an Error token at the same span.
-		errorTokens := 0
-
-		for _, tok := range tokens {
-			if tok.Kind == token.Error {
-				errorTokens++
-			}
-		}
-
-		test.Equal(
+		test.True(
 			t,
-			len(diagnostics),
-			errorTokens,
-			test.Context("diagnostics %d != error tokens %d for content %q", len(diagnostics), errorTokens, content),
+			valid,
+			test.Context(
+				"token %d out of order or out of bounds: span={%d,%d} prevEnd=%d token={%d,%d} kind=%s content=%q",
+				i, span.StartOffset, span.EndOffset, prevEnd, tok.Start, tok.End, tok.Kind, content,
+			),
 		)
 
-		for i, d := range diagnostics {
-			valid := d.Span.StartOffset >= span.StartOffset &&
-				d.Span.EndOffset >= d.Span.StartOffset &&
-				d.Span.EndOffset <= span.EndOffset
+		prevEnd = tok.End
+	}
+}
 
+// assertDiagnosticsMatchErrors checks the diagnostic count matches the
+// number of Error tokens emitted.
+func assertDiagnosticsMatchErrors(
+	t *testing.T,
+	content []byte,
+	tokens []token.Token,
+	diagnostics []diagnostic.Diagnostic,
+) {
+	t.Helper()
+
+	errorTokens := 0
+
+	for _, tok := range tokens {
+		if tok.Kind == token.Error {
+			errorTokens++
+		}
+	}
+
+	test.Equal(
+		t,
+		len(diagnostics),
+		errorTokens,
+		test.Context("diagnostics %d != error tokens %d for content %q", len(diagnostics), errorTokens, content),
+	)
+}
+
+// assertDiagnosticBounds checks every diagnostic span lies within the
+// tokeniser's input span.
+func assertDiagnosticBounds(t *testing.T, span source.Span, _ []token.Token, diagnostics []diagnostic.Diagnostic) {
+	t.Helper()
+
+	for i, d := range diagnostics {
+		valid := d.Span.StartOffset >= span.StartOffset &&
+			d.Span.EndOffset >= d.Span.StartOffset &&
+			d.Span.EndOffset <= span.EndOffset
+
+		test.True(
+			t,
+			valid,
+			test.Context(
+				"diagnostic %d span out of bounds: span={%d,%d} diag={%d,%d} msg=%q",
+				i, span.StartOffset, span.EndOffset, d.Span.StartOffset, d.Span.EndOffset, d.Message,
+			),
+		)
+	}
+}
+
+// assertNoSilentDataLoss checks every non-whitespace rune in the span
+// content is covered by either an emitted token range or a diagnostic
+// span. Whitespace ([unicode.IsSpace]) may be skipped silently.
+func assertNoSilentDataLoss(
+	t *testing.T,
+	span source.Span,
+	content []byte,
+	tokens []token.Token,
+	diagnostics []diagnostic.Diagnostic,
+) {
+	t.Helper()
+
+	covered := make([]bool, len(content))
+	mark := func(start, end int) {
+		lo := max(start-span.StartOffset, 0)
+		hi := min(end-span.StartOffset, len(content))
+
+		for i := lo; i < hi; i++ {
+			covered[i] = true
+		}
+	}
+
+	for _, tok := range tokens {
+		mark(tok.Start, tok.End)
+	}
+
+	for _, d := range diagnostics {
+		mark(d.Span.StartOffset, d.Span.EndOffset)
+	}
+
+	for i := 0; i < len(content); {
+		r, w := utf8.DecodeRune(content[i:])
+		if w == 0 {
+			w = 1
+		}
+
+		if !covered[i] && !unicode.IsSpace(r) {
 			test.True(
 				t,
-				valid,
+				false,
 				test.Context(
-					"diagnostic %d span out of bounds: span={%d,%d} diag={%d,%d} msg=%q",
-					i, span.StartOffset, span.EndOffset, d.Span.StartOffset, d.Span.EndOffset, d.Message,
+					"rune %q at offset %d covered by neither token nor diagnostic, content=%q",
+					r, span.StartOffset+i, content,
 				),
 			)
 		}
-	})
+
+		i += w
+	}
 }
 
 // lineSpan builds a [source.Span] from a single line of test input,
 // mirroring what the block parser hands the inline tokeniser:
 // a span over the line bytes excluding the trailing terminator.
 //
-// txtar sections retain their trailing newline; trim it off the span
+// txtar sections retain their trailing newline, trim it off the span
 // bounds (but keep it in the file) so [source.Span.Content] returns
 // what [source.File.Lines] would have yielded.
 func lineSpan(src string) source.Span {

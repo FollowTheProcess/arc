@@ -26,5 +26,6 @@ Anyway this has been long enough, let's close the script.
 -- tokens.txt --
 <Token::LAngle start=0, end=1>
 <Token::OpenScript start=2, end=4>
+<Token::Text start=4, end=663>
 <Token::CloseScript start=663, end=665>
 -- diagnostics.txt --

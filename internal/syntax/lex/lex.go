@@ -84,7 +84,7 @@ func Separator(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 // It turns 'GET https://example.com' into a [token.Ident]
 // followed by a [token.Text].
 //
-// The method ident is any contiguous run of uppercase ASCII letters; whether
+// The method ident is any contiguous run of uppercase ASCII letters, whether
 // it is a known HTTP method is validated by the AST assembler downstream, not
 // here. The caller (block classifier) is responsible for ensuring the line
 // begins with such a run.
@@ -181,19 +181,18 @@ func Header(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 // The caller (the block parser) is responsible for ensuring the line
 // is directive-shaped: an optional comment prefix ('#' or '//') and
 // whitespace, then '@'. Both bare ('@x = y') and comment-disguised
-// ('# @x = y') forms are accepted; the comment prefix is skipped
+// ('# @x = y') forms are accepted. The comment prefix is skipped
 // without emitting any tokens for it.
 func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(span)
 
-	// Optional comment prefix. Either marker is consumed silently;
-	// downstream consumers care about the directive's shape, not
-	// whether it was disguised as a comment.
-	if !s.takeExact("//") {
-		s.takeExact("#")
+	// Optional comment prefix. When present it is emitted as a
+	// Comment token. The assembler treats '# @x' and '@x'
+	// identically regardless.
+	if s.takeExact("//") || s.takeExact("#") {
+		s.emit(token.Comment)
 	}
 
-	s.discard()
 	s.skip(isLineSpace)
 
 	// '@'
@@ -223,10 +222,24 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	// Value
 	if next := s.peek(); isDigit(next) || next == '+' || next == '-' || next == '.' {
 		scanNumber(s)
-	} else {
-		// Normal text value, possibly with interpolations
-		scanInterpolatedText(s)
+
+		// scanNumber stops at the first character it doesn't recognise as
+		// part of a number, anything left on the line is unexpected.
+		s.skip(isLineSpace)
+
+		if !s.atEOF() {
+			for !s.atEOF() {
+				s.next()
+			}
+
+			s.error("unexpected content after directive value")
+		}
+
+		return s.tokens, s.diagnostics
 	}
+
+	// Normal text value, possibly with interpolations
+	scanInterpolatedText(s)
 
 	return s.tokens, s.diagnostics
 }
@@ -260,42 +273,48 @@ func Script(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 		return s.tokens, s.diagnostics
 	}
 
-	// Either a '{%' or a path
-	if s.takeExact("{%") {
-		s.emit(token.OpenScript)
+	if !s.takeExact("{%") {
+		scanInterpolatedText(s)
 
-		for {
-			if s.atEOF() {
-				s.error("unterminated script block")
+		return s.tokens, s.diagnostics
+	}
 
-				return s.tokens, s.diagnostics
+	// Must be a '{%'
+	s.emit(token.OpenScript)
+
+	for {
+		if s.atEOF() {
+			s.error("unterminated script block")
+
+			return s.tokens, s.diagnostics
+		}
+
+		if s.restStartsWith("%}") {
+			// Capture script body bytes verbatim so the assembler can preserve
+			// the script source even though the parser never evaluates it.
+			if s.pos > s.start {
+				s.emit(token.Text)
 			}
 
-			if s.restStartsWith("%}") {
-				s.discard() // Discard script content
-				s.takeExact("%}")
-				s.emit(token.CloseScript)
+			s.takeExact("%}")
+			s.emit(token.CloseScript)
 
-				break
-			}
+			break
+		}
 
+		s.next()
+	}
+
+	// A '{% ... %}' block is the whole script, anything after the
+	// CloseScript is user error. Trailing whitespace is fine.
+	s.skip(isLineSpace)
+
+	if !s.atEOF() {
+		for !s.atEOF() {
 			s.next()
 		}
 
-		// A '{% ... %}' block is the whole script; anything after the
-		// CloseScript is user error. Trailing whitespace is fine.
-		s.skip(isLineSpace)
-
-		if !s.atEOF() {
-			for !s.atEOF() {
-				s.next()
-			}
-
-			s.error("unexpected content after script close")
-		}
-	} else {
-		// The path can be interpolated I guess, why not
-		scanInterpolatedText(s)
+		s.error("unexpected content after script close")
 	}
 
 	return s.tokens, s.diagnostics
@@ -341,11 +360,12 @@ func Body(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 
 	if s.atEOF() || isLineTerminator(s.peek()) {
 		s.error("expected filepath")
-
-		return s.tokens, s.diagnostics
+		// Fall through so any content on subsequent lines is still
+		// flagged by the trailing-content check rather than silently
+		// dropped.
 	}
 
-	// The path lives on this line only; the tokeniser must not cross the
+	// The path lives on this line only, the tokeniser must not cross the
 	// newline so that any trailing content can be flagged separately.
 	scanInterpolatedTextLine(s)
 
@@ -364,12 +384,62 @@ func Body(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	return s.tokens, s.diagnostics
 }
 
+// ResponseRedirect tokenises a response redirect line.
+//
+//   - '>> response.json' redirects to the file, but fails if it already exists
+//   - '>>! response.json' redirects and overwrites the file
+func ResponseRedirect(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+
+	switch {
+	case s.takeExact(">>!"):
+		s.emit(token.ResponseRedirectForce)
+	case s.takeExact(">>"):
+		s.emit(token.ResponseRedirect)
+	default:
+		// Consume the remainder of the input so the diagnostic spans the
+		// offending bytes rather than producing a zero-width error and
+		// silently dropping the line.
+		for !s.atEOF() {
+			s.next()
+		}
+
+		s.errorf("expected '>>' or '>>!', got %q", span.Content())
+
+		return s.tokens, s.diagnostics
+	}
+
+	s.skip(isLineSpace)
+
+	if s.atEOF() {
+		s.error("expected filepath following response redirect")
+
+		return s.tokens, s.diagnostics
+	}
+
+	scanInterpolatedTextLine(s)
+
+	// Step over the line terminator so the trailing-content diagnostic
+	// points at the offending bytes, not the newline.
+	s.skip(isLineTerminator)
+
+	if !s.atEOF() {
+		for !s.atEOF() {
+			s.next()
+		}
+
+		s.error("unexpected content after response redirect")
+	}
+
+	return s.tokens, s.diagnostics
+}
+
 // isFileRefOpener reports whether the scanner is positioned at a '<' that
 // introduces a file-ref body (as opposed to an inline body that happens to
 // begin with '<').
 //
 // The byte immediately following the '<' is the disambiguator: whitespace,
-// '@', a line terminator, or EOF mean file-ref; anything else means inline
+// '@', a line terminator, or EOF mean file-ref, anything else means inline
 // content. A bare '<' at EOF is reported as a malformed file-ref by the main
 // flow rather than silently treated as inline content.
 func isFileRefOpener(s *scanner) bool {

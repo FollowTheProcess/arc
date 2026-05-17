@@ -1,0 +1,6 @@
+-- src.http --
+>> response.json
+-- tokens.txt --
+<Token::ResponseRedirect start=0, end=2>
+<Token::Text start=3, end=16>
+-- diagnostics.txt --

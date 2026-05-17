@@ -8,6 +8,10 @@ import (
 	"go.followtheprocess.codes/arc/internal/syntax/source"
 )
 
+// TODO: Some sort of elegant way of attaching labels and fixes
+//
+// Functional options maybe
+
 // Diagnostic is a single source level diagnostic.
 type Diagnostic struct {
 	Message  string      `json:"message,omitempty"` // Message text

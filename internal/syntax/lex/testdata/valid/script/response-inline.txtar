@@ -3,5 +3,6 @@
 -- tokens.txt --
 <Token::RAngle start=0, end=1>
 <Token::OpenScript start=2, end=4>
+<Token::Text start=4, end=29>
 <Token::CloseScript start=29, end=31>
 -- diagnostics.txt --

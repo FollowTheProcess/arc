@@ -7,7 +7,7 @@
 // of typed [Block] values, each carrying a span into the original source.
 //
 // Inline content within a block (interpolations, header values, URLs) is
-// tokenised by the lex package into token.Token values; this pass only
+// tokenised by the lex package into token.Token values. This pass only
 // decides what each line is and dispatches to the right inline tokeniser.
 //
 // The parser carries a small amount of context. Lines are not always
@@ -75,7 +75,7 @@ type parser struct {
 	file                *source.File            // The src file
 	blocks              []Block                 // Parsed blocks
 	diags               []diagnostic.Diagnostic // Diagnostics accumulated during parsing
-	prev                Kind                    // Last non-synthetic block kind; needed for URL continuation lookahead
+	prev                Kind                    // Last non-synthetic block kind, needed for URL continuation lookahead
 	scriptStart         int                     // Start offset of an open multi-line script, valid only when state == stateScript
 	bodyStart           int                     // Start offset of a request body, valid only when state == stateRequestBody
 	lastNonBlankBodyEnd int                     // Offset of the last non-empty byte in a request body
@@ -188,7 +188,7 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 	if len(line) == 0 {
 		if state == stateRequestHeaders {
 			// A blank after a run of headers marks the transition to the body.
-			// No marker block is needed; the state transition is enough.
+			// No marker block is needed, the state transition is enough.
 			return Blank, stateRequestBody
 		}
 
@@ -351,7 +351,7 @@ func lineStartsWith(line []byte, prefix string) bool {
 // This is a recognition check, not a validation: bare prefixes like "GETS"
 // or unknown idents like "FROBNICATE" return true here so the assembler can
 // later report a precise "unknown HTTP method" diagnostic. Only a complete
-// uppercase ident at the start of the line counts; "/path" or "get" do not.
+// uppercase ident at the start of the line counts, "/path" or "get" do not.
 func isMethodPrefix(line []byte) bool {
 	n := 0
 	for n < len(line) && line[n] >= 'A' && line[n] <= 'Z' {

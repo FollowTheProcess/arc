@@ -9,6 +9,7 @@ GET https://example.com
 <Block::Script start=2:1, end=2:29>	`< {% console.log("hello") %}`
 	<Token::LAngle start=12, end=13>	`<`
 	<Token::OpenScript start=14, end=16>	`{%`
+	<Token::Text start=16, end=38>	` console.log("hello") `
 	<Token::CloseScript start=38, end=40>	`%}`
 <Block::RequestLine start=3:1, end=3:24>	`GET https://example.com`
 	<Token::Ident start=41, end=44>	`GET`
