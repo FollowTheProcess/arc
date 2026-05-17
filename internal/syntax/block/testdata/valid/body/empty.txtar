@@ -1,0 +1,26 @@
+-- src.http --
+### empty
+POST https://api.com/items
+Content-Type: application/json
+
+### next
+GET https://api.com/items
+-- want.txt --
+<Block::Separator start=1:1, end=1:10>	`### empty`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=9>	`empty`
+<Block::RequestLine start=2:1, end=2:27>	`POST https://api.com/items`
+	<Token::Ident start=10, end=14>	`POST`
+	<Token::Text start=15, end=36>	`https://api.com/items`
+<Block::Header start=3:1, end=3:31>	`Content-Type: application/json`
+	<Token::Ident start=37, end=49>	`Content-Type`
+	<Token::Colon start=49, end=50>	`:`
+	<Token::Text start=51, end=67>	`application/json`
+<Block::Blank start=4:1, end=4:1>	``
+<Block::Separator start=5:1, end=5:9>	`### next`
+	<Token::Separator start=69, end=72>	`###`
+	<Token::Ident start=73, end=77>	`next`
+<Block::RequestLine start=6:1, end=6:26>	`GET https://api.com/items`
+	<Token::Ident start=78, end=81>	`GET`
+	<Token::Text start=82, end=103>	`https://api.com/items`
+-- diagnostics.txt --

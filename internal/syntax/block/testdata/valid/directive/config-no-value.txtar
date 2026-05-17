@@ -2,10 +2,10 @@
 @no-redirect
 @no-cookie-jar
 -- want.txt --
-<Block::Directive start=1:1, end=1:13>	"@no-redirect"
-	<Token::At start=0, end=1>	"@"
-	<Token::Ident start=1, end=12>	"no-redirect"
-<Block::Directive start=2:1, end=2:15>	"@no-cookie-jar"
-	<Token::At start=13, end=14>	"@"
-	<Token::Ident start=14, end=27>	"no-cookie-jar"
+<Block::Directive start=1:1, end=1:13>	`@no-redirect`
+	<Token::At start=0, end=1>	`@`
+	<Token::Ident start=1, end=12>	`no-redirect`
+<Block::Directive start=2:1, end=2:15>	`@no-cookie-jar`
+	<Token::At start=13, end=14>	`@`
+	<Token::Ident start=14, end=27>	`no-cookie-jar`
 -- diagnostics.txt --

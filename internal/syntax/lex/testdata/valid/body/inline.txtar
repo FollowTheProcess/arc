@@ -1,0 +1,14 @@
+-- src.http --
+{
+  "this": "is",
+  "some": [
+    "valid",
+    "json",
+    "stuff"
+  ]
+  "body": true,
+  "numbers": [42, 69]
+}
+-- tokens.txt --
+<Token::Text start=0, end=110>
+-- diagnostics.txt --

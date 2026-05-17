@@ -1,10 +1,10 @@
 -- src.http --
 GET https://example.com%%%/users
 -- want.txt --
-<Block::RequestLine start=1:1, end=1:33>	"GET https://example.com%%%/users"
-	<Token::Ident start=0, end=3>	"GET"
-	<Token::Text start=4, end=23>	"https://example.com"
-	<Token::Error start=23, end=26>	"%%%"
-	<Token::Text start=26, end=32>	"/users"
+<Block::RequestLine start=1:1, end=1:33>	`GET https://example.com%%%/users`
+	<Token::Ident start=0, end=3>	`GET`
+	<Token::Text start=4, end=23>	`https://example.com`
+	<Token::Error start=23, end=26>	`%%%`
+	<Token::Text start=26, end=32>	`/users`
 -- diagnostics.txt --
 [error] src.http:1:24-27: invalid character '%' in URL

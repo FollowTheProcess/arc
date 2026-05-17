@@ -1,0 +1,36 @@
+-- src.http --
+### create
+POST https://api.com/items
+Content-Type: text/plain
+
+  ### not a separator, just indented body content
+  >> not a redirect either
+  <> not a reference
+
+### next
+GET https://api.com/items
+-- want.txt --
+<Block::Separator start=1:1, end=1:11>	`### create`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=10>	`create`
+<Block::RequestLine start=2:1, end=2:27>	`POST https://api.com/items`
+	<Token::Ident start=11, end=15>	`POST`
+	<Token::Text start=16, end=37>	`https://api.com/items`
+<Block::Header start=3:1, end=3:25>	`Content-Type: text/plain`
+	<Token::Ident start=38, end=50>	`Content-Type`
+	<Token::Colon start=50, end=51>	`:`
+	<Token::Text start=52, end=62>	`text/plain`
+<Block::Blank start=4:1, end=4:1>	``
+<Block::Body start=5:1, end=7:21>	`  ### not a separator, just indented body content
+  >> not a redirect either
+  <> not a reference`
+	<Token::Text start=64, end=161>	`  ### not a separator, just indented body content
+  >> not a redirect either
+  <> not a reference`
+<Block::Separator start=9:1, end=9:9>	`### next`
+	<Token::Separator start=163, end=166>	`###`
+	<Token::Ident start=167, end=171>	`next`
+<Block::RequestLine start=10:1, end=10:26>	`GET https://api.com/items`
+	<Token::Ident start=172, end=175>	`GET`
+	<Token::Text start=176, end=197>	`https://api.com/items`
+-- diagnostics.txt --

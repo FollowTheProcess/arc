@@ -5,34 +5,34 @@ Authorization: Bearer {{ token }}
 X-Tenant: {{ tenantId }}
 Cookie: session={{ sessionId }}; csrf={{ csrfToken }}
 -- want.txt --
-<Block::Separator start=1:1, end=1:9>	"### auth"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Ident start=4, end=8>	"auth"
-<Block::RequestLine start=2:1, end=2:31>	"GET https://api.example.com/me"
-	<Token::Ident start=9, end=12>	"GET"
-	<Token::Text start=13, end=39>	"https://api.example.com/me"
-<Block::Header start=3:1, end=3:34>	"Authorization: Bearer {{ token }}"
-	<Token::Ident start=40, end=53>	"Authorization"
-	<Token::Colon start=53, end=54>	":"
-	<Token::Text start=55, end=62>	"Bearer "
-	<Token::OpenInterp start=62, end=64>	"{{"
-	<Token::Ident start=65, end=70>	"token"
-	<Token::CloseInterp start=71, end=73>	"}}"
-<Block::Header start=4:1, end=4:25>	"X-Tenant: {{ tenantId }}"
-	<Token::Ident start=74, end=82>	"X-Tenant"
-	<Token::Colon start=82, end=83>	":"
-	<Token::OpenInterp start=84, end=86>	"{{"
-	<Token::Ident start=87, end=95>	"tenantId"
-	<Token::CloseInterp start=96, end=98>	"}}"
-<Block::Header start=5:1, end=5:54>	"Cookie: session={{ sessionId }}; csrf={{ csrfToken }}"
-	<Token::Ident start=99, end=105>	"Cookie"
-	<Token::Colon start=105, end=106>	":"
-	<Token::Text start=107, end=115>	"session="
-	<Token::OpenInterp start=115, end=117>	"{{"
-	<Token::Ident start=118, end=127>	"sessionId"
-	<Token::CloseInterp start=128, end=130>	"}}"
-	<Token::Text start=130, end=137>	"; csrf="
-	<Token::OpenInterp start=137, end=139>	"{{"
-	<Token::Ident start=140, end=149>	"csrfToken"
-	<Token::CloseInterp start=150, end=152>	"}}"
+<Block::Separator start=1:1, end=1:9>	`### auth`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=8>	`auth`
+<Block::RequestLine start=2:1, end=2:31>	`GET https://api.example.com/me`
+	<Token::Ident start=9, end=12>	`GET`
+	<Token::Text start=13, end=39>	`https://api.example.com/me`
+<Block::Header start=3:1, end=3:34>	`Authorization: Bearer {{ token }}`
+	<Token::Ident start=40, end=53>	`Authorization`
+	<Token::Colon start=53, end=54>	`:`
+	<Token::Text start=55, end=62>	`Bearer `
+	<Token::OpenInterp start=62, end=64>	`{{`
+	<Token::Ident start=65, end=70>	`token`
+	<Token::CloseInterp start=71, end=73>	`}}`
+<Block::Header start=4:1, end=4:25>	`X-Tenant: {{ tenantId }}`
+	<Token::Ident start=74, end=82>	`X-Tenant`
+	<Token::Colon start=82, end=83>	`:`
+	<Token::OpenInterp start=84, end=86>	`{{`
+	<Token::Ident start=87, end=95>	`tenantId`
+	<Token::CloseInterp start=96, end=98>	`}}`
+<Block::Header start=5:1, end=5:54>	`Cookie: session={{ sessionId }}; csrf={{ csrfToken }}`
+	<Token::Ident start=99, end=105>	`Cookie`
+	<Token::Colon start=105, end=106>	`:`
+	<Token::Text start=107, end=115>	`session=`
+	<Token::OpenInterp start=115, end=117>	`{{`
+	<Token::Ident start=118, end=127>	`sessionId`
+	<Token::CloseInterp start=128, end=130>	`}}`
+	<Token::Text start=130, end=137>	`; csrf=`
+	<Token::OpenInterp start=137, end=139>	`{{`
+	<Token::Ident start=140, end=149>	`csrfToken`
+	<Token::CloseInterp start=150, end=152>	`}}`
 -- diagnostics.txt --

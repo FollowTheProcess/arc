@@ -1,9 +1,9 @@
 -- src.http --
 ### 1login
 -- want.txt --
-<Block::Separator start=1:1, end=1:11>	"### 1login"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Error start=4, end=5>	"1"
-	<Token::Ident start=5, end=10>	"login"
+<Block::Separator start=1:1, end=1:11>	`### 1login`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Error start=4, end=5>	`1`
+	<Token::Ident start=5, end=10>	`login`
 -- diagnostics.txt --
 [error] src.http:1:5-6: identifier cannot start with '1'

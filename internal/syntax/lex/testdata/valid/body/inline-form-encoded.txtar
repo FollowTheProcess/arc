@@ -1,0 +1,5 @@
+-- src.http --
+key=value&key2=value2
+-- tokens.txt --
+<Token::Text start=0, end=21>
+-- diagnostics.txt --

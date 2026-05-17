@@ -8,32 +8,30 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[EOF-0]
-	_ = x[Error-1]
-	_ = x[Separator-2]
-	_ = x[Text-3]
-	_ = x[Ident-4]
-	_ = x[Dollar-5]
-	_ = x[At-6]
-	_ = x[Dot-7]
-	_ = x[LParen-8]
-	_ = x[RParen-9]
-	_ = x[LAngle-10]
-	_ = x[RAngle-11]
-	_ = x[Comma-12]
-	_ = x[Colon-13]
-	_ = x[Eq-14]
-	_ = x[StringLiteral-15]
-	_ = x[Number-16]
-	_ = x[OpenInterp-17]
-	_ = x[CloseInterp-18]
-	_ = x[OpenScript-19]
-	_ = x[CloseScript-20]
+	_ = x[Error-0]
+	_ = x[Separator-1]
+	_ = x[Text-2]
+	_ = x[Ident-3]
+	_ = x[Dollar-4]
+	_ = x[At-5]
+	_ = x[Dot-6]
+	_ = x[LParen-7]
+	_ = x[RParen-8]
+	_ = x[LAngle-9]
+	_ = x[RAngle-10]
+	_ = x[Comma-11]
+	_ = x[Colon-12]
+	_ = x[Eq-13]
+	_ = x[Number-14]
+	_ = x[OpenInterp-15]
+	_ = x[CloseInterp-16]
+	_ = x[OpenScript-17]
+	_ = x[CloseScript-18]
 }
 
-const _Kind_name = "EOFErrorSeparatorTextIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqStringLiteralNumberOpenInterpCloseInterpOpenScriptCloseScript"
+const _Kind_name = "ErrorSeparatorTextIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScript"
 
-var _Kind_index = [...]uint8{0, 3, 8, 17, 21, 26, 32, 34, 37, 43, 49, 55, 61, 66, 71, 73, 86, 92, 102, 113, 123, 134}
+var _Kind_index = [...]uint8{0, 5, 14, 18, 23, 29, 31, 34, 40, 46, 52, 58, 63, 68, 70, 76, 86, 97, 107, 118}
 
 func (i Kind) String() string {
 	idx := int(i) - 0

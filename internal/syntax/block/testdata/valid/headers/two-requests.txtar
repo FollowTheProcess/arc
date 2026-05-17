@@ -8,35 +8,35 @@ GET https://api.example.com/me
 Authorization: Bearer {{ token }}
 Accept: application/json
 -- want.txt --
-<Block::Separator start=1:1, end=1:10>	"### login"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Ident start=4, end=9>	"login"
-<Block::RequestLine start=2:1, end=2:34>	"POST https://api.example.com/auth"
-	<Token::Ident start=10, end=14>	"POST"
-	<Token::Text start=15, end=43>	"https://api.example.com/auth"
-<Block::Header start=3:1, end=3:31>	"Content-Type: application/json"
-	<Token::Ident start=44, end=56>	"Content-Type"
-	<Token::Colon start=56, end=57>	":"
-	<Token::Text start=58, end=74>	"application/json"
-<Block::Header start=4:1, end=4:25>	"Accept: application/json"
-	<Token::Ident start=75, end=81>	"Accept"
-	<Token::Colon start=81, end=82>	":"
-	<Token::Text start=83, end=99>	"application/json"
-<Block::Separator start=5:1, end=5:12>	"### profile"
-	<Token::Separator start=100, end=103>	"###"
-	<Token::Ident start=104, end=111>	"profile"
-<Block::RequestLine start=6:1, end=6:31>	"GET https://api.example.com/me"
-	<Token::Ident start=112, end=115>	"GET"
-	<Token::Text start=116, end=142>	"https://api.example.com/me"
-<Block::Header start=7:1, end=7:34>	"Authorization: Bearer {{ token }}"
-	<Token::Ident start=143, end=156>	"Authorization"
-	<Token::Colon start=156, end=157>	":"
-	<Token::Text start=158, end=165>	"Bearer "
-	<Token::OpenInterp start=165, end=167>	"{{"
-	<Token::Ident start=168, end=173>	"token"
-	<Token::CloseInterp start=174, end=176>	"}}"
-<Block::Header start=8:1, end=8:25>	"Accept: application/json"
-	<Token::Ident start=177, end=183>	"Accept"
-	<Token::Colon start=183, end=184>	":"
-	<Token::Text start=185, end=201>	"application/json"
+<Block::Separator start=1:1, end=1:10>	`### login`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=9>	`login`
+<Block::RequestLine start=2:1, end=2:34>	`POST https://api.example.com/auth`
+	<Token::Ident start=10, end=14>	`POST`
+	<Token::Text start=15, end=43>	`https://api.example.com/auth`
+<Block::Header start=3:1, end=3:31>	`Content-Type: application/json`
+	<Token::Ident start=44, end=56>	`Content-Type`
+	<Token::Colon start=56, end=57>	`:`
+	<Token::Text start=58, end=74>	`application/json`
+<Block::Header start=4:1, end=4:25>	`Accept: application/json`
+	<Token::Ident start=75, end=81>	`Accept`
+	<Token::Colon start=81, end=82>	`:`
+	<Token::Text start=83, end=99>	`application/json`
+<Block::Separator start=5:1, end=5:12>	`### profile`
+	<Token::Separator start=100, end=103>	`###`
+	<Token::Ident start=104, end=111>	`profile`
+<Block::RequestLine start=6:1, end=6:31>	`GET https://api.example.com/me`
+	<Token::Ident start=112, end=115>	`GET`
+	<Token::Text start=116, end=142>	`https://api.example.com/me`
+<Block::Header start=7:1, end=7:34>	`Authorization: Bearer {{ token }}`
+	<Token::Ident start=143, end=156>	`Authorization`
+	<Token::Colon start=156, end=157>	`:`
+	<Token::Text start=158, end=165>	`Bearer `
+	<Token::OpenInterp start=165, end=167>	`{{`
+	<Token::Ident start=168, end=173>	`token`
+	<Token::CloseInterp start=174, end=176>	`}}`
+<Block::Header start=8:1, end=8:25>	`Accept: application/json`
+	<Token::Ident start=177, end=183>	`Accept`
+	<Token::Colon start=183, end=184>	`:`
+	<Token::Text start=185, end=201>	`application/json`
 -- diagnostics.txt --

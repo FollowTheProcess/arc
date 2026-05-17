@@ -69,20 +69,12 @@ func TestBlockString(t *testing.T) {
 			want: "<Block::Header start=3:1, end=3:8>",
 		},
 		{
-			name: "body open",
+			name: "body",
 			block: block.Block{
-				Kind: block.BodyOpen,
+				Kind: block.Body,
 				Span: source.Span{File: file, StartOffset: 30, EndOffset: 30},
 			},
-			want: "<Block::BodyOpen start=5:1, end=5:1>",
-		},
-		{
-			name: "body content",
-			block: block.Block{
-				Kind: block.BodyContent,
-				Span: source.Span{File: file, StartOffset: 30, EndOffset: 34},
-			},
-			want: "<Block::BodyContent start=5:1, end=5:5>",
+			want: "<Block::Body start=5:1, end=5:1>",
 		},
 	}
 
@@ -127,11 +119,9 @@ func FuzzBlockParser(f *testing.F) {
 		blocks, diagnostics := block.Parse(file)
 
 		// Every block span must point at the file we just parsed and
-		// stay within its bounds. BodyOpen and BodyClose markers must be
-		// paired i.e. every BodyOpen is followed by a matching BodyClose with
-		// no intervening BodyOpen, and a BodyClose is never seen first.
+		// stay within its bounds. Body blocks must additionally cover at
+		// least one byte (empty regions don't emit a Body block at all).
 		prevStart := 0
-		inBody := false
 
 		for i, blk := range blocks {
 			test.Equal(t, blk.Span.File, file, test.Context("block %d points at the wrong file", i))
@@ -168,19 +158,17 @@ func FuzzBlockParser(f *testing.F) {
 				)
 			}
 
-			switch blk.Kind {
-			case block.BodyOpen:
-				test.False(t, inBody, test.Context("block %d: BodyOpen while already in body", i))
-				inBody = true
-			case block.BodyClose:
-				test.True(t, inBody, test.Context("block %d: BodyClose without matching BodyOpen", i))
-				inBody = false
-			default:
-				// Other block kinds don't participate in body framing.
+			if blk.Kind == block.Body {
+				test.True(
+					t,
+					blk.Span.EndOffset > blk.Span.StartOffset,
+					test.Context(
+						"block %d Body has empty span: {%d,%d}",
+						i, blk.Span.StartOffset, blk.Span.EndOffset,
+					),
+				)
 			}
 		}
-
-		test.True(t, !inBody, test.Context("BodyOpen at end of input without matching BodyClose"))
 
 		// Every diagnostic span must point at the file and stay within bounds.
 		for i, d := range diagnostics {
@@ -205,11 +193,11 @@ func FuzzBlockParser(f *testing.F) {
 func formatBlocks(file *source.File, blocks []block.Block) string {
 	b := &strings.Builder{}
 	for _, block := range blocks {
-		fmt.Fprintf(b, "%s\t%q\n", block, block.Span.Content())
+		fmt.Fprintf(b, "%s\t`%s`\n", block, block.Span.Content())
 
 		for _, token := range block.Tokens {
 			tokSpan := source.Span{File: file, StartOffset: token.Start, EndOffset: token.End}
-			fmt.Fprintf(b, "\t%s\t%q\n", token, tokSpan.Content())
+			fmt.Fprintf(b, "\t%s\t`%s`\n", token, tokSpan.Content())
 		}
 	}
 

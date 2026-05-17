@@ -2,12 +2,12 @@
 ### 1bad
 ### good
 -- want.txt --
-<Block::Separator start=1:1, end=1:9>	"### 1bad"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Error start=4, end=5>	"1"
-	<Token::Ident start=5, end=8>	"bad"
-<Block::Separator start=2:1, end=2:9>	"### good"
-	<Token::Separator start=9, end=12>	"###"
-	<Token::Ident start=13, end=17>	"good"
+<Block::Separator start=1:1, end=1:9>	`### 1bad`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Error start=4, end=5>	`1`
+	<Token::Ident start=5, end=8>	`bad`
+<Block::Separator start=2:1, end=2:9>	`### good`
+	<Token::Separator start=9, end=12>	`###`
+	<Token::Ident start=13, end=17>	`good`
 -- diagnostics.txt --
 [error] src.http:1:5-6: identifier cannot start with '1'

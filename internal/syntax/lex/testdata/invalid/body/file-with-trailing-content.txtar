@@ -1,0 +1,9 @@
+-- src.http --
+< ./body.json
+{"trailing": "content"}
+-- tokens.txt --
+<Token::LAngle start=0, end=1>
+<Token::Text start=2, end=13>
+<Token::Error start=14, end=37>
+-- diagnostics.txt --
+[error] src.http:2:1-24: unexpected content after file-ref body

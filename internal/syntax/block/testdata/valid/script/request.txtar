@@ -3,14 +3,14 @@
 < {% console.log("hello") %}
 GET https://example.com
 -- want.txt --
-<Block::Separator start=1:1, end=1:12>	"### scripty"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Ident start=4, end=11>	"scripty"
-<Block::Script start=2:1, end=2:29>	"< {% console.log(\"hello\") %}"
-	<Token::LAngle start=12, end=13>	"<"
-	<Token::OpenScript start=14, end=16>	"{%"
-	<Token::CloseScript start=38, end=40>	"%}"
-<Block::RequestLine start=3:1, end=3:24>	"GET https://example.com"
-	<Token::Ident start=41, end=44>	"GET"
-	<Token::Text start=45, end=64>	"https://example.com"
+<Block::Separator start=1:1, end=1:12>	`### scripty`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=11>	`scripty`
+<Block::Script start=2:1, end=2:29>	`< {% console.log("hello") %}`
+	<Token::LAngle start=12, end=13>	`<`
+	<Token::OpenScript start=14, end=16>	`{%`
+	<Token::CloseScript start=38, end=40>	`%}`
+<Block::RequestLine start=3:1, end=3:24>	`GET https://example.com`
+	<Token::Ident start=41, end=44>	`GET`
+	<Token::Text start=45, end=64>	`https://example.com`
 -- diagnostics.txt --

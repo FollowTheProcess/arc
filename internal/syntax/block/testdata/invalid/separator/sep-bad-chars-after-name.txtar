@@ -1,9 +1,9 @@
 -- src.http --
 ### login!@#
 -- want.txt --
-<Block::Separator start=1:1, end=1:13>	"### login!@#"
-	<Token::Separator start=0, end=3>	"###"
-	<Token::Ident start=4, end=9>	"login"
-	<Token::Error start=9, end=12>	"!@#"
+<Block::Separator start=1:1, end=1:13>	`### login!@#`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=9>	`login`
+	<Token::Error start=9, end=12>	`!@#`
 -- diagnostics.txt --
 [error] src.http:1:10-13: invalid character '!' in separator
