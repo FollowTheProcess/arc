@@ -1,0 +1,7 @@
+-- src.http --
+< {% 100% done %}
+-- tokens.txt --
+<Token::LAngle start=0, end=1>
+<Token::OpenScript start=2, end=4>
+<Token::CloseScript start=15, end=17>
+-- diagnostics.txt --

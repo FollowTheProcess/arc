@@ -17,6 +17,9 @@ const (
 	// After the '###' separator but before the `<METHOD> <url>` line.
 	stateRequestPrelude // RequestPrelude
 
+	// Inside a '{% ... %}' script block.
+	stateScript // Script
+
 	// After the `<METHOD> <url>` line, now parsing header lines.
 	stateRequestHeaders // RequestHeaders
 

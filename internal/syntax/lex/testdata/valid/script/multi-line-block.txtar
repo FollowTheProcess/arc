@@ -1,0 +1,30 @@
+-- src.http --
+< {%
+This stuff here is a script, I know it doesn't look like it
+but that's because the lexer doesn't actually care what's in
+between the open and close token.
+
+It can literally be anything, including random paragraphs like this.
+
+Look, here's an ASCII egg:
+
+       _____
+     ,'     `.
+    /         \
+   |           |
+   |           |
+    \         /
+     `._____,'
+
+Come to think of it, I think I want some way of supporting more than
+just JS script blocks, perhaps a markdown codeblock style indicating
+what language it is, defaulting to JS for compatibility with other tools
+as that's what they do.
+
+Anyway this has been long enough, let's close the script.
+%}
+-- tokens.txt --
+<Token::LAngle start=0, end=1>
+<Token::OpenScript start=2, end=4>
+<Token::CloseScript start=663, end=665>
+-- diagnostics.txt --

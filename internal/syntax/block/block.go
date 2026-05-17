@@ -72,11 +72,13 @@ func Parse(file *source.File) ([]Block, []diagnostic.Diagnostic) {
 // a parser holds the state of block parsing and accumulates parsed
 // blocks and diagnostics.
 type parser struct {
-	file   *source.File            // The src file
-	blocks []Block                 // Parsed blocks
-	diags  []diagnostic.Diagnostic // Diagnostics accumulated during parsing
-	state  state                   // The current parsing state
-	prev   Kind                    // Last non-synthetic block kind; needed for URL continuation lookahead
+	file        *source.File            // The src file
+	blocks      []Block                 // Parsed blocks
+	diags       []diagnostic.Diagnostic // Diagnostics accumulated during parsing
+	prev        Kind                    // Last non-synthetic block kind; needed for URL continuation lookahead
+	scriptStart int                     // Start offset of an open multi-line script; valid only when state == stateScript
+	state       state                   // The current parsing state
+	prevState   state                   // State to return to when an open multi-line script closes
 }
 
 // newParser creates and returns a new [parser].
@@ -89,7 +91,33 @@ func newParser(file *source.File) *parser {
 
 // step parses a single span of content.
 func (p *parser) step(span source.Span) {
+	// Inside an open multi-line script, all lines belong to the script
+	// until it's closed with '%}'. Once we see one, we batch up everything
+	// into a single script span and hand it to the lexer.
+	if p.state == stateScript {
+		if bytes.Contains(span.Content(), []byte("%}")) {
+			p.emit(RequestScript, source.Span{
+				File:        p.file,
+				StartOffset: p.scriptStart,
+				EndOffset:   span.EndOffset,
+			})
+			p.state = p.prevState
+		}
+
+		return
+	}
+
 	kind, next := dispatch(span.Content(), p.state, p.prev)
+
+	// A '< {%' (or '> {%') opener with no matching '%}' on the same line
+	// starts a multi-line script.
+	if kind == RequestScript && isMultilineScriptOpen(span.Content()) {
+		p.scriptStart = span.StartOffset
+		p.prevState = p.state
+		p.state = stateScript
+
+		return
+	}
 
 	// Leaving body, emit a BodyClose marker
 	if p.state == stateRequestBody && next != stateRequestBody {
@@ -110,15 +138,22 @@ func (p *parser) step(span source.Span) {
 // context and the previously-emitted block kind. It returns the kind
 // for this line and the state the parser should move to afterwards.
 func dispatch(line []byte, state state, prev Kind) (Kind, state) {
-	// In a request body, only ###/<>/>> at column 0 break the body.
+	// In a request body, only ###/<>/>>/> at column 0 break the body.
+	// '>>' must be checked before '>' so the redirect doesn't get
+	// swallowed by the response-script case.
+	//
+	// TODO(@FollowTheProcess): Implement lexer for refs and redirects
+	// including the "force" variant '>>!'
 	if state == stateRequestBody {
 		switch {
 		case lineStartsWith(line, "###"):
 			return Separator, stateRequestPrelude
 		case lineStartsWith(line, "<>"):
 			return ResponseReference, stateRequestPostBody
-		case lineStartsWith(line, ">>"):
+		case lineStartsWith(line, ">>"), lineStartsWith(line, ">>!"):
 			return ResponseRedirect, stateRequestPostBody
+		case lineStartsWith(line, ">"):
+			return ResponseScript, stateRequestPostBody
 		default:
 			return BodyContent, stateRequestBody
 		}
@@ -150,6 +185,8 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		return RequestLine, stateRequestHeaders
 	case state == stateRequestHeaders:
 		return Header, state
+	case state == stateRequestPrelude && lineStartsWith(line, "<"):
+		return RequestScript, state
 	default:
 		return Error, state
 	}
@@ -214,7 +251,7 @@ func (p *parser) emit(kind Kind, span source.Span) {
 // tokenise dispatches a block to it's dedicated inline tokeniser.
 func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	switch kind {
-	case Blank, Comment:
+	case Blank, Comment, HeaderBodySeparator, BodyOpen, BodyClose, BodyContent:
 		// Markers / lines with no inline content to tokenise.
 		return nil, nil
 	case Separator:
@@ -225,9 +262,10 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 		return lex.Header(span)
 	case Directive:
 		return lex.Directive(span)
+	case RequestScript, ResponseScript:
+		return lex.Script(span)
 	case Error:
-		// The dispatch couldn't classify the line; surface that to the
-		// user rather than treating it as a missing implementation.
+		// A lexer error token
 		return nil, []diagnostic.Diagnostic{
 			{
 				Message:  fmt.Sprintf("unexpected line in this context: %s", p.state),
@@ -236,6 +274,7 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 			},
 		}
 	default:
+		// A missing implementation
 		return nil, []diagnostic.Diagnostic{
 			{
 				Message:  fmt.Sprintf("unhandled block kind: %s", kind),
@@ -288,4 +327,22 @@ func isMethodPrefix(line []byte) bool {
 // Used for "marker" blocks like [BodyOpen]/[BodyClose].
 func zeroWidthAt(span source.Span, offset int) source.Span {
 	return source.Span{File: span.File, StartOffset: offset, EndOffset: offset}
+}
+
+// isMultilineScriptOpen reports whether a script-opener line begins a
+// multi-line '{% ...' block that continues onto subsequent lines before
+// closing with '%}'.
+//
+// The path form ('< path/to/script.js') and the inline form with the close
+// on the same line ('< {% ... %}') are both single-line and classify as a
+// single [RequestScript] block.
+//
+// Only an open '{%' with no matching '%}' returns true.
+func isMultilineScriptOpen(line []byte) bool {
+	_, after, found := bytes.Cut(line, []byte("{%"))
+	if !found {
+		return false
+	}
+
+	return !bytes.Contains(after, []byte("%}"))
 }

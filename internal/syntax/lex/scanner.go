@@ -128,7 +128,7 @@ func (s *scanner) skip(predicate func(r rune) bool) {
 // returns whether it was accepted.
 func (s *scanner) take(valid string) bool {
 	if strings.ContainsRune(valid, s.peek()) {
-		s.next()
+		s.next() // Accept it
 
 		return true
 	}

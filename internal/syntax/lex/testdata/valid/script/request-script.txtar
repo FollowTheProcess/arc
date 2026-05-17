@@ -1,0 +1,7 @@
+-- src.http --
+< {% console.log("hello") %}
+-- tokens.txt --
+<Token::LAngle start=0, end=1>
+<Token::OpenScript start=2, end=4>
+<Token::CloseScript start=26, end=28>
+-- diagnostics.txt --
