@@ -344,7 +344,7 @@ func assertNoSilentDataLoss(
 // mirroring what the block parser hands the inline tokeniser:
 // a span over the line bytes excluding the trailing terminator.
 //
-// txtar sections retain their trailing newline; trim it off the span
+// txtar sections retain their trailing newline, trim it off the span
 // bounds (but keep it in the file) so [source.Span.Content] returns
 // what [source.File.Lines] would have yielded.
 func lineSpan(src string) source.Span {
