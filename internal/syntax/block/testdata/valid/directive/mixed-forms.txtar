@@ -20,6 +20,7 @@ GET {{ host }}/items
 	<Token::Separator start=113, end=116>	`###`
 	<Token::Ident start=117, end=124>	`getItem`
 <Block::Directive start=6:1, end=6:15>	`# @retries = 3`
+	<Token::Comment start=125, end=126>	`#`
 	<Token::At start=127, end=128>	`@`
 	<Token::Ident start=128, end=135>	`retries`
 	<Token::Eq start=136, end=137>	`=`

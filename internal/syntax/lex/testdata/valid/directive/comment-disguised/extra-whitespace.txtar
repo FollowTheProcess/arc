@@ -1,6 +1,7 @@
 -- src.http --
 #   @host = "https://example.com"
 -- tokens.txt --
+<Token::Comment start=0, end=1>
 <Token::At start=4, end=5>
 <Token::Ident start=5, end=9>
 <Token::Eq start=10, end=11>

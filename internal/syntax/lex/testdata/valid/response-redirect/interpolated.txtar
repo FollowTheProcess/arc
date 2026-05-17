@@ -1,0 +1,10 @@
+-- src.http --
+>> response.{{ env }}.json
+-- tokens.txt --
+<Token::ResponseRedirect start=0, end=2>
+<Token::Text start=3, end=12>
+<Token::OpenInterp start=12, end=14>
+<Token::Ident start=15, end=18>
+<Token::CloseInterp start=19, end=21>
+<Token::Text start=21, end=26>
+-- diagnostics.txt --

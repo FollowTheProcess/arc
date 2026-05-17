@@ -3,6 +3,7 @@
 -- tokens.txt --
 <Token::LAngle start=0, end=1>
 <Token::OpenScript start=2, end=4>
+<Token::Text start=4, end=6>
 <Token::CloseScript start=6, end=8>
 <Token::Error start=8, end=12>
 -- diagnostics.txt --

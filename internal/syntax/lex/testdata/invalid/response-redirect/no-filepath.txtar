@@ -1,0 +1,7 @@
+-- src.http --
+>>
+-- tokens.txt --
+<Token::ResponseRedirect start=0, end=2>
+<Token::Error start=2, end=2>
+-- diagnostics.txt --
+[error] src.http:1:3: expected filepath following response redirect

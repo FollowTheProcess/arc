@@ -3,6 +3,7 @@
 -- tokens.txt --
 <Token::Error start=0, end=0>
 <Token::OpenScript start=0, end=2>
+<Token::Text start=2, end=20>
 <Token::CloseScript start=20, end=22>
 -- diagnostics.txt --
 [error] src.http:1:1: expected '<' or '>', got '{'
