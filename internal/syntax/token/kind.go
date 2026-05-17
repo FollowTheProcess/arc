@@ -17,6 +17,8 @@ const (
 	Dot                       // Dot
 	LParen                    // LParen
 	RParen                    // RParen
+	LAngle                    // LAngle
+	RAngle                    // RAngle
 	Comma                     // Comma
 	Colon                     // Colon
 	Eq                        // Eq

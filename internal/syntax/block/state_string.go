@@ -10,14 +10,15 @@ func _() {
 	var x [1]struct{}
 	_ = x[stateInitial-0]
 	_ = x[stateRequestPrelude-1]
-	_ = x[stateRequestHeaders-2]
-	_ = x[stateRequestBody-3]
-	_ = x[stateRequestPostBody-4]
+	_ = x[stateScript-2]
+	_ = x[stateRequestHeaders-3]
+	_ = x[stateRequestBody-4]
+	_ = x[stateRequestPostBody-5]
 }
 
-const _state_name = "InitialRequestPreludeRequestHeadersRequestBodyRequestPostBody"
+const _state_name = "InitialRequestPreludeScriptRequestHeadersRequestBodyRequestPostBody"
 
-var _state_index = [...]uint8{0, 7, 21, 35, 46, 61}
+var _state_index = [...]uint8{0, 7, 21, 27, 41, 52, 67}
 
 func (i state) String() string {
 	idx := int(i) - 0

@@ -1,0 +1,6 @@
+-- src.http --
+< path/to/script.js
+-- tokens.txt --
+<Token::LAngle start=0, end=1>
+<Token::Text start=2, end=19>
+-- diagnostics.txt --

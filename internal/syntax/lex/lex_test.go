@@ -32,6 +32,7 @@ func TestTokenisers(t *testing.T) {
 		{name: "interps", tokeniser: lex.InterpolatedText},
 		{name: "header", tokeniser: lex.Header},
 		{name: "directive", tokeniser: lex.Directive},
+		{name: "script", tokeniser: lex.Script},
 	}
 
 	for _, kind := range []string{"valid", "invalid"} {
@@ -70,6 +71,10 @@ func FuzzHeader(f *testing.F) {
 
 func FuzzDirective(f *testing.F) {
 	fuzzTokeniser(f, "directive", lex.Directive)
+}
+
+func FuzzScript(f *testing.F) {
+	fuzzTokeniser(f, "script", lex.Script)
 }
 
 // walkTxtarCases recursively walks root, nesting a subtest per directory and

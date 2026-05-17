@@ -231,6 +231,76 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	return s.tokens, s.diagnostics
 }
 
+// Script is the inline tokeniser for a script.
+//
+//   - '<' begins a request script
+//   - '>' denotes a response script
+//
+// Scripts may be inline like '< {% ... %}' or point to a path
+// on disk holding the script like '< path/to/script.js'.
+//
+// This tokeniser handles all kinds.
+func Script(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+
+	switch {
+	case s.take("<"):
+		s.emit(token.LAngle)
+	case s.take(">"):
+		s.emit(token.RAngle)
+	default:
+		s.errorf("expected '<' or '>', got %q", s.peek())
+	}
+
+	s.skip(isLineSpace)
+
+	if s.atEOF() {
+		s.error("unexpected EOF: expected filepath or '{% ... %}' script block")
+
+		return s.tokens, s.diagnostics
+	}
+
+	// Either a '{%' or a path
+	if s.takeExact("{%") {
+		s.emit(token.OpenScript)
+
+		for {
+			if s.atEOF() {
+				s.error("unterminated script block")
+
+				return s.tokens, s.diagnostics
+			}
+
+			if s.restStartsWith("%}") {
+				s.discard() // Discard script content
+				s.takeExact("%}")
+				s.emit(token.CloseScript)
+
+				break
+			}
+
+			s.next()
+		}
+
+		// A '{% ... %}' block is the whole script; anything after the
+		// CloseScript is user error. Trailing whitespace is fine.
+		s.skip(isLineSpace)
+
+		if !s.atEOF() {
+			for !s.atEOF() {
+				s.next()
+			}
+
+			s.error("unexpected content after script close")
+		}
+	} else {
+		// The path can be interpolated I guess, why not
+		scanInterpolatedText(s)
+	}
+
+	return s.tokens, s.diagnostics
+}
+
 // scanInterpolatedText scans a chunk of text that may or may not
 // contain "{{ ... }}" blocks.
 func scanInterpolatedText(s *scanner) {

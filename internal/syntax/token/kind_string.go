@@ -18,20 +18,22 @@ func _() {
 	_ = x[Dot-7]
 	_ = x[LParen-8]
 	_ = x[RParen-9]
-	_ = x[Comma-10]
-	_ = x[Colon-11]
-	_ = x[Eq-12]
-	_ = x[StringLiteral-13]
-	_ = x[Number-14]
-	_ = x[OpenInterp-15]
-	_ = x[CloseInterp-16]
-	_ = x[OpenScript-17]
-	_ = x[CloseScript-18]
+	_ = x[LAngle-10]
+	_ = x[RAngle-11]
+	_ = x[Comma-12]
+	_ = x[Colon-13]
+	_ = x[Eq-14]
+	_ = x[StringLiteral-15]
+	_ = x[Number-16]
+	_ = x[OpenInterp-17]
+	_ = x[CloseInterp-18]
+	_ = x[OpenScript-19]
+	_ = x[CloseScript-20]
 }
 
-const _Kind_name = "EOFErrorSeparatorTextIdentDollarAtDotLParenRParenCommaColonEqStringLiteralNumberOpenInterpCloseInterpOpenScriptCloseScript"
+const _Kind_name = "EOFErrorSeparatorTextIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqStringLiteralNumberOpenInterpCloseInterpOpenScriptCloseScript"
 
-var _Kind_index = [...]uint8{0, 3, 8, 17, 21, 26, 32, 34, 37, 43, 49, 54, 59, 61, 74, 80, 90, 101, 111, 122}
+var _Kind_index = [...]uint8{0, 3, 8, 17, 21, 26, 32, 34, 37, 43, 49, 55, 61, 66, 71, 73, 86, 92, 102, 113, 123, 134}
 
 func (i Kind) String() string {
 	idx := int(i) - 0

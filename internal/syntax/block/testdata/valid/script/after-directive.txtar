@@ -1,0 +1,19 @@
+-- src.http --
+### withDirective
+@no-redirect
+< pre.js
+GET https://api.com/users
+-- want.txt --
+<Block::Separator start=1:1, end=1:18>	"### withDirective"
+	<Token::Separator start=0, end=3>	"###"
+	<Token::Ident start=4, end=17>	"withDirective"
+<Block::Directive start=2:1, end=2:13>	"@no-redirect"
+	<Token::At start=18, end=19>	"@"
+	<Token::Ident start=19, end=30>	"no-redirect"
+<Block::RequestScript start=3:1, end=3:9>	"< pre.js"
+	<Token::LAngle start=31, end=32>	"<"
+	<Token::Text start=33, end=39>	"pre.js"
+<Block::RequestLine start=4:1, end=4:26>	"GET https://api.com/users"
+	<Token::Ident start=40, end=43>	"GET"
+	<Token::Text start=44, end=65>	"https://api.com/users"
+-- diagnostics.txt --
