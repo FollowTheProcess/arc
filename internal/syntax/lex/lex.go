@@ -301,6 +301,17 @@ func Script(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	return s.tokens, s.diagnostics
 }
 
+// Body tokenises a request body.
+//
+//   - < body.json (get body verbatim from the file)
+//   - <@ body.json (as above but run through interpolation)
+//   - inline
+func Body(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+
+	return s.tokens, s.diagnostics
+}
+
 // scanInterpolatedText scans a chunk of text that may or may not
 // contain "{{ ... }}" blocks.
 func scanInterpolatedText(s *scanner) {

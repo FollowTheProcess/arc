@@ -69,20 +69,12 @@ func TestBlockString(t *testing.T) {
 			want: "<Block::Header start=3:1, end=3:8>",
 		},
 		{
-			name: "body open",
+			name: "body",
 			block: block.Block{
-				Kind: block.BodyOpen,
+				Kind: block.Body,
 				Span: source.Span{File: file, StartOffset: 30, EndOffset: 30},
 			},
-			want: "<Block::BodyOpen start=5:1, end=5:1>",
-		},
-		{
-			name: "body content",
-			block: block.Block{
-				Kind: block.BodyContent,
-				Span: source.Span{File: file, StartOffset: 30, EndOffset: 34},
-			},
-			want: "<Block::BodyContent start=5:1, end=5:5>",
+			want: "<Block::Body start=5:1, end=5:1>",
 		},
 	}
 
@@ -166,17 +158,6 @@ func FuzzBlockParser(f *testing.F) {
 						i, j, blk.Span.StartOffset, blk.Span.EndOffset, tok.Start, tok.End, tok.Kind,
 					),
 				)
-			}
-
-			switch blk.Kind {
-			case block.BodyOpen:
-				test.False(t, inBody, test.Context("block %d: BodyOpen while already in body", i))
-				inBody = true
-			case block.BodyClose:
-				test.True(t, inBody, test.Context("block %d: BodyClose without matching BodyOpen", i))
-				inBody = false
-			default:
-				// Other block kinds don't participate in body framing.
 			}
 		}
 

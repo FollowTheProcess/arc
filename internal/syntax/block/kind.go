@@ -16,10 +16,7 @@ const (
 	URLContinuation                 // URLContinuation
 	Header                          // Header
 	HeaderBodySeparator             // HeaderBodySeparator
-	BodyOpen                        // BodyOpen
-	BodyClose                       // BodyClose
-	BodyContent                     // BodyContent
-	FileBody                        // FileBody
+	Body                            // Body
 	Script                          // Script
 	ResponseRedirect                // ResponseRedirect
 	ResponseReference               // ResponseReference

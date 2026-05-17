@@ -72,13 +72,15 @@ func Parse(file *source.File) ([]Block, []diagnostic.Diagnostic) {
 // a parser holds the state of block parsing and accumulates parsed
 // blocks and diagnostics.
 type parser struct {
-	file        *source.File            // The src file
-	blocks      []Block                 // Parsed blocks
-	diags       []diagnostic.Diagnostic // Diagnostics accumulated during parsing
-	prev        Kind                    // Last non-synthetic block kind; needed for URL continuation lookahead
-	scriptStart int                     // Start offset of an open multi-line script; valid only when state == stateScript
-	state       state                   // The current parsing state
-	prevState   state                   // State to return to when an open multi-line script closes
+	file                *source.File            // The src file
+	blocks              []Block                 // Parsed blocks
+	diags               []diagnostic.Diagnostic // Diagnostics accumulated during parsing
+	prev                Kind                    // Last non-synthetic block kind; needed for URL continuation lookahead
+	scriptStart         int                     // Start offset of an open multi-line script, valid only when state == stateScript
+	bodyStart           int                     // Start offset of a request body, valid only when state == stateRequestBody
+	lastNonBlankBodyEnd int                     // Offset of the last non-empty byte in a request body
+	state               state                   // The current parsing state
+	prevState           state                   // State to return to when an open multi-line script closes
 }
 
 // newParser creates and returns a new [parser].
@@ -119,17 +121,7 @@ func (p *parser) step(span source.Span) {
 		return
 	}
 
-	// Leaving body, emit a BodyClose marker
-	if p.state == stateRequestBody && next != stateRequestBody {
-		p.emit(BodyClose, zeroWidthAt(span, span.StartOffset))
-	}
-
 	p.emit(kind, span)
-
-	// Entering body, emit a BodyOpen marker
-	if p.state != stateRequestBody && next == stateRequestBody {
-		p.emit(BodyOpen, zeroWidthAt(span, span.EndOffset))
-	}
 
 	p.state = next
 }
@@ -155,7 +147,7 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		case lineStartsWith(line, ">"):
 			return Script, stateRequestPostBody
 		default:
-			return BodyContent, stateRequestBody
+			return Body, stateRequestBody
 		}
 	}
 
@@ -220,18 +212,28 @@ func isDirective(line []byte, state state) bool {
 // flush concludes parsing, it inserts any necessary closing blocks
 // before the parser returns so blocks are not left unterminated.
 func (p *parser) flush() {
-	// If we're still in a request body by the time flush is called
-	// then we've prematurely stopped parsing but still need to
-	// emit a [BodyClose] block so the [BodyOpen] is not left
-	// unterminated.
-	if p.state == stateRequestBody {
-		span := source.Span{
-			File:        p.file,
-			StartOffset: p.file.Len(),
-			EndOffset:   p.file.Len(),
+	switch p.state {
+	case stateRequestBody:
+		// Started parsing the body but hit EOF before we were done, needs
+		// a trigger to emit the span
+		end := p.lastNonBlankBodyEnd
+		if end > p.bodyStart {
+			p.emit(Body, source.Span{
+				File:        p.file,
+				StartOffset: p.bodyStart,
+				EndOffset:   end,
+			})
 		}
-
-		p.emit(BodyClose, span)
+	case stateScript:
+		// Same thing with a script, was opened with a '{%', but hit EOF
+		// before seeing '%}', this is the trigger to emit what we have
+		p.emit(Script, source.Span{
+			File:        p.file,
+			StartOffset: p.scriptStart,
+			EndOffset:   p.file.Len(),
+		})
+	default:
+		// Nothing
 	}
 }
 
@@ -251,7 +253,7 @@ func (p *parser) emit(kind Kind, span source.Span) {
 // tokenise dispatches a block to it's dedicated inline tokeniser.
 func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	switch kind {
-	case Blank, Comment, HeaderBodySeparator, BodyOpen, BodyClose, BodyContent:
+	case Blank, Comment, HeaderBodySeparator:
 		// Markers / lines with no inline content to tokenise.
 		return nil, nil
 	case Separator:
@@ -264,6 +266,8 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 		return lex.Directive(span)
 	case Script:
 		return lex.Script(span)
+	case Body:
+		return lex.Body(span)
 	case Error:
 		// A lexer error token
 		return nil, []diagnostic.Diagnostic{
@@ -319,14 +323,6 @@ func isMethodPrefix(line []byte) bool {
 	}
 
 	return line[n] == ' ' || line[n] == '\t'
-}
-
-// zeroWidthAt is a convenience function for created a new zero-width
-// [source.Span] at a particular offset.
-//
-// Used for "marker" blocks like [BodyOpen]/[BodyClose].
-func zeroWidthAt(span source.Span, offset int) source.Span {
-	return source.Span{File: span.File, StartOffset: offset, EndOffset: offset}
 }
 
 // isMultilineScriptOpen reports whether a script-opener line begins a
