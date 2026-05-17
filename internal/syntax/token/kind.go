@@ -7,25 +7,23 @@ type Kind int
 //
 //go:generate stringer -type Kind -linecomment
 const (
-	EOF           Kind = iota // EOF
-	Error                     // Error
-	Separator                 // Separator
-	Text                      // Text
-	Ident                     // Ident
-	Dollar                    // Dollar
-	At                        // At
-	Dot                       // Dot
-	LParen                    // LParen
-	RParen                    // RParen
-	LAngle                    // LAngle
-	RAngle                    // RAngle
-	Comma                     // Comma
-	Colon                     // Colon
-	Eq                        // Eq
-	StringLiteral             // StringLiteral
-	Number                    // Number
-	OpenInterp                // OpenInterp
-	CloseInterp               // CloseInterp
-	OpenScript                // OpenScript
-	CloseScript               // CloseScript
+	Error       Kind = iota // Error
+	Separator               // Separator
+	Text                    // Text
+	Ident                   // Ident
+	Dollar                  // Dollar
+	At                      // At
+	Dot                     // Dot
+	LParen                  // LParen
+	RParen                  // RParen
+	LAngle                  // LAngle
+	RAngle                  // RAngle
+	Comma                   // Comma
+	Colon                   // Colon
+	Eq                      // Eq
+	Number                  // Number
+	OpenInterp              // OpenInterp
+	CloseInterp             // CloseInterp
+	OpenScript              // OpenScript
+	CloseScript             // CloseScript
 )

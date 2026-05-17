@@ -187,8 +187,9 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 	// Blank lines need to be treated specially depending on the current state.
 	if len(line) == 0 {
 		if state == stateRequestHeaders {
-			// If blank after a run of headers, it marks the transition to the body
-			return HeaderBodySeparator, stateRequestBody
+			// A blank after a run of headers marks the transition to the body.
+			// No marker block is needed; the state transition is enough.
+			return Blank, stateRequestBody
 		}
 
 		// Otherwise normal blank
@@ -296,7 +297,7 @@ func (p *parser) emit(kind Kind, span source.Span) {
 // tokenise dispatches a block to it's dedicated inline tokeniser.
 func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	switch kind {
-	case Blank, Comment, HeaderBodySeparator:
+	case Blank, Comment:
 		// Markers / lines with no inline content to tokenise.
 		return nil, nil
 	case Separator:

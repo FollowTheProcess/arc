@@ -15,7 +15,7 @@ Content-Type: application/json
 	<Token::Ident start=38, end=50>	`Content-Type`
 	<Token::Colon start=50, end=51>	`:`
 	<Token::Text start=52, end=68>	`application/json`
-<Block::HeaderBodySeparator start=4:1, end=4:1>	``
+<Block::Blank start=4:1, end=4:1>	``
 <Block::Body start=5:1, end=5:14>	`< ./body.json`
 	<Token::LAngle start=70, end=71>	`<`
 	<Token::Text start=72, end=83>	`./body.json`

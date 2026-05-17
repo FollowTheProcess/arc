@@ -7,17 +7,16 @@ type Kind int
 //
 //go:generate stringer -type Kind -linecomment
 const (
-	Blank               Kind = iota // Blank
-	Error                           // Error
-	Separator                       // Separator
-	Comment                         // Comment
-	Directive                       // Directive
-	RequestLine                     // RequestLine
-	URLContinuation                 // URLContinuation
-	Header                          // Header
-	HeaderBodySeparator             // HeaderBodySeparator
-	Body                            // Body
-	Script                          // Script
-	ResponseRedirect                // ResponseRedirect
-	ResponseReference               // ResponseReference
+	Blank             Kind = iota // Blank
+	Error                         // Error
+	Separator                     // Separator
+	Comment                       // Comment
+	Directive                     // Directive
+	RequestLine                   // RequestLine
+	URLContinuation               // URLContinuation
+	Header                        // Header
+	Body                          // Body
+	Script                        // Script
+	ResponseRedirect              // ResponseRedirect
+	ResponseReference             // ResponseReference
 )

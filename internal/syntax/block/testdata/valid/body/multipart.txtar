@@ -23,7 +23,7 @@ Hello world
 	<Token::Ident start=39, end=51>	`Content-Type`
 	<Token::Colon start=51, end=52>	`:`
 	<Token::Text start=53, end=91>	`multipart/form-data; boundary=boundary`
-<Block::HeaderBodySeparator start=4:1, end=4:1>	``
+<Block::Blank start=4:1, end=4:1>	``
 <Block::Body start=5:1, end=13:13>	`--boundary
 Content-Disposition: form-data; name="first"; filename="input.txt"
 
