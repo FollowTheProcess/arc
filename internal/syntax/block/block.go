@@ -166,8 +166,6 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 	// In a request body, only ###/<>/>>/> at column 0 break the body.
 	// '>>' must be checked before '>' so the redirect doesn't get
 	// swallowed by the response-script case.
-	//
-	// TODO(@FollowTheProcess): Implement lexer for response references ('<>')
 	if state == stateRequestBody {
 		switch {
 		case lineStartsWith(line, "###"):
@@ -313,6 +311,8 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 		return lex.Body(span)
 	case ResponseRedirect:
 		return lex.ResponseRedirect(span)
+	case ResponseReference:
+		return lex.ResponseReference(span)
 	case Error:
 		// A lexer error token
 		return nil, []diagnostic.Diagnostic{

@@ -8,6 +8,7 @@ type Kind int
 //go:generate stringer -type Kind -linecomment
 const (
 	Error                 Kind = iota // Error
+	Comment                           // Comment
 	Separator                         // Separator
 	Text                              // Text
 	Ident                             // Ident
@@ -28,5 +29,5 @@ const (
 	CloseScript                       // CloseScript
 	ResponseRedirect                  // ResponseRedirect
 	ResponseRedirectForce             // ResponseRedirectForce
-	Comment                           // Comment
+	ResponseReference                 // ResponseReference
 )

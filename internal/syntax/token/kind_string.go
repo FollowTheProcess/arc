@@ -9,32 +9,33 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[Error-0]
-	_ = x[Separator-1]
-	_ = x[Text-2]
-	_ = x[Ident-3]
-	_ = x[Dollar-4]
-	_ = x[At-5]
-	_ = x[Dot-6]
-	_ = x[LParen-7]
-	_ = x[RParen-8]
-	_ = x[LAngle-9]
-	_ = x[RAngle-10]
-	_ = x[Comma-11]
-	_ = x[Colon-12]
-	_ = x[Eq-13]
-	_ = x[Number-14]
-	_ = x[OpenInterp-15]
-	_ = x[CloseInterp-16]
-	_ = x[OpenScript-17]
-	_ = x[CloseScript-18]
-	_ = x[ResponseRedirect-19]
-	_ = x[ResponseRedirectForce-20]
-	_ = x[Comment-21]
+	_ = x[Comment-1]
+	_ = x[Separator-2]
+	_ = x[Text-3]
+	_ = x[Ident-4]
+	_ = x[Dollar-5]
+	_ = x[At-6]
+	_ = x[Dot-7]
+	_ = x[LParen-8]
+	_ = x[RParen-9]
+	_ = x[LAngle-10]
+	_ = x[RAngle-11]
+	_ = x[Comma-12]
+	_ = x[Colon-13]
+	_ = x[Eq-14]
+	_ = x[Number-15]
+	_ = x[OpenInterp-16]
+	_ = x[CloseInterp-17]
+	_ = x[OpenScript-18]
+	_ = x[CloseScript-19]
+	_ = x[ResponseRedirect-20]
+	_ = x[ResponseRedirectForce-21]
+	_ = x[ResponseReference-22]
 }
 
-const _Kind_name = "ErrorSeparatorTextIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceComment"
+const _Kind_name = "ErrorCommentSeparatorTextIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
 
-var _Kind_index = [...]uint8{0, 5, 14, 18, 23, 29, 31, 34, 40, 46, 52, 58, 63, 68, 70, 76, 86, 97, 107, 118, 134, 155, 162}
+var _Kind_index = [...]uint8{0, 5, 12, 21, 25, 30, 36, 38, 41, 47, 53, 59, 65, 70, 75, 77, 83, 93, 104, 114, 125, 141, 162, 179}
 
 func (i Kind) String() string {
 	idx := int(i) - 0

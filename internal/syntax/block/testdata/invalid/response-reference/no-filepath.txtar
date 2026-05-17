@@ -1,0 +1,18 @@
+-- src.http --
+### test
+GET /foo
+
+<>
+-- want.txt --
+<Block::Separator start=1:1, end=1:9>	`### test`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=8>	`test`
+<Block::RequestLine start=2:1, end=2:9>	`GET /foo`
+	<Token::Ident start=9, end=12>	`GET`
+	<Token::Text start=13, end=17>	`/foo`
+<Block::Blank start=3:1, end=3:1>	``
+<Block::ResponseReference start=4:1, end=4:3>	`<>`
+	<Token::ResponseReference start=19, end=21>	`<>`
+	<Token::Error start=21, end=21>	``
+-- diagnostics.txt --
+[error] src.http:4:3: expected filepath following response reference

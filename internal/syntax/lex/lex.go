@@ -434,6 +434,53 @@ func ResponseRedirect(span source.Span) ([]token.Token, []diagnostic.Diagnostic)
 	return s.tokens, s.diagnostics
 }
 
+// ResponseReference tokenises a response reference line.
+//
+// `<> response.json` declares a response reference pointing at
+// the named file.
+func ResponseReference(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	s := newScanner(span)
+
+	if !s.takeExact("<>") {
+		// Consume the remainder of the input so the diagnostic spans the
+		// offending bytes rather than producing a zero-width error and
+		// silently dropping the line.
+		for !s.atEOF() {
+			s.next()
+		}
+
+		s.errorf("expected '<>', got %q", span.Content())
+
+		return s.tokens, s.diagnostics
+	}
+
+	s.emit(token.ResponseReference)
+
+	s.skip(isLineSpace)
+
+	if s.atEOF() {
+		s.error("expected filepath following response reference")
+
+		return s.tokens, s.diagnostics
+	}
+
+	scanInterpolatedTextLine(s)
+
+	// Step over the line terminator so the trailing-content diagnostic
+	// points at the offending bytes, not the newline.
+	s.skip(isLineTerminator)
+
+	if !s.atEOF() {
+		for !s.atEOF() {
+			s.next()
+		}
+
+		s.error("unexpected content after response reference")
+	}
+
+	return s.tokens, s.diagnostics
+}
+
 // isFileRefOpener reports whether the scanner is positioned at a '<' that
 // introduces a file-ref body (as opposed to an inline body that happens to
 // begin with '<').
