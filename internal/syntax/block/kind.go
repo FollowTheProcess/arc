@@ -21,7 +21,6 @@ const (
 	BodyContent                     // BodyContent
 	FileBody                        // FileBody
 	Script                          // Script
-	ScriptClose                     // ScriptClose
 	ResponseRedirect                // ResponseRedirect
 	ResponseReference               // ResponseReference
 )
