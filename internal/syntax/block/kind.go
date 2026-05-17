@@ -20,8 +20,7 @@ const (
 	BodyClose                       // BodyClose
 	BodyContent                     // BodyContent
 	FileBody                        // FileBody
-	RequestScript                   // RequestScript
-	ResponseScript                  // ResponseScript
+	Script                          // Script
 	ScriptClose                     // ScriptClose
 	ResponseRedirect                // ResponseRedirect
 	ResponseReference               // ResponseReference

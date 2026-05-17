@@ -96,7 +96,7 @@ func (p *parser) step(span source.Span) {
 	// into a single script span and hand it to the lexer.
 	if p.state == stateScript {
 		if bytes.Contains(span.Content(), []byte("%}")) {
-			p.emit(RequestScript, source.Span{
+			p.emit(Script, source.Span{
 				File:        p.file,
 				StartOffset: p.scriptStart,
 				EndOffset:   span.EndOffset,
@@ -111,7 +111,7 @@ func (p *parser) step(span source.Span) {
 
 	// A '< {%' (or '> {%') opener with no matching '%}' on the same line
 	// starts a multi-line script.
-	if kind == RequestScript && isMultilineScriptOpen(span.Content()) {
+	if kind == Script && isMultilineScriptOpen(span.Content()) {
 		p.scriptStart = span.StartOffset
 		p.prevState = p.state
 		p.state = stateScript
@@ -153,7 +153,7 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		case lineStartsWith(line, ">>"), lineStartsWith(line, ">>!"):
 			return ResponseRedirect, stateRequestPostBody
 		case lineStartsWith(line, ">"):
-			return ResponseScript, stateRequestPostBody
+			return Script, stateRequestPostBody
 		default:
 			return BodyContent, stateRequestBody
 		}
@@ -186,7 +186,7 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 	case state == stateRequestHeaders:
 		return Header, state
 	case state == stateRequestPrelude && lineStartsWith(line, "<"):
-		return RequestScript, state
+		return Script, state
 	default:
 		return Error, state
 	}
@@ -262,7 +262,7 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 		return lex.Header(span)
 	case Directive:
 		return lex.Directive(span)
-	case RequestScript, ResponseScript:
+	case Script:
 		return lex.Script(span)
 	case Error:
 		// A lexer error token

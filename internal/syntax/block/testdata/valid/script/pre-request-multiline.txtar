@@ -8,7 +8,7 @@ GET https://example.com
 <Block::Separator start=1:1, end=1:10>	"### multi"
 	<Token::Separator start=0, end=3>	"###"
 	<Token::Ident start=4, end=9>	"multi"
-<Block::RequestScript start=2:1, end=4:3>	"< {%\nconsole.log(\"hello\")\n%}"
+<Block::Script start=2:1, end=4:3>	"< {%\nconsole.log(\"hello\")\n%}"
 	<Token::LAngle start=10, end=11>	"<"
 	<Token::OpenScript start=12, end=14>	"{%"
 	<Token::CloseScript start=36, end=38>	"%}"
