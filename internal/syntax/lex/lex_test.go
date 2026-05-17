@@ -37,6 +37,7 @@ func TestTokenisers(t *testing.T) {
 		{name: "script", tokeniser: lex.Script},
 		{name: "body", tokeniser: lex.Body},
 		{name: "response-redirect", tokeniser: lex.ResponseRedirect},
+		{name: "response-reference", tokeniser: lex.ResponseReference},
 	}
 
 	for _, kind := range []string{"valid", "invalid"} {
@@ -87,6 +88,10 @@ func FuzzBody(f *testing.F) {
 
 func FuzzResponseRedirect(f *testing.F) {
 	fuzzTokeniser(f, "response-redirect", lex.ResponseRedirect)
+}
+
+func FuzzResponseReference(f *testing.F) {
+	fuzzTokeniser(f, "response-reference", lex.ResponseReference)
 }
 
 // walkTxtarCases recursively walks root, nesting a subtest per directory and

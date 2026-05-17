@@ -1,0 +1,8 @@
+-- src.http --
+<> {{ filename }}
+-- tokens.txt --
+<Token::ResponseReference start=0, end=2>
+<Token::OpenInterp start=3, end=5>
+<Token::Ident start=6, end=14>
+<Token::CloseInterp start=15, end=17>
+-- diagnostics.txt --

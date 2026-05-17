@@ -1,0 +1,9 @@
+-- src.http --
+<> {{ name }}.response.json
+-- tokens.txt --
+<Token::ResponseReference start=0, end=2>
+<Token::OpenInterp start=3, end=5>
+<Token::Ident start=6, end=10>
+<Token::CloseInterp start=11, end=13>
+<Token::Text start=13, end=27>
+-- diagnostics.txt --

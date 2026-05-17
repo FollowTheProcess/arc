@@ -1,0 +1,13 @@
+-- src.http --
+<> {{ a }}/{{ b }}.json
+-- tokens.txt --
+<Token::ResponseReference start=0, end=2>
+<Token::OpenInterp start=3, end=5>
+<Token::Ident start=6, end=7>
+<Token::CloseInterp start=8, end=10>
+<Token::Text start=10, end=11>
+<Token::OpenInterp start=11, end=13>
+<Token::Ident start=14, end=15>
+<Token::CloseInterp start=16, end=18>
+<Token::Text start=18, end=23>
+-- diagnostics.txt --
