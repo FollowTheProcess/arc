@@ -1,0 +1,21 @@
+-- src.http --
+### test
+GET /foo
+
+>> response.{{ env }}.json
+-- want.txt --
+<Block::Separator start=1:1, end=1:9>	`### test`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=8>	`test`
+<Block::RequestLine start=2:1, end=2:9>	`GET /foo`
+	<Token::Ident start=9, end=12>	`GET`
+	<Token::Text start=13, end=17>	`/foo`
+<Block::Blank start=3:1, end=3:1>	``
+<Block::ResponseRedirect start=4:1, end=4:27>	`>> response.{{ env }}.json`
+	<Token::ResponseRedirect start=19, end=21>	`>>`
+	<Token::Text start=22, end=31>	`response.`
+	<Token::OpenInterp start=31, end=33>	`{{`
+	<Token::Ident start=34, end=37>	`env`
+	<Token::CloseInterp start=38, end=40>	`}}`
+	<Token::Text start=40, end=45>	`.json`
+-- diagnostics.txt --
