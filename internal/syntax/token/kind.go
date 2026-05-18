@@ -11,6 +11,7 @@ const (
 	Comment                           // Comment
 	Separator                         // Separator
 	Text                              // Text
+	Quote                             // Quote
 	Ident                             // Ident
 	Dollar                            // Dollar
 	At                                // At

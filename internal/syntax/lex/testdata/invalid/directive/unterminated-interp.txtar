@@ -1,11 +1,13 @@
 -- src.http --
-@x = {{ host
+@x = "{{ host"
 -- tokens.txt --
 <Token::At start=0, end=1>
 <Token::Ident start=1, end=2>
 <Token::Eq start=3, end=4>
-<Token::OpenInterp start=5, end=7>
-<Token::Ident start=8, end=12>
-<Token::Error start=12, end=12>
+<Token::Quote start=5, end=6>
+<Token::OpenInterp start=6, end=8>
+<Token::Ident start=9, end=13>
+<Token::Error start=13, end=13>
+<Token::Quote start=13, end=14>
 -- diagnostics.txt --
 [error] src.http:1:13: unterminated interpolation
