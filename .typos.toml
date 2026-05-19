@@ -1,5 +1,5 @@
 [default.extend-words]
-byt = "byt"  # Useful name as byte is a keyword in go
+byt = "byt"            # Useful name as byte is a keyword in go
 decorder = "decorder"  # Name of a Go linter
 
 [files]
