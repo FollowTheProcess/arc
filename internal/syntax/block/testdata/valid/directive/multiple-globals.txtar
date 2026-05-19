@@ -7,15 +7,21 @@
 	<Token::At start=0, end=1>	`@`
 	<Token::Ident start=1, end=4>	`one`
 	<Token::Eq start=5, end=6>	`=`
-	<Token::Text start=7, end=14>	`"first"`
+	<Token::Quote start=7, end=8>	`"`
+	<Token::Text start=8, end=13>	`first`
+	<Token::Quote start=13, end=14>	`"`
 <Block::Directive start=2:1, end=2:16>	`@two = "second"`
 	<Token::At start=15, end=16>	`@`
 	<Token::Ident start=16, end=19>	`two`
 	<Token::Eq start=20, end=21>	`=`
-	<Token::Text start=22, end=30>	`"second"`
+	<Token::Quote start=22, end=23>	`"`
+	<Token::Text start=23, end=29>	`second`
+	<Token::Quote start=29, end=30>	`"`
 <Block::Directive start=3:1, end=3:17>	`@three = "third"`
 	<Token::At start=31, end=32>	`@`
 	<Token::Ident start=32, end=37>	`three`
 	<Token::Eq start=38, end=39>	`=`
-	<Token::Text start=40, end=47>	`"third"`
+	<Token::Quote start=40, end=41>	`"`
+	<Token::Text start=41, end=46>	`third`
+	<Token::Quote start=46, end=47>	`"`
 -- diagnostics.txt --

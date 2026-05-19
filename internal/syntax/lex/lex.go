@@ -219,8 +219,21 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 
 	s.skip(isLineSpace)
 
-	// Value
-	if next := s.peek(); isDigit(next) || next == '+' || next == '-' || next == '.' {
+	switch next := s.peek(); next {
+	case '"':
+		// Text in directives must be quoted
+		s.next()
+		s.emit(token.Quote)
+
+		scanInterpolatedQuotedText(s)
+
+		if !s.takeExact(`"`) {
+			s.error(`unterminated string literal, expected closing '"'`)
+		} else {
+			s.emit(token.Quote)
+		}
+
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '.':
 		scanNumber(s)
 
 		// scanNumber stops at the first character it doesn't recognise as
@@ -235,11 +248,13 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 			s.error("unexpected content after directive value")
 		}
 
-		return s.tokens, s.diagnostics
+	default:
+		// Flag directives (e.g. @no-redirect) don't take a value so we can't
+		// just error unconditionally
+		if !s.atEOF() {
+			s.errorf("unexpected character in directive value: %q", next)
+		}
 	}
-
-	// Normal text value, possibly with interpolations
-	scanInterpolatedText(s)
 
 	return s.tokens, s.diagnostics
 }
@@ -523,6 +538,26 @@ func scanInterpolatedTextLine(s *scanner) {
 		}
 
 		for !s.atEOF() && !s.restStartsWith("{{") && !isLineTerminator(s.peek()) {
+			s.next()
+		}
+
+		if s.pos > s.start {
+			s.emit(token.Text)
+		}
+	}
+}
+
+// scanInterpolatedQuotedText is [scanInterpolatedText] but stops at '"', used when
+// the text is bounded by quotes, e.g. a text value of a variable directive.
+func scanInterpolatedQuotedText(s *scanner) {
+	for !s.atEOF() && s.peek() != '"' {
+		if s.restStartsWith("{{") {
+			scanInterp(s)
+
+			continue
+		}
+
+		for !s.atEOF() && !s.restStartsWith("{{") && s.peek() != '"' {
 			s.next()
 		}
 

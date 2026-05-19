@@ -16,18 +16,22 @@
 	<Token::At start=12, end=13>	`@`
 	<Token::Ident start=13, end=17>	`host`
 	<Token::Eq start=18, end=19>	`=`
-	<Token::Text start=20, end=41>	`"https://example.com"`
+	<Token::Quote start=20, end=21>	`"`
+	<Token::Text start=21, end=40>	`https://example.com`
+	<Token::Quote start=40, end=41>	`"`
 <Block::Directive start=4:1, end=4:16>	`@api = "/users"`
 	<Token::At start=42, end=43>	`@`
 	<Token::Ident start=43, end=46>	`api`
 	<Token::Eq start=47, end=48>	`=`
-	<Token::Text start=49, end=57>	`"/users"`
+	<Token::Quote start=49, end=50>	`"`
+	<Token::Text start=50, end=56>	`/users`
+	<Token::Quote start=56, end=57>	`"`
 <Block::Blank start=5:1, end=5:1>	``
 <Block::Directive start=6:1, end=6:45>	`@baseURL = "{{ host }}/{{ api }}/{{ count}}"`
 	<Token::At start=59, end=60>	`@`
 	<Token::Ident start=60, end=67>	`baseURL`
 	<Token::Eq start=68, end=69>	`=`
-	<Token::Text start=70, end=71>	`"`
+	<Token::Quote start=70, end=71>	`"`
 	<Token::OpenInterp start=71, end=73>	`{{`
 	<Token::Ident start=74, end=78>	`host`
 	<Token::CloseInterp start=79, end=81>	`}}`
@@ -39,5 +43,5 @@
 	<Token::OpenInterp start=92, end=94>	`{{`
 	<Token::Ident start=95, end=100>	`count`
 	<Token::CloseInterp start=100, end=102>	`}}`
-	<Token::Text start=102, end=103>	`"`
+	<Token::Quote start=102, end=103>	`"`
 -- diagnostics.txt --

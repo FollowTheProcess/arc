@@ -10,4 +10,4 @@
 <Token::Error start=13, end=13>
 <Token::Quote start=13, end=14>
 -- diagnostics.txt --
-[error] src.http:1:13: unterminated interpolation
+[error] src.http:1:14: unterminated interpolation

@@ -7,5 +7,7 @@
 	<Token::At start=22, end=23>	`@`
 	<Token::Ident start=23, end=27>	`host`
 	<Token::Eq start=28, end=29>	`=`
-	<Token::Text start=30, end=55>	`"https://api.example.com"`
+	<Token::Quote start=30, end=31>	`"`
+	<Token::Text start=31, end=54>	`https://api.example.com`
+	<Token::Quote start=54, end=55>	`"`
 -- diagnostics.txt --
