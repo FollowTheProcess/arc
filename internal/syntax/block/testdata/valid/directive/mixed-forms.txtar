@@ -12,7 +12,9 @@ GET {{ host }}/items
 	<Token::At start=0, end=1>	`@`
 	<Token::Ident start=1, end=5>	`host`
 	<Token::Eq start=6, end=7>	`=`
-	<Token::Text start=8, end=33>	`"https://api.example.com"`
+	<Token::Quote start=8, end=9>	`"`
+	<Token::Text start=9, end=32>	`https://api.example.com`
+	<Token::Quote start=32, end=33>	`"`
 <Block::Comment start=2:1, end=2:62>	`# this comment-disguised form is just a comment at file scope`
 <Block::Comment start=3:1, end=3:16>	`# @timeout = 30`
 <Block::Blank start=4:1, end=4:1>	``
@@ -29,7 +31,9 @@ GET {{ host }}/items
 	<Token::At start=140, end=141>	`@`
 	<Token::Ident start=141, end=146>	`local`
 	<Token::Eq start=147, end=148>	`=`
-	<Token::Text start=149, end=156>	`"value"`
+	<Token::Quote start=149, end=150>	`"`
+	<Token::Text start=150, end=155>	`value`
+	<Token::Quote start=155, end=156>	`"`
 <Block::RequestLine start=8:1, end=8:21>	`GET {{ host }}/items`
 	<Token::Ident start=157, end=160>	`GET`
 	<Token::OpenInterp start=161, end=163>	`{{`

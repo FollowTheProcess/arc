@@ -12,30 +12,31 @@ func _() {
 	_ = x[Comment-1]
 	_ = x[Separator-2]
 	_ = x[Text-3]
-	_ = x[Ident-4]
-	_ = x[Dollar-5]
-	_ = x[At-6]
-	_ = x[Dot-7]
-	_ = x[LParen-8]
-	_ = x[RParen-9]
-	_ = x[LAngle-10]
-	_ = x[RAngle-11]
-	_ = x[Comma-12]
-	_ = x[Colon-13]
-	_ = x[Eq-14]
-	_ = x[Number-15]
-	_ = x[OpenInterp-16]
-	_ = x[CloseInterp-17]
-	_ = x[OpenScript-18]
-	_ = x[CloseScript-19]
-	_ = x[ResponseRedirect-20]
-	_ = x[ResponseRedirectForce-21]
-	_ = x[ResponseReference-22]
+	_ = x[Quote-4]
+	_ = x[Ident-5]
+	_ = x[Dollar-6]
+	_ = x[At-7]
+	_ = x[Dot-8]
+	_ = x[LParen-9]
+	_ = x[RParen-10]
+	_ = x[LAngle-11]
+	_ = x[RAngle-12]
+	_ = x[Comma-13]
+	_ = x[Colon-14]
+	_ = x[Eq-15]
+	_ = x[Number-16]
+	_ = x[OpenInterp-17]
+	_ = x[CloseInterp-18]
+	_ = x[OpenScript-19]
+	_ = x[CloseScript-20]
+	_ = x[ResponseRedirect-21]
+	_ = x[ResponseRedirectForce-22]
+	_ = x[ResponseReference-23]
 }
 
-const _Kind_name = "ErrorCommentSeparatorTextIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
+const _Kind_name = "ErrorCommentSeparatorTextQuoteIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
 
-var _Kind_index = [...]uint8{0, 5, 12, 21, 25, 30, 36, 38, 41, 47, 53, 59, 65, 70, 75, 77, 83, 93, 104, 114, 125, 141, 162, 179}
+var _Kind_index = [...]uint8{0, 5, 12, 21, 25, 30, 35, 41, 43, 46, 52, 58, 64, 70, 75, 80, 82, 88, 98, 109, 119, 130, 146, 167, 184}
 
 func (i Kind) String() string {
 	idx := int(i) - 0

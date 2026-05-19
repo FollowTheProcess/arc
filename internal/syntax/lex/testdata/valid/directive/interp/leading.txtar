@@ -1,11 +1,13 @@
 -- src.http --
-@base = {{ host }}/users
+@base = "{{ host }}/users"
 -- tokens.txt --
 <Token::At start=0, end=1>
 <Token::Ident start=1, end=5>
 <Token::Eq start=6, end=7>
-<Token::OpenInterp start=8, end=10>
-<Token::Ident start=11, end=15>
-<Token::CloseInterp start=16, end=18>
-<Token::Text start=18, end=24>
+<Token::Quote start=8, end=9>
+<Token::OpenInterp start=9, end=11>
+<Token::Ident start=12, end=16>
+<Token::CloseInterp start=17, end=19>
+<Token::Text start=19, end=25>
+<Token::Quote start=25, end=26>
 -- diagnostics.txt --

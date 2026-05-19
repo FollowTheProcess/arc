@@ -196,18 +196,35 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s.skip(isLineSpace)
 
 	// '@'
-	if !s.takeExact("@") {
-		s.errorf("expected '@' got %q", span.Content())
-	} else {
+	if s.takeExact("@") {
 		s.emit(token.At)
+	} else {
+		// No '@'. If what follows is ident-shaped (e.g. forgot the '@' on
+		// a flag directive like 'no-redirect') fall through and let ident
+		// scanning emit the token.
+		//
+		// Otherwise consume the whole remainder up-front so the diagnostic span
+		// covers the entire bad range then bail.
+		garbage := !isAlpha(s.peek())
+		if garbage {
+			for !s.atEOF() {
+				s.next()
+			}
+		}
+
+		s.errorf("expected '@' got %q", span.Content())
+
+		if garbage {
+			return s.tokens, s.diagnostics
+		}
 	}
 
 	// 'baseURL'
-	if !isAlpha(s.peek()) {
-		s.errorf("expected an ident following '@', got %q", s.peek())
-	} else {
+	if isAlpha(s.peek()) {
 		s.takeWhile(isIdent)
 		s.emit(token.Ident)
+	} else {
+		s.errorf("expected an ident following '@', got %q", s.peek())
 	}
 
 	s.skip(isLineSpace)
@@ -219,27 +236,47 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 
 	s.skip(isLineSpace)
 
-	// Value
-	if next := s.peek(); isDigit(next) || next == '+' || next == '-' || next == '.' {
+	switch next := s.peek(); next {
+	case '"':
+		// Text in directives must be quoted
+		s.next()
+		s.emit(token.Quote)
+
+		scanInterpolatedQuotedText(s)
+
+		if !s.takeExact(`"`) {
+			s.error(`unterminated string literal, expected closing '"'`)
+		} else {
+			s.emit(token.Quote)
+		}
+
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '.':
 		scanNumber(s)
 
-		// scanNumber stops at the first character it doesn't recognise as
-		// part of a number, anything left on the line is unexpected.
-		s.skip(isLineSpace)
-
+	default:
+		// Flag directives (e.g. @no-redirect) don't take a value so we can't
+		// just error unconditionally. When there is content though, consume
+		// it so the diagnostic span reflects the entire bad range
 		if !s.atEOF() {
 			for !s.atEOF() {
 				s.next()
 			}
 
-			s.error("unexpected content after directive value")
+			s.errorf("unexpected character in directive value: %q", next)
 		}
-
-		return s.tokens, s.diagnostics
 	}
 
-	// Normal text value, possibly with interpolations
-	scanInterpolatedText(s)
+	// Trailing content after a parsed value is always bad, consume
+	// it as one chunk so the diagnostic again reflects reality.
+	s.skip(isLineSpace)
+
+	if !s.atEOF() {
+		for !s.atEOF() {
+			s.next()
+		}
+
+		s.error("unexpected content after directive value")
+	}
 
 	return s.tokens, s.diagnostics
 }
@@ -523,6 +560,26 @@ func scanInterpolatedTextLine(s *scanner) {
 		}
 
 		for !s.atEOF() && !s.restStartsWith("{{") && !isLineTerminator(s.peek()) {
+			s.next()
+		}
+
+		if s.pos > s.start {
+			s.emit(token.Text)
+		}
+	}
+}
+
+// scanInterpolatedQuotedText is [scanInterpolatedText] but stops at '"', used when
+// the text is bounded by quotes, e.g. a text value of a variable directive.
+func scanInterpolatedQuotedText(s *scanner) {
+	for !s.atEOF() && s.peek() != '"' {
+		if s.restStartsWith("{{") {
+			scanInterp(s)
+
+			continue
+		}
+
+		for !s.atEOF() && !s.restStartsWith("{{") && s.peek() != '"' {
 			s.next()
 		}
 
