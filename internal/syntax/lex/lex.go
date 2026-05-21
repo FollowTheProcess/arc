@@ -176,13 +176,12 @@ func Header(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 }
 
 // Directive scans a directive line, e.g. a global or
-// request variable or config such as @no-redirect.
+// request variable or config such as @no-redirect, and
+// prompts '@prompt <ident> "<optional description>"`.
 //
 // The caller (the block parser) is responsible for ensuring the line
 // is directive-shaped: an optional comment prefix ('#' or '//') and
-// whitespace, then '@'. Both bare ('@x = y') and comment-disguised
-// ('# @x = y') forms are accepted. The comment prefix is skipped
-// without emitting any tokens for it.
+// whitespace, then '@'.
 func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(span)
 
@@ -219,7 +218,7 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 		}
 	}
 
-	// 'baseURL'
+	// Name of the directive, user variable name or things like 'no-redirect', 'prompt' etc.
 	if isAlpha(s.peek()) {
 		s.takeWhile(isIdent)
 		s.emit(token.Ident)
@@ -232,6 +231,13 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	// The '=' is optional
 	if s.take("=") {
 		s.emit(token.Eq)
+	}
+
+	// Could also be another ident, i.e. in the case of prompts
+	// @prompt <ident>
+	if isAlpha(s.peek()) {
+		s.takeWhile(isIdent)
+		s.emit(token.Ident)
 	}
 
 	s.skip(isLineSpace)
