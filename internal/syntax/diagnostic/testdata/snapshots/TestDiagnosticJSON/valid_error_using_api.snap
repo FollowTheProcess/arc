@@ -1,0 +1,54 @@
+source: diagnostic_test.go
+expression: string(content)
+---
+|-
+  {
+    "message": "undefined variable 'url'",
+    "span": {
+      "file": {
+        "name": "test.http"
+      },
+      "startOffset": 4,
+      "endOffset": 11
+    },
+    "labels": [
+      {
+        "message": "also referenced here",
+        "span": {
+          "file": {
+            "name": "test.http"
+          },
+          "startOffset": 24,
+          "endOffset": 31
+        }
+      }
+    ],
+    "fixes": [
+      {
+        "message": "rename 'url' to 'baseUrl'",
+        "edits": [
+          {
+            "replacement": "baseUrl",
+            "span": {
+              "file": {
+                "name": "test.http"
+              },
+              "startOffset": 6,
+              "endOffset": 9
+            }
+          },
+          {
+            "replacement": "baseUrl",
+            "span": {
+              "file": {
+                "name": "test.http"
+              },
+              "startOffset": 26,
+              "endOffset": 29
+            }
+          }
+        ]
+      }
+    ],
+    "severity": "error"
+  }
