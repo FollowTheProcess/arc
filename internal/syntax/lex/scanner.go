@@ -198,19 +198,15 @@ func (s *scanner) emit(kind token.Kind) {
 //
 // The attached span is the span of text the scanner is tacking
 // (s.start -> s.pos).
-func (s *scanner) error(msg string) {
-	diag := diagnostic.Diagnostic{
-		Message: msg,
-		Span: source.Span{
-			File:        s.file,
-			StartOffset: s.absStart(),
-			EndOffset:   s.absPos(),
-		},
-		Severity: diagnostic.SeverityError,
+func (s *scanner) error(msg string, options ...diagnostic.Option) {
+	span := source.Span{
+		File:        s.file,
+		StartOffset: s.absStart(),
+		EndOffset:   s.absPos(),
 	}
 
+	diag := diagnostic.Error(msg, span, options...)
 	s.diagnostics = append(s.diagnostics, diag)
-
 	s.emit(token.Error)
 }
 
