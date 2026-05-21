@@ -1,0 +1,11 @@
+-- src.http --
+// @prompt id "The user's ID"
+-- tokens.txt --
+<Token::Comment start=0, end=2>
+<Token::At start=3, end=4>
+<Token::Ident start=4, end=10>
+<Token::Ident start=11, end=13>
+<Token::Quote start=14, end=15>
+<Token::Text start=15, end=28>
+<Token::Quote start=28, end=29>
+-- diagnostics.txt --
