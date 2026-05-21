@@ -8,10 +8,6 @@ import (
 	"go.followtheprocess.codes/arc/internal/syntax/source"
 )
 
-// TODO: Some sort of elegant way of attaching labels and fixes
-//
-// Functional options maybe
-
 // Diagnostic is a single source level diagnostic.
 type Diagnostic struct {
 	Message  string      `json:"message,omitempty"` // Message text
@@ -19,6 +15,36 @@ type Diagnostic struct {
 	Labels   []Label     `json:"labels,omitempty"`  // Supplementary spans e.g. "defined here".
 	Fixes    []Fix       `json:"fixes,omitempty"`   // Suggested edits.
 	Severity Severity    `json:"severity,omitzero"` // Severity is the severity of the diagnostic.
+}
+
+// Error returns a new [Diagnostic] with [SeverityError].
+func Error(msg string, span source.Span, options ...Option) Diagnostic {
+	d := Diagnostic{
+		Message:  msg,
+		Span:     span,
+		Severity: SeverityError,
+	}
+
+	for _, option := range options {
+		option(&d)
+	}
+
+	return d
+}
+
+// Warn returns a new [Diagnostic] with [SeverityWarning].
+func Warn(msg string, span source.Span, options ...Option) Diagnostic {
+	d := Diagnostic{
+		Message:  msg,
+		Span:     span,
+		Severity: SeverityWarning,
+	}
+
+	for _, option := range options {
+		option(&d)
+	}
+
+	return d
 }
 
 // String returns a string representation of a [Diagnostic].
@@ -52,4 +78,29 @@ type Fix struct {
 type Edit struct {
 	Replacement string      `json:"replacement"`   // Use this instead
 	Span        source.Span `json:"span,omitzero"` // Range to replace
+}
+
+// Option is a functional option for a [Diagnostic].
+type Option func(diag *Diagnostic)
+
+// WithLabel is an [Option] that attaches a [Label] to a [Diagnostic].
+func WithLabel(msg string, span source.Span) Option {
+	return func(diag *Diagnostic) {
+		label := Label{
+			Message: msg,
+			Span:    span,
+		}
+		diag.Labels = append(diag.Labels, label)
+	}
+}
+
+// WithFix is an [Option] that attaches a suggest [Fix] to a [Diagnostic].
+func WithFix(msg string, edits ...Edit) Option {
+	return func(diag *Diagnostic) {
+		fix := Fix{
+			Message: msg,
+			Edits:   edits,
+		}
+		diag.Fixes = append(diag.Fixes, fix)
+	}
 }

@@ -159,6 +159,92 @@ func (p *parser) step(span source.Span) {
 	p.state = next
 }
 
+// flush concludes parsing, it inserts any necessary closing blocks
+// before the parser returns so blocks are not left unterminated.
+func (p *parser) flush() {
+	switch p.state {
+	case stateRequestBody:
+		// Started parsing the body but hit EOF before we were done, needs
+		// a trigger to emit the span
+		end := p.lastNonBlankBodyEnd
+		if end > p.bodyStart {
+			p.emit(Body, source.Span{
+				File:        p.file,
+				StartOffset: p.bodyStart,
+				EndOffset:   end,
+			})
+		}
+	case stateScript:
+		span := source.Span{
+			File:        p.file,
+			StartOffset: p.scriptStart,
+			EndOffset:   p.file.Len(),
+		}
+		// Same thing with a script, was opened with a '{%', but hit EOF
+		// before seeing '%}', this is the trigger to emit what we have
+		p.emit(Script, span)
+		p.error("unterminated script, expected '%}' before EOF", span)
+
+	default:
+		// Nothing
+	}
+}
+
+// emit appends a block to the accumulator.
+func (p *parser) emit(kind Kind, span source.Span) {
+	tokens, diagnostics := p.tokenise(kind, span)
+	block := Block{
+		Span:   span,
+		Tokens: tokens,
+		Kind:   kind,
+	}
+
+	p.blocks = append(p.blocks, block)
+	p.diags = append(p.diags, diagnostics...)
+}
+
+// error appends an error level diagnostic to the parser.
+func (p *parser) error(msg string, span source.Span, options ...diagnostic.Option) {
+	diag := diagnostic.Error(msg, span, options...)
+	p.diags = append(p.diags, diag)
+}
+
+// tokenise dispatches a block to it's dedicated inline tokeniser.
+func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
+	switch kind {
+	case Blank, Comment:
+		// Markers / lines with no inline content to tokenise.
+		return nil, nil
+	case Separator:
+		return lex.Separator(span)
+	case RequestLine:
+		return lex.RequestLine(span)
+	case Header:
+		return lex.Header(span)
+	case Directive:
+		return lex.Directive(span)
+	case Script:
+		return lex.Script(span)
+	case Body:
+		return lex.Body(span)
+	case ResponseRedirect:
+		return lex.ResponseRedirect(span)
+	case ResponseReference:
+		return lex.ResponseReference(span)
+	case Error:
+		// A lexer error token
+		p.error(fmt.Sprintf("unexpected line in this context: %s", p.state), span)
+
+		// p.error appends to p.diags, no need to return anything
+		return nil, nil
+	default:
+		// A missing implementation
+		p.error(fmt.Sprintf("unhandled block kind: %s", kind), span)
+
+		return nil, nil
+	}
+}
+
 // dispatch decides what kind of block a line is given the current
 // context and the previously-emitted block kind. It returns the kind
 // for this line and the state the parser should move to afterwards.
@@ -237,100 +323,6 @@ func isDirective(line []byte, state state) bool {
 		return disguised
 	default:
 		return false
-	}
-}
-
-// flush concludes parsing, it inserts any necessary closing blocks
-// before the parser returns so blocks are not left unterminated.
-func (p *parser) flush() {
-	switch p.state {
-	case stateRequestBody:
-		// Started parsing the body but hit EOF before we were done, needs
-		// a trigger to emit the span
-		end := p.lastNonBlankBodyEnd
-		if end > p.bodyStart {
-			p.emit(Body, source.Span{
-				File:        p.file,
-				StartOffset: p.bodyStart,
-				EndOffset:   end,
-			})
-		}
-	case stateScript:
-		// Same thing with a script, was opened with a '{%', but hit EOF
-		// before seeing '%}', this is the trigger to emit what we have
-		p.emit(Script, source.Span{
-			File:        p.file,
-			StartOffset: p.scriptStart,
-			EndOffset:   p.file.Len(),
-		})
-
-		p.diags = append(p.diags, diagnostic.Diagnostic{
-			Message: "unterminated script, expected '%}' before EOF",
-			Span: source.Span{
-				File:        p.file,
-				StartOffset: p.scriptStart,
-				EndOffset:   p.file.Len(),
-			},
-			Severity: diagnostic.SeverityError,
-		})
-	default:
-		// Nothing
-	}
-}
-
-// emit appends a block to the accumulator.
-func (p *parser) emit(kind Kind, span source.Span) {
-	tokens, diagnostics := p.tokenise(kind, span)
-	block := Block{
-		Span:   span,
-		Tokens: tokens,
-		Kind:   kind,
-	}
-
-	p.blocks = append(p.blocks, block)
-	p.diags = append(p.diags, diagnostics...)
-}
-
-// tokenise dispatches a block to it's dedicated inline tokeniser.
-func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
-	switch kind {
-	case Blank, Comment:
-		// Markers / lines with no inline content to tokenise.
-		return nil, nil
-	case Separator:
-		return lex.Separator(span)
-	case RequestLine:
-		return lex.RequestLine(span)
-	case Header:
-		return lex.Header(span)
-	case Directive:
-		return lex.Directive(span)
-	case Script:
-		return lex.Script(span)
-	case Body:
-		return lex.Body(span)
-	case ResponseRedirect:
-		return lex.ResponseRedirect(span)
-	case ResponseReference:
-		return lex.ResponseReference(span)
-	case Error:
-		// A lexer error token
-		return nil, []diagnostic.Diagnostic{
-			{
-				Message:  fmt.Sprintf("unexpected line in this context: %s", p.state),
-				Span:     span,
-				Severity: diagnostic.SeverityError,
-			},
-		}
-	default:
-		// A missing implementation
-		return nil, []diagnostic.Diagnostic{
-			{
-				Message:  fmt.Sprintf("unhandled block kind: %s", kind),
-				Span:     span,
-				Severity: diagnostic.SeverityError,
-			},
-		}
 	}
 }
 

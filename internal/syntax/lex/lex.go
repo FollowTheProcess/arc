@@ -40,7 +40,7 @@ type Tokeniser func(span source.Span) ([]token.Token, []diagnostic.Diagnostic)
 func Separator(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(span)
 	if !s.takeExact("###") {
-		s.errorf("expected '###' got %q", span.Content())
+		s.error("expected '###' to open a request line")
 	} else {
 		s.emit(token.Separator)
 	}

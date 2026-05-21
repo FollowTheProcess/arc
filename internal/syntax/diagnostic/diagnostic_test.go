@@ -91,6 +91,39 @@ func TestDiagnosticString(t *testing.T) {
 			want: "[warning] test.http:1:5-9: use https for transport security",
 		},
 		{
+			// Doesn't look very clean here because we're manually constructing the spans
+			// which won't be the case in the real parser
+			name: "valid warning using api",
+			diag: diagnostic.Warn(
+				"use https for transport security",
+				source.Span{
+					File:        warningFile,
+					StartOffset: 4, // 'h' in "http"
+					EndOffset:   8, // end of "http"
+				},
+				diagnostic.WithLabel(
+					"this URL will be sent in plaintext",
+					source.Span{
+						File:        warningFile,
+						StartOffset: 4,  // 'h' in "http"
+						EndOffset:   26, // end of "/users"
+					},
+				),
+				diagnostic.WithFix(
+					"replace with 'https'",
+					diagnostic.Edit{
+						Replacement: "htps",
+						Span: source.Span{
+							File:        warningFile,
+							StartOffset: 4,
+							EndOffset:   8,
+						},
+					},
+				),
+			),
+			want: "[warning] test.http:1:5-9: use https for transport security",
+		},
+		{
 			name: "valid error",
 			diag: diagnostic.Diagnostic{
 				Severity: diagnostic.SeverityError,
@@ -126,6 +159,37 @@ func TestDiagnosticString(t *testing.T) {
 					},
 				},
 			},
+			want: "[error] test.http:1:1-5: unknown HTTP method 'GETT'",
+		},
+		{
+			name: "valid error using api",
+			diag: diagnostic.Error(
+				"unknown HTTP method 'GETT'",
+				source.Span{
+					File:        errorFile,
+					StartOffset: 0, // 'G' in "GETT"
+					EndOffset:   4, // end of "GETT"
+				},
+				diagnostic.WithLabel(
+					"applies to this request",
+					source.Span{
+						File:        errorFile,
+						StartOffset: 5,  // '/' in "/users"
+						EndOffset:   11, // end of "/users"
+					},
+				),
+				diagnostic.WithFix(
+					"did you mean 'GET'?",
+					diagnostic.Edit{
+						Replacement: "GET",
+						Span: source.Span{
+							File:        errorFile,
+							StartOffset: 0,
+							EndOffset:   4,
+						},
+					},
+				),
+			),
 			want: "[error] test.http:1:1-5: unknown HTTP method 'GETT'",
 		},
 	}
@@ -213,6 +277,38 @@ func TestDiagnosticJSON(t *testing.T) {
 			},
 		},
 		{
+			name: "valid warning using api",
+			diag: diagnostic.Warn(
+				"duplicate 'Accept' header",
+				source.Span{
+					File:        warningFile,
+					StartOffset: 31, // 'A' in second "Accept"
+					EndOffset:   37, // end of second "Accept"
+				},
+				diagnostic.WithLabel(
+					"first declared here",
+					source.Span{
+						File:        warningFile,
+						StartOffset: 6,  // 'A' in first "Accept"
+						EndOffset:   12, // end of first "Accept"
+					},
+				),
+				diagnostic.WithFix(
+					"remove the duplicate header",
+					diagnostic.Edit{
+						// Replacing the entire line including its trailing
+						// newline removes the header without leaving a blank line.
+						Replacement: "",
+						Span: source.Span{
+							File:        warningFile,
+							StartOffset: 31,
+							EndOffset:   50,
+						},
+					},
+				),
+			),
+		},
+		{
 			name: "valid error",
 			diag: diagnostic.Diagnostic{
 				Severity: diagnostic.SeverityError,
@@ -256,6 +352,44 @@ func TestDiagnosticJSON(t *testing.T) {
 					},
 				},
 			},
+		},
+		{
+			name: "valid error using api",
+			diag: diagnostic.Error(
+				"undefined variable 'url'",
+				source.Span{
+					File:        errorFile,
+					StartOffset: 4, // first '{{url}}'
+					EndOffset:   11,
+				},
+				diagnostic.WithLabel(
+					"also referenced here",
+					source.Span{
+						File:        errorFile,
+						StartOffset: 24, // second '{{url}}'
+						EndOffset:   31,
+					},
+				),
+				diagnostic.WithFix(
+					"rename 'url' to 'baseUrl'",
+					diagnostic.Edit{
+						Replacement: "baseUrl",
+						Span: source.Span{
+							File:        errorFile,
+							StartOffset: 6, // 'url' inside first '{{...}}'
+							EndOffset:   9,
+						},
+					},
+					diagnostic.Edit{
+						Replacement: "baseUrl",
+						Span: source.Span{
+							File:        errorFile,
+							StartOffset: 26, // 'url' inside second '{{...}}'
+							EndOffset:   29,
+						},
+					},
+				),
+			),
 		},
 	}
 
