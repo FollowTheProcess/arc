@@ -4,4 +4,3 @@ package syntax
 
 // TODO(@FollowTheProcess): Syntax gaps:
 // - URL continuation, indented newlines after the request line with url content on them
-// - HTTPVersion on the request line, do we need a HTTPVersion token?
