@@ -359,6 +359,11 @@ func lineStartsWith(line []byte, prefix string) bool {
 // later report a precise "unknown HTTP method" diagnostic. Only a complete
 // uppercase ident at the start of the line counts, "/path" or "get" do not.
 func isMethodPrefix(line []byte) bool {
+	// An empty line is never a method prefix
+	if len(line) == 0 {
+		return false
+	}
+
 	n := 0
 	for n < len(line) && line[n] >= 'A' && line[n] <= 'Z' {
 		n++
