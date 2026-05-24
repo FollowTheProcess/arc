@@ -14,8 +14,13 @@ GET https://something.long.com/items?
 	<Token::Ident start=11, end=14>	`GET`
 	<Token::Text start=15, end=48>	`https://something.long.com/items?`
 <Block::URLContinuation start=3:1, end=3:24>	`        query=something`
+	<Token::Text start=49, end=72>	`        query=something`
 <Block::URLContinuation start=4:1, end=4:18>	`        &else=123`
+	<Token::Text start=73, end=90>	`        &else=123`
 <Block::URLContinuation start=5:1, end=5:24>	`        &something=more`
+	<Token::Text start=91, end=114>	`        &something=more`
 <Block::URLContinuation start=6:1, end=6:15>	`        &id=87`
+	<Token::Text start=115, end=129>	`        &id=87`
 <Block::URLContinuation start=7:1, end=7:22>	`        &whatever=yes`
+	<Token::Text start=130, end=151>	`        &whatever=yes`
 -- diagnostics.txt --

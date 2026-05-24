@@ -213,13 +213,15 @@ func (p *parser) error(msg string, span source.Span, options ...diagnostic.Optio
 // tokenise dispatches a block to it's dedicated inline tokeniser.
 func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	switch kind {
-	case Blank, Comment, URLContinuation:
+	case Blank, Comment:
 		// Markers / lines with no inline content to tokenise.
 		return nil, nil
 	case Separator:
 		return lex.Separator(span)
 	case RequestLine:
 		return lex.RequestLine(span)
+	case URLContinuation:
+		return lex.InterpolatedText(span)
 	case Header:
 		return lex.Header(span)
 	case Directive:
