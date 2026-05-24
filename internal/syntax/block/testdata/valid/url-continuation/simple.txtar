@@ -1,0 +1,21 @@
+-- src.http --
+### bigURL
+GET https://something.long.com/items?
+        query=something
+        &else=123
+        &something=more
+        &id=87
+        &whatever=yes
+-- want.txt --
+<Block::Separator start=1:1, end=1:11>	`### bigURL`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=10>	`bigURL`
+<Block::RequestLine start=2:1, end=2:38>	`GET https://something.long.com/items?`
+	<Token::Ident start=11, end=14>	`GET`
+	<Token::Text start=15, end=48>	`https://something.long.com/items?`
+<Block::URLContinuation start=3:1, end=3:24>	`        query=something`
+<Block::URLContinuation start=4:1, end=4:18>	`        &else=123`
+<Block::URLContinuation start=5:1, end=5:24>	`        &something=more`
+<Block::URLContinuation start=6:1, end=6:15>	`        &id=87`
+<Block::URLContinuation start=7:1, end=7:22>	`        &whatever=yes`
+-- diagnostics.txt --

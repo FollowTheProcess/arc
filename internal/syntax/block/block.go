@@ -201,6 +201,7 @@ func (p *parser) emit(kind Kind, span source.Span) {
 
 	p.blocks = append(p.blocks, block)
 	p.diags = append(p.diags, diagnostics...)
+	p.prev = kind
 }
 
 // error appends an error level diagnostic to the parser.
@@ -212,7 +213,7 @@ func (p *parser) error(msg string, span source.Span, options ...diagnostic.Optio
 // tokenise dispatches a block to it's dedicated inline tokeniser.
 func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	switch kind {
-	case Blank, Comment:
+	case Blank, Comment, URLContinuation:
 		// Markers / lines with no inline content to tokenise.
 		return nil, nil
 	case Separator:
@@ -279,15 +280,16 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		return Blank, state
 	}
 
-	if lineStartsWith(line, "###") {
-		return Separator, stateRequestPrelude
-	}
-
-	if isDirective(line, state) {
-		return Directive, state
+	// Are we in a URLContinuation?
+	if isURLContinuation(prev, line) {
+		return URLContinuation, state
 	}
 
 	switch {
+	case lineStartsWith(line, "###"):
+		return Separator, stateRequestPrelude
+	case isDirective(line, state):
+		return Directive, state
 	case lineStartsWith(line, "#"), lineStartsWith(line, "//"):
 		return Comment, state // State unchanged by a comment
 	case isMethodPrefix(line):
@@ -378,4 +380,22 @@ func isMultilineScriptOpen(line []byte) bool {
 	}
 
 	return !bytes.Contains(after, []byte("%}"))
+}
+
+// isURLContinuation reports whether a line is a url continuation.
+//
+// The rules are:
+// - Non-empty
+// - Previous block was a RequestLine or a URLContinuation
+// - Begins with one or more whitespace chars.
+func isURLContinuation(prev Kind, line []byte) bool {
+	if len(line) == 0 {
+		return false
+	}
+
+	if prev != RequestLine && prev != URLContinuation {
+		return false
+	}
+
+	return bytes.HasPrefix(line, []byte(" ")) || bytes.HasPrefix(line, []byte("\t"))
 }
