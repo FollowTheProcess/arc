@@ -1,0 +1,22 @@
+-- src.http --
+### h
+GET https://example.com
+Accept: application/json
+    /api/v1/items
+-- want.txt --
+<Block::Separator start=1:1, end=1:6>	`### h`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=5>	`h`
+<Block::RequestLine start=2:1, end=2:24>	`GET https://example.com`
+	<Token::Ident start=6, end=9>	`GET`
+	<Token::Text start=10, end=29>	`https://example.com`
+<Block::Header start=3:1, end=3:25>	`Accept: application/json`
+	<Token::Ident start=30, end=36>	`Accept`
+	<Token::Colon start=36, end=37>	`:`
+	<Token::Text start=38, end=54>	`application/json`
+<Block::Header start=4:1, end=4:18>	`    /api/v1/items`
+	<Token::Error start=59, end=72>	`/api/v1/items`
+	<Token::Error start=72, end=72>	``
+-- diagnostics.txt --
+[error] src.http:4:5-18: invalid header name
+[error] src.http:4:18: header line missing ':'

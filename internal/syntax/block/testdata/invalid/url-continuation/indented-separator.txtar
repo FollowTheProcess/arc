@@ -1,0 +1,14 @@
+-- src.http --
+### first
+GET https://example.com
+    ###
+-- want.txt --
+<Block::Separator start=1:1, end=1:10>	`### first`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=9>	`first`
+<Block::RequestLine start=2:1, end=2:24>	`GET https://example.com`
+	<Token::Ident start=10, end=13>	`GET`
+	<Token::Text start=14, end=33>	`https://example.com`
+<Block::Error start=3:1, end=3:8>	`    ###`
+-- diagnostics.txt --
+[error] src.http:3:1-8: unexpected line in this context: RequestHeaders

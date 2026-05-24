@@ -1,0 +1,19 @@
+-- src.http --
+### ws
+POST https://example.com/items?
+    limit=10
+    
+body content
+-- want.txt --
+<Block::Separator start=1:1, end=1:7>	`### ws`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=6>	`ws`
+<Block::RequestLine start=2:1, end=2:32>	`POST https://example.com/items?`
+	<Token::Ident start=7, end=11>	`POST`
+	<Token::Text start=12, end=38>	`https://example.com/items?`
+<Block::URLContinuation start=3:1, end=3:13>	`    limit=10`
+	<Token::Text start=39, end=51>	`    limit=10`
+<Block::Blank start=4:1, end=4:5>	`    `
+<Block::Body start=5:1, end=5:13>	`body content`
+	<Token::Text start=57, end=69>	`body content`
+-- diagnostics.txt --

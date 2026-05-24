@@ -271,7 +271,9 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 	}
 
 	// Blank lines need to be treated specially depending on the current state.
-	if len(line) == 0 {
+	// Whitespace is insignificant here: a line of only spaces or tabs is a
+	// blank, never a URL continuation, so trim before testing for emptiness.
+	if len(bytes.TrimSpace(line)) == 0 {
 		if state == stateRequestHeaders {
 			// A blank after a run of headers marks the transition to the body.
 			// No marker block is needed, the state transition is enough.
@@ -280,6 +282,13 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 
 		// Otherwise normal blank
 		return Blank, state
+	}
+
+	// A '###' separator is only recognised at column 0. An indented '###'
+	// must not be swallowed into a URL continuation, but it isn't a separator
+	// either, so it's an error.
+	if isIndentedSeparator(line) {
+		return Error, state
 	}
 
 	// Are we in a URLContinuation?
@@ -382,6 +391,19 @@ func isMultilineScriptOpen(line []byte) bool {
 	}
 
 	return !bytes.Contains(after, []byte("%}"))
+}
+
+// isIndentedSeparator reports whether line is a '###' request separator that
+// has been indented.
+//
+// A separator is only recognised at column 0; an indented one is neither a
+// separator nor a URL continuation, it's an error.
+func isIndentedSeparator(line []byte) bool {
+	if lineStartsWith(line, "###") {
+		return false // Column 0, a real separator.
+	}
+
+	return lineStartsWith(bytes.TrimLeft(line, " \t"), "###")
 }
 
 // isURLContinuation reports whether a line is a url continuation.

@@ -1,0 +1,17 @@
+-- src.http --
+### tabs
+GET https://example.com/items?
+	limit=10
+	&offset=20
+-- want.txt --
+<Block::Separator start=1:1, end=1:9>	`### tabs`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=8>	`tabs`
+<Block::RequestLine start=2:1, end=2:31>	`GET https://example.com/items?`
+	<Token::Ident start=9, end=12>	`GET`
+	<Token::Text start=13, end=39>	`https://example.com/items?`
+<Block::URLContinuation start=3:1, end=3:10>	`	limit=10`
+	<Token::Text start=40, end=49>	`	limit=10`
+<Block::URLContinuation start=4:1, end=4:12>	`	&offset=20`
+	<Token::Text start=50, end=61>	`	&offset=20`
+-- diagnostics.txt --
