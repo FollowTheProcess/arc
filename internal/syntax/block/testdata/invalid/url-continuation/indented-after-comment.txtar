@@ -1,0 +1,8 @@
+-- src.http --
+# a leading comment
+    /api/v1/items
+-- want.txt --
+<Block::Comment start=1:1, end=1:20>	`# a leading comment`
+<Block::Error start=2:1, end=2:18>	`    /api/v1/items`
+-- diagnostics.txt --
+[error] src.http:2:1-18: unexpected line in this context: Initial

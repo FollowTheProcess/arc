@@ -201,6 +201,7 @@ func (p *parser) emit(kind Kind, span source.Span) {
 
 	p.blocks = append(p.blocks, block)
 	p.diags = append(p.diags, diagnostics...)
+	p.prev = kind
 }
 
 // error appends an error level diagnostic to the parser.
@@ -219,6 +220,8 @@ func (p *parser) tokenise(kind Kind, span source.Span) ([]token.Token, []diagnos
 		return lex.Separator(span)
 	case RequestLine:
 		return lex.RequestLine(span)
+	case URLContinuation:
+		return lex.InterpolatedText(span)
 	case Header:
 		return lex.Header(span)
 	case Directive:
@@ -268,7 +271,9 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 	}
 
 	// Blank lines need to be treated specially depending on the current state.
-	if len(line) == 0 {
+	// Whitespace is insignificant here: a line of only spaces or tabs is a
+	// blank, never a URL continuation, so trim before testing for emptiness.
+	if len(bytes.TrimSpace(line)) == 0 {
 		if state == stateRequestHeaders {
 			// A blank after a run of headers marks the transition to the body.
 			// No marker block is needed, the state transition is enough.
@@ -279,15 +284,23 @@ func dispatch(line []byte, state state, prev Kind) (Kind, state) {
 		return Blank, state
 	}
 
-	if lineStartsWith(line, "###") {
-		return Separator, stateRequestPrelude
+	// A '###' separator is only recognised at column 0. An indented '###'
+	// must not be swallowed into a URL continuation, but it isn't a separator
+	// either, so it's an error.
+	if isIndentedSeparator(line) {
+		return Error, state
 	}
 
-	if isDirective(line, state) {
-		return Directive, state
+	// Are we in a URLContinuation?
+	if isURLContinuation(prev, line) {
+		return URLContinuation, state
 	}
 
 	switch {
+	case lineStartsWith(line, "###"):
+		return Separator, stateRequestPrelude
+	case isDirective(line, state):
+		return Directive, state
 	case lineStartsWith(line, "#"), lineStartsWith(line, "//"):
 		return Comment, state // State unchanged by a comment
 	case isMethodPrefix(line):
@@ -346,6 +359,11 @@ func lineStartsWith(line []byte, prefix string) bool {
 // later report a precise "unknown HTTP method" diagnostic. Only a complete
 // uppercase ident at the start of the line counts, "/path" or "get" do not.
 func isMethodPrefix(line []byte) bool {
+	// An empty line is never a method prefix
+	if len(line) == 0 {
+		return false
+	}
+
 	n := 0
 	for n < len(line) && line[n] >= 'A' && line[n] <= 'Z' {
 		n++
@@ -378,4 +396,35 @@ func isMultilineScriptOpen(line []byte) bool {
 	}
 
 	return !bytes.Contains(after, []byte("%}"))
+}
+
+// isIndentedSeparator reports whether line is a '###' request separator that
+// has been indented.
+//
+// A separator is only recognised at column 0; an indented one is neither a
+// separator nor a URL continuation, it's an error.
+func isIndentedSeparator(line []byte) bool {
+	if lineStartsWith(line, "###") {
+		return false // Column 0, a real separator.
+	}
+
+	return lineStartsWith(bytes.TrimLeft(line, " \t"), "###")
+}
+
+// isURLContinuation reports whether a line is a url continuation.
+//
+// The rules are:
+// - Non-empty
+// - Previous block was a RequestLine or a URLContinuation
+// - Begins with one or more whitespace chars.
+func isURLContinuation(prev Kind, line []byte) bool {
+	if len(line) == 0 {
+		return false
+	}
+
+	if prev != RequestLine && prev != URLContinuation {
+		return false
+	}
+
+	return bytes.HasPrefix(line, []byte(" ")) || bytes.HasPrefix(line, []byte("\t"))
 }

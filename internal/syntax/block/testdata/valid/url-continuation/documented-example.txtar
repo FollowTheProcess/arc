@@ -1,0 +1,24 @@
+-- src.http --
+// Using line breaks with indent
+GET http://example.com:8080
+    /api
+    /html
+    /get
+    ?id=123
+    &value=content
+-- want.txt --
+<Block::Comment start=1:1, end=1:33>	`// Using line breaks with indent`
+<Block::RequestLine start=2:1, end=2:28>	`GET http://example.com:8080`
+	<Token::Ident start=33, end=36>	`GET`
+	<Token::Text start=37, end=60>	`http://example.com:8080`
+<Block::URLContinuation start=3:1, end=3:9>	`    /api`
+	<Token::Text start=61, end=69>	`    /api`
+<Block::URLContinuation start=4:1, end=4:10>	`    /html`
+	<Token::Text start=70, end=79>	`    /html`
+<Block::URLContinuation start=5:1, end=5:9>	`    /get`
+	<Token::Text start=80, end=88>	`    /get`
+<Block::URLContinuation start=6:1, end=6:12>	`    ?id=123`
+	<Token::Text start=89, end=100>	`    ?id=123`
+<Block::URLContinuation start=7:1, end=7:19>	`    &value=content`
+	<Token::Text start=101, end=119>	`    &value=content`
+-- diagnostics.txt --

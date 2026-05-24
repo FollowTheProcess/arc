@@ -1,0 +1,13 @@
+-- src.http --
+GET https://example.com/items?
+    limit=10
+    &offset=20
+-- want.txt --
+<Block::RequestLine start=1:1, end=1:31>	`GET https://example.com/items?`
+	<Token::Ident start=0, end=3>	`GET`
+	<Token::Text start=4, end=30>	`https://example.com/items?`
+<Block::URLContinuation start=2:1, end=2:13>	`    limit=10`
+	<Token::Text start=31, end=43>	`    limit=10`
+<Block::URLContinuation start=3:1, end=3:15>	`    &offset=20`
+	<Token::Text start=44, end=58>	`    &offset=20`
+-- diagnostics.txt --

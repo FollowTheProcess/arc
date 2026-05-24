@@ -1,0 +1,33 @@
+-- src.http --
+### full
+POST https://example.com/items?
+    limit=10
+    &offset=20
+Content-Type: application/json
+
+{
+  "name": "widget"
+}
+-- want.txt --
+<Block::Separator start=1:1, end=1:9>	`### full`
+	<Token::Separator start=0, end=3>	`###`
+	<Token::Ident start=4, end=8>	`full`
+<Block::RequestLine start=2:1, end=2:32>	`POST https://example.com/items?`
+	<Token::Ident start=9, end=13>	`POST`
+	<Token::Text start=14, end=40>	`https://example.com/items?`
+<Block::URLContinuation start=3:1, end=3:13>	`    limit=10`
+	<Token::Text start=41, end=53>	`    limit=10`
+<Block::URLContinuation start=4:1, end=4:15>	`    &offset=20`
+	<Token::Text start=54, end=68>	`    &offset=20`
+<Block::Header start=5:1, end=5:31>	`Content-Type: application/json`
+	<Token::Ident start=69, end=81>	`Content-Type`
+	<Token::Colon start=81, end=82>	`:`
+	<Token::Text start=83, end=99>	`application/json`
+<Block::Blank start=6:1, end=6:1>	``
+<Block::Body start=7:1, end=9:2>	`{
+  "name": "widget"
+}`
+	<Token::Text start=101, end=123>	`{
+  "name": "widget"
+}`
+-- diagnostics.txt --
