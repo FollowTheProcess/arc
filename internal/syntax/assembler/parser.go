@@ -57,7 +57,7 @@ func (p *parser) advance() {
 }
 
 // expect asserts that the next token is one of the given kinds, emitting a diagnostic and
-// return false if not.
+// returning false if not.
 //
 // The parser is advanced only if the next token is one of these kinds such that after returning true,
 // p.current will be one of the given kinds.
