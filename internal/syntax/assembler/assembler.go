@@ -52,6 +52,8 @@ func (a *assembler) current() block.Block {
 // Repeated calls to peek return the same block over and over again.
 //
 // If we're at the end of the stream, it returns a zero block.
+//
+//nolint:unused // We'll need this soon
 func (a *assembler) peek() (block.Block, bool) {
 	if next := a.pos + 1; next < len(a.blocks) {
 		return a.blocks[next], true
@@ -62,8 +64,6 @@ func (a *assembler) peek() (block.Block, bool) {
 
 // advance advances the assembler in the block stream.
 func (a *assembler) advance() {
-	// TODO: Not sure if we have to check this is in bounds here?
-	// or rely on the top level check in Assemble
 	a.pos++
 }
 

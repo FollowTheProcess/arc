@@ -178,6 +178,8 @@ func (p *parser) parseIdent() ast.Ident {
 }
 
 // parseExpression parses an arbitrary [ast.Expression].
+//
+//nolint:ireturn // Returning a generic expression is kinda the point.
 func (p *parser) parseExpression() ast.Expression {
 	// TODO: Precedence, interps, and all that fun stuff
 	switch p.current.Kind {
