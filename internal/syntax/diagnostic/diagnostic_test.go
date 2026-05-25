@@ -3,19 +3,14 @@ package diagnostic_test
 import (
 	"encoding/json/jsontext"
 	"encoding/json/v2"
-	"flag"
 	"os"
 	"testing"
 
 	"go.followtheprocess.codes/arc/internal/syntax/diagnostic"
 	"go.followtheprocess.codes/arc/internal/syntax/source"
+	"go.followtheprocess.codes/arc/internal/syntax/syntaxtest"
 	"go.followtheprocess.codes/snapshot"
 	"go.followtheprocess.codes/test"
-)
-
-var (
-	update = flag.Bool("update", false, "Update snapshots")
-	clean  = flag.Bool("clean", false, "Re-generate all snapshots from scratch")
 )
 
 func TestDiagnosticString(t *testing.T) {
@@ -395,7 +390,7 @@ func TestDiagnosticJSON(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			snap := snapshot.New(t, snapshot.Update(*update), snapshot.Clean(*clean))
+			snap := snapshot.New(t, snapshot.Update(syntaxtest.Updating()), snapshot.Clean(syntaxtest.Cleaning()))
 
 			content, err := json.Marshal(tt.diag, json.Deterministic(true), jsontext.WithIndent("  "))
 			test.Ok(t, err)
