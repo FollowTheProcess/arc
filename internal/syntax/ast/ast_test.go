@@ -2,11 +2,13 @@ package ast_test
 
 import (
 	"flag"
+	"os"
 	"testing"
 
 	"go.followtheprocess.codes/arc/internal/syntax/ast"
 	"go.followtheprocess.codes/arc/internal/syntax/source"
 	"go.followtheprocess.codes/snapshot"
+	"go.followtheprocess.codes/test"
 )
 
 var (
@@ -15,6 +17,9 @@ var (
 )
 
 func TestDump(t *testing.T) {
+	// Force colour for diffs but only locally
+	test.ColorEnabled(os.Getenv("CI") == "")
+
 	// A representative .http source from which the test nodes draw their spans,
 	// so the dumped positions read like real parser output.
 	const src = "@no-redirect\n@timeout = 30s\n"

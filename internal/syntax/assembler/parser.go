@@ -183,8 +183,10 @@ func (p *parser) parseIdent() ast.Ident {
 func (p *parser) parseExpression() ast.Expression {
 	// TODO: Precedence, interps, and all that fun stuff
 	switch p.current.Kind {
-	case token.Text, token.Quote:
+	case token.Text:
 		return p.parseTextLiteral()
+	case token.Quote:
+		return p.parseQuotedText()
 	default:
 		p.errorf(p.current, "parseExpression: unexpected token %s", p.current.Kind)
 
@@ -194,10 +196,39 @@ func (p *parser) parseExpression() ast.Expression {
 
 // parseTextLiteral parses a TextLiteral.
 func (p *parser) parseTextLiteral() ast.TextLiteral {
-	// TODO: Handle quotes, quoted strings land as
-	// Quote, Text, Quote
 	return ast.TextLiteral{
 		Value: p.text(),
 		Span:  p.span(),
+	}
+}
+
+// parseQuotedText parses a quoted string of text as a TextLiteral.
+//
+// The resulting span covers the entire literal including the surrounding
+// quotes, while Value holds only the unquoted text. An empty literal ("")
+// is valid and yields an empty Value.
+func (p *parser) parseQuotedText() ast.TextLiteral {
+	open := p.current // Opening quote
+	end := open.End
+
+	var value string
+
+	if p.next.Is(token.Text) {
+		p.advance()
+		value = p.text()
+		end = p.current.End
+	}
+
+	if p.expect(token.Quote) {
+		end = p.current.End
+	}
+
+	return ast.TextLiteral{
+		Value: value,
+		Span: source.Span{
+			File:        p.blk.Span.File,
+			StartOffset: open.Start,
+			EndOffset:   end,
+		},
 	}
 }

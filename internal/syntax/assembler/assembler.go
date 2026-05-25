@@ -8,6 +8,7 @@ import (
 	"go.followtheprocess.codes/arc/internal/syntax/ast"
 	"go.followtheprocess.codes/arc/internal/syntax/block"
 	"go.followtheprocess.codes/arc/internal/syntax/diagnostic"
+	"go.followtheprocess.codes/arc/internal/syntax/source"
 )
 
 // Assemble consumes a stream of [block.Block] values and emits a parsed
@@ -15,7 +16,11 @@ import (
 func Assemble(blocks []block.Block) (ast.File, []diagnostic.Diagnostic) {
 	a := &assembler{
 		blocks: blocks,
-		file:   ast.File{},
+		file: ast.File{Span: source.Span{
+			File:        blocks[0].Span.File,
+			StartOffset: blocks[0].Span.StartOffset,
+			EndOffset:   blocks[len(blocks)-1].Span.EndOffset,
+		}},
 	}
 
 	for a.pos < len(a.blocks) {
@@ -73,8 +78,9 @@ func (a *assembler) step() {
 	case block.Directive:
 		a.parseDirective(current)
 	case block.Error:
-		a.error("error block", current)
-		a.advance() // make progress
+		// make progress, but don't report. The block parser has already
+		// emitted a diagnostic for this
+		a.advance()
 	default:
 		a.error("unhandled block type", current)
 		a.advance() // make progress
