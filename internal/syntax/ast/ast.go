@@ -34,36 +34,50 @@ type Expression interface {
 // It is primarily used for debugging and inspecting the ast.
 func Dump(node Node) string {
 	buf := &strings.Builder{}
-	writeNode(buf, node, 0)
+
+	if node == nil {
+		buf.WriteString("<nil>\n")
+
+		return buf.String()
+	}
+
+	// Traversal lives in [Walk]; the visitor only formats each node it's
+	// handed and tracks indentation depth.
+	Walk(dumpVisitor{buf: buf}, node)
 
 	return buf.String()
 }
 
-// writeNode writes a given node to the buffer.
-func writeNode(buf *strings.Builder, node Node, depth int) {
-	indent := strings.Repeat("  ", depth)
+// dumpVisitor is a [Visitor] that writes an indented text representation of
+// each node it visits, used by [Dump].
+type dumpVisitor struct {
+	buf   *strings.Builder
+	depth int
+}
+
+// Visit implements [Visitor], formatting node and returning a visitor one
+// level deeper for its children.
+//
+//nolint:ireturn // Visitor.Visit must return a Visitor to satisfy the interface.
+func (d dumpVisitor) Visit(node Node) Visitor {
+	if node == nil {
+		return nil
+	}
+
+	indent := strings.Repeat("  ", d.depth)
 
 	switch n := node.(type) {
-	case nil:
-		fmt.Fprintf(buf, "%s<nil>\n", indent)
 	case File:
-		fmt.Fprintf(buf, "%sFile %s\n", indent, n.Pos())
-
-		for _, statement := range n.Statements {
-			writeNode(buf, statement, depth+1)
-		}
+		fmt.Fprintf(d.buf, "%sFile %s\n", indent, n.Pos())
 	case Directive:
-		fmt.Fprintf(buf, "%sDirective %s\n", indent, n.Pos())
-		writeNode(buf, n.Ident, depth+1)
-
-		if n.Value != nil {
-			writeNode(buf, n.Value, depth+1)
-		}
+		fmt.Fprintf(d.buf, "%sDirective %s\n", indent, n.Pos())
 	case Ident:
-		fmt.Fprintf(buf, "%sIdent %q %s\n", indent, n.Name, n.Pos())
+		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Name, n.Pos())
 	case TextLiteral:
-		fmt.Fprintf(buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
+		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
 	default:
-		fmt.Fprintf(buf, "%s<UNHANDLED %T>\n", indent, node)
+		fmt.Fprintf(d.buf, "%s<UNHANDLED %T>\n", indent, node)
 	}
+
+	return dumpVisitor{buf: d.buf, depth: d.depth + 1}
 }

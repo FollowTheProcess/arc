@@ -14,6 +14,12 @@ import (
 // Assemble consumes a stream of [block.Block] values and emits a parsed
 // [ast.File] node as well as any diagnostics.
 func Assemble(blocks []block.Block) (ast.File, []diagnostic.Diagnostic) {
+	if len(blocks) == 0 {
+		// An empty .http file parses to zero blocks, zero blocks
+		// means zero file I guess!
+		return ast.File{}, nil
+	}
+
 	a := &assembler{
 		blocks: blocks,
 		file: ast.File{Span: source.Span{
