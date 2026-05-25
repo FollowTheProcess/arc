@@ -187,6 +187,8 @@ func (p *parser) parseExpression() ast.Expression {
 		return p.parseTextLiteral()
 	case token.Quote:
 		return p.parseQuotedText()
+	case token.Ident:
+		return p.parseIdent()
 	default:
 		p.errorf(p.current, "parseExpression: unexpected token %s", p.current.Kind)
 
