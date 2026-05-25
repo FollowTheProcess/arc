@@ -15,7 +15,7 @@ import (
 // syntax tree nodes.
 type parser struct {
 	diagnostics []diagnostic.Diagnostic // Diagnostics gathered during parsing
-	blk         block.Block             // The block under inspection
+	block       block.Block             // The block under inspection
 	current     token.Token             // The current token under inspection
 	next        token.Token             // The next token in the stream
 	pos         int                     // Current position as an index into blk.Tokens
@@ -23,7 +23,7 @@ type parser struct {
 
 // newParser creates a new parser for a given block.
 func newParser(b block.Block) *parser {
-	p := &parser{blk: b}
+	p := &parser{block: b}
 
 	// Read 2 tokens so current and next are both set
 	p.advance()
@@ -38,7 +38,7 @@ func newParser(b block.Block) *parser {
 // Technically EOF means "end-of-file", but the fundamental unit here is the
 // block so we repurpose it, the meaning is the same: No more meaningful tokens.
 func (p *parser) atEOF() bool {
-	return p.pos >= len(p.blk.Tokens)
+	return p.pos >= len(p.block.Tokens)
 }
 
 // advance advances the parser by a single token.
@@ -52,7 +52,7 @@ func (p *parser) advance() {
 		return
 	}
 
-	p.next = p.blk.Tokens[p.pos]
+	p.next = p.block.Tokens[p.pos]
 	p.pos++
 }
 
@@ -95,7 +95,7 @@ func (p *parser) expect(kinds ...token.Kind) bool {
 // the given token.
 func (p *parser) error(tok token.Token, msg string, options ...diagnostic.Option) {
 	span := source.Span{
-		File:        p.blk.Span.File,
+		File:        p.block.Span.File,
 		StartOffset: tok.Start,
 		EndOffset:   tok.End,
 	}
@@ -115,7 +115,7 @@ func (p *parser) errorf(tok token.Token, format string, a ...any) {
 // span returns a [source.Span] for the parser's current token.
 func (p *parser) span() source.Span {
 	return source.Span{
-		File:        p.blk.Span.File,
+		File:        p.block.Span.File,
 		StartOffset: p.current.Start,
 		EndOffset:   p.current.End,
 	}
@@ -130,7 +130,7 @@ func (p *parser) text() string {
 // parseDirective parses a directive block's tokens into an [ast.Directive].
 func (p *parser) parseDirective() ast.Directive {
 	node := ast.Directive{
-		Span: p.blk.Span,
+		Span: p.block.Span,
 	}
 
 	// Optional leading comment
@@ -226,7 +226,7 @@ func (p *parser) parseQuotedText() ast.TextLiteral {
 	return ast.TextLiteral{
 		Value: value,
 		Span: source.Span{
-			File:        p.blk.Span.File,
+			File:        p.block.Span.File,
 			StartOffset: open.Start,
 			EndOffset:   end,
 		},
