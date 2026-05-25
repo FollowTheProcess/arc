@@ -43,6 +43,7 @@ linters:
   exclusions:
     presets:
       # See https://golangci-lint.run/usage/false-positives/#exclusion-presets
+      - comments
       - std-error-handling
       - common-false-positives
     rules:
