@@ -7,8 +7,8 @@ type Kind int
 //
 //go:generate stringer -type Kind -linecomment
 const (
-	Blank             Kind = iota // Blank
-	Error                         // Error
+	Error             Kind = iota // Error
+	Blank                         // Blank
 	Separator                     // Separator
 	Comment                       // Comment
 	Directive                     // Directive

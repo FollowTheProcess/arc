@@ -8,35 +8,36 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[Error-0]
-	_ = x[Comment-1]
-	_ = x[Separator-2]
-	_ = x[Text-3]
-	_ = x[Quote-4]
-	_ = x[Ident-5]
-	_ = x[Dollar-6]
-	_ = x[At-7]
-	_ = x[Dot-8]
-	_ = x[LParen-9]
-	_ = x[RParen-10]
-	_ = x[LAngle-11]
-	_ = x[RAngle-12]
-	_ = x[Comma-13]
-	_ = x[Colon-14]
-	_ = x[Eq-15]
-	_ = x[Number-16]
-	_ = x[OpenInterp-17]
-	_ = x[CloseInterp-18]
-	_ = x[OpenScript-19]
-	_ = x[CloseScript-20]
-	_ = x[ResponseRedirect-21]
-	_ = x[ResponseRedirectForce-22]
-	_ = x[ResponseReference-23]
+	_ = x[EOF-0]
+	_ = x[Error-1]
+	_ = x[Comment-2]
+	_ = x[Separator-3]
+	_ = x[Text-4]
+	_ = x[Quote-5]
+	_ = x[Ident-6]
+	_ = x[Dollar-7]
+	_ = x[At-8]
+	_ = x[Dot-9]
+	_ = x[LParen-10]
+	_ = x[RParen-11]
+	_ = x[LAngle-12]
+	_ = x[RAngle-13]
+	_ = x[Comma-14]
+	_ = x[Colon-15]
+	_ = x[Eq-16]
+	_ = x[Number-17]
+	_ = x[OpenInterp-18]
+	_ = x[CloseInterp-19]
+	_ = x[OpenScript-20]
+	_ = x[CloseScript-21]
+	_ = x[ResponseRedirect-22]
+	_ = x[ResponseRedirectForce-23]
+	_ = x[ResponseReference-24]
 }
 
-const _Kind_name = "ErrorCommentSeparatorTextQuoteIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
+const _Kind_name = "EOFErrorCommentSeparatorTextQuoteIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
 
-var _Kind_index = [...]uint8{0, 5, 12, 21, 25, 30, 35, 41, 43, 46, 52, 58, 64, 70, 75, 80, 82, 88, 98, 109, 119, 130, 146, 167, 184}
+var _Kind_index = [...]uint8{0, 3, 8, 15, 24, 28, 33, 38, 44, 46, 49, 55, 61, 67, 73, 78, 83, 85, 91, 101, 112, 122, 133, 149, 170, 187}
 
 func (i Kind) String() string {
 	idx := int(i) - 0
