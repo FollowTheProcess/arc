@@ -1,22 +1,18 @@
 package block_test
 
 import (
-	"flag"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"go.followtheprocess.codes/arc/internal/syntax/block"
-	"go.followtheprocess.codes/arc/internal/syntax/diagnostic"
 	"go.followtheprocess.codes/arc/internal/syntax/source"
+	"go.followtheprocess.codes/arc/internal/syntax/syntaxtest"
 	"go.followtheprocess.codes/test"
 	"go.followtheprocess.codes/txtar"
 )
-
-var update = flag.Bool("update", false, "Update txtar golden files")
 
 func TestBlockClassifier(t *testing.T) {
 	// Force colour for diffs but only locally
@@ -25,7 +21,7 @@ func TestBlockClassifier(t *testing.T) {
 	for _, group := range []string{"valid", "invalid"} {
 		t.Run(group, func(t *testing.T) {
 			root := filepath.Join("testdata", group)
-			n := walkTxtarCases(t, root, runBlockParserTest)
+			n := syntaxtest.WalkTxtarCases(t, root, runBlockParserTest)
 			test.True(t, n > 0, test.Context("no .txtar files found under %s", root))
 		})
 	}
@@ -89,29 +85,9 @@ func TestBlockString(t *testing.T) {
 func FuzzBlockParser(f *testing.F) {
 	// Add every txtar's src.http as fuzz corpus, walking the tree so seeds are
 	// picked up regardless of how testdata is grouped into subdirectories.
-	walk := func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() || filepath.Ext(d.Name()) != ".txtar" {
-			return nil
-		}
-
-		archive, err := txtar.ParseFile(path)
-		if err != nil {
-			return fmt.Errorf("parsing %s: %w", path, err)
-		}
-
-		src, ok := archive.Read("src.http")
-		test.True(f, ok, test.Context("archive %s missing 'src.http'", path))
-
+	syntaxtest.SeedCorpus(f, "testdata", func(src string) {
 		f.Add([]byte(src))
-
-		return nil
-	}
-
-	test.Ok(f, filepath.WalkDir("testdata", walk))
+	})
 
 	f.Fuzz(func(t *testing.T, content []byte) {
 		file := source.NewFile("fuzz", content)
@@ -204,58 +180,6 @@ func formatBlocks(file *source.File, blocks []block.Block) string {
 	return b.String()
 }
 
-func formatDiagnostics(diagnostics []diagnostic.Diagnostic) string {
-	var b strings.Builder
-	for _, diagnostic := range diagnostics {
-		b.WriteString(diagnostic.String())
-		b.WriteByte('\n')
-	}
-
-	return b.String()
-}
-
-// walkTxtarCases recursively walks root, nesting a subtest per directory and
-// invoking fn for every .txtar file. This mirrors the testdata directory layout
-// in the test name hierarchy so individual cases, whole directories, or the
-// full group can be selected via -run. Returns the total number of .txtar files
-// processed across the tree.
-func walkTxtarCases(t *testing.T, root string, fn func(t *testing.T, path string)) int {
-	t.Helper()
-
-	entries, err := os.ReadDir(root)
-	test.Ok(t, err)
-
-	total := 0
-
-	for _, entry := range entries {
-		path := filepath.Join(root, entry.Name())
-
-		if entry.IsDir() {
-			var sub int
-
-			t.Run(entry.Name(), func(t *testing.T) {
-				sub = walkTxtarCases(t, path, fn)
-			})
-
-			total += sub
-
-			continue
-		}
-
-		if filepath.Ext(entry.Name()) != ".txtar" {
-			continue
-		}
-
-		t.Run(entry.Name(), func(t *testing.T) {
-			fn(t, path)
-		})
-
-		total++
-	}
-
-	return total
-}
-
 // runBlockParserTest exercises the block parser against a single txtar archive,
 // either updating the archive in place when -update is set or diffing the
 // observed output against the recorded expectations.
@@ -279,11 +203,11 @@ func runBlockParserTest(t *testing.T, file string) {
 		txtar.WithComment(want.Comment()),
 		txtar.WithFile("src.http", src),
 		txtar.WithFile("want.txt", formatBlocks(srcFile, blocks)),
-		txtar.WithFile("diagnostics.txt", formatDiagnostics(diagnostics)),
+		txtar.WithFile("diagnostics.txt", syntaxtest.FormatDiagnostics(diagnostics)),
 	)
 	test.Ok(t, err)
 
-	if *update {
+	if syntaxtest.Updating() {
 		test.Ok(t, txtar.DumpFile(file, got))
 
 		return

@@ -8,8 +8,8 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[Blank-0]
-	_ = x[Error-1]
+	_ = x[Error-0]
+	_ = x[Blank-1]
 	_ = x[Separator-2]
 	_ = x[Comment-3]
 	_ = x[Directive-4]
@@ -22,7 +22,7 @@ func _() {
 	_ = x[ResponseReference-11]
 }
 
-const _Kind_name = "BlankErrorSeparatorCommentDirectiveRequestLineURLContinuationHeaderBodyScriptResponseRedirectResponseReference"
+const _Kind_name = "ErrorBlankSeparatorCommentDirectiveRequestLineURLContinuationHeaderBodyScriptResponseRedirectResponseReference"
 
 var _Kind_index = [...]uint8{0, 5, 10, 19, 26, 35, 46, 61, 67, 71, 77, 93, 110}
 

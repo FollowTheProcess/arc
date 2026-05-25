@@ -16,7 +16,7 @@ func TestTokenString(t *testing.T) {
 		{
 			name: "empty",
 			tok:  token.Token{},
-			want: "<Token::Error start=0, end=0>",
+			want: "<Token::EOF start=0, end=0>",
 		},
 		{
 			name: "text",

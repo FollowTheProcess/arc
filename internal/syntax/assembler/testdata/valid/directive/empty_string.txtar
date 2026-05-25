@@ -1,0 +1,8 @@
+-- src.http --
+@x = ""
+-- want.txt --
+File src.http:1:1-8
+  Directive src.http:1:1-8
+    Ident "x" src.http:1:2-3
+    TextLiteral "" src.http:1:6-8
+-- diagnostics.txt --
