@@ -9,6 +9,12 @@ type (
 		Span       source.Span
 	}
 
+	// Comment represents a single line comment.
+	Comment struct {
+		Text string // The text contained in the comment
+		Span source.Span
+	}
+
 	// Directive is the AST node representing a directive e.g.
 	// `@var id = 123` or `@no-redirect`.
 	Directive struct {
@@ -20,8 +26,10 @@ type (
 
 // Pos implementations.
 func (f File) Pos() source.Span      { return f.Span }
+func (c Comment) Pos() source.Span   { return c.Span }
 func (d Directive) Pos() source.Span { return d.Span }
 
 // Statement implementations.
 func (f File) statementNode()      {}
+func (c Comment) statementNode()   {}
 func (d Directive) statementNode() {}

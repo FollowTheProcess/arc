@@ -81,6 +81,8 @@ func (a *assembler) advance() {
 // step consumes a block from the stream and does some parsing work.
 func (a *assembler) step() {
 	switch current := a.current(); current.Kind {
+	case block.Comment:
+		a.parseComment(current)
 	case block.Directive:
 		a.parseDirective(current)
 	case block.Error:
@@ -104,5 +106,22 @@ func (a *assembler) parseDirective(b block.Block) {
 	p := newParser(b)
 	a.file.Statements = append(a.file.Statements, p.parseDirective())
 	a.diagnostics = append(a.diagnostics, p.diagnostics...)
+	a.advance()
+}
+
+// parseComment parses a comment block into an [ast.Comment].
+//
+// Comments are parsed into ast nodes so that comments above requests may be
+// used as their "docstring". Similar to how doc comments are attached
+// to ast nodes in Go.
+func (a *assembler) parseComment(b block.Block) {
+	// A comment block is not tokenised, it's content is just
+	// the entire block span, so we don't need a parser to emit
+	// the ast node.
+	comment := ast.Comment{
+		Text: string(b.Span.Content()),
+		Span: b.Span,
+	}
+	a.file.Statements = append(a.file.Statements, comment)
 	a.advance()
 }
