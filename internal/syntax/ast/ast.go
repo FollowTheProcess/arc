@@ -74,7 +74,7 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 	case Directive:
 		fmt.Fprintf(d.buf, "%sDirective %s\n", indent, n.Pos())
 	case Ident:
-		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Name, n.Pos())
+		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Pos().Text(), n.Pos())
 	case TextLiteral:
 		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
 	default:

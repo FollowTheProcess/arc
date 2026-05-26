@@ -11,7 +11,6 @@ type (
 
 	// Comment represents a single line comment.
 	Comment struct {
-		Text string // The text contained in the comment
 		Span source.Span
 	}
 

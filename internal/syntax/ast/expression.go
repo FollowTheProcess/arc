@@ -5,13 +5,16 @@ import "go.followtheprocess.codes/arc/internal/syntax/source"
 type (
 	// Ident is a named identifier expression.
 	Ident struct {
-		Name string // The name of the ident
 		Span source.Span
 	}
 
 	// TextLiteral is an (optionally quoted) string of text.
+	//
+	// Value holds the interpreted string (unquoted, and eventually
+	// unescaped), while Span covers the raw literal in source including
+	// any surrounding quotes.
 	TextLiteral struct {
-		Value string // The (unquoted) text value
+		Value string // The interpreted (unquoted) text value
 		Span  source.Span
 	}
 )

@@ -34,13 +34,13 @@ func TestDump(t *testing.T) {
 
 	// `@no-redirect`, a flag directive with no value.
 	noRedirect := ast.Directive{
-		Ident: ast.Ident{Name: "no-redirect", Span: span(1, 12)},
+		Ident: ast.Ident{Span: span(1, 12)},
 		Span:  span(0, 12),
 	}
 
 	// `@timeout = 30s`, a directive with an ident and a value.
 	timeout := ast.Directive{
-		Ident: ast.Ident{Name: "timeout", Span: span(14, 21)},
+		Ident: ast.Ident{Span: span(14, 21)},
 		Value: ast.TextLiteral{Value: "30s", Span: span(24, 27)},
 		Span:  span(13, 27),
 	}
@@ -55,7 +55,7 @@ func TestDump(t *testing.T) {
 		},
 		{
 			name: "ident",
-			node: ast.Ident{Name: "timeout", Span: span(14, 21)},
+			node: ast.Ident{Span: span(14, 21)},
 		},
 		{
 			name: "text literal",
@@ -143,7 +143,7 @@ func tree() ast.File {
 	return ast.File{
 		Statements: []ast.Statement{
 			ast.Directive{
-				Ident: ast.Ident{Name: "timeout", Span: span(1, 8)},
+				Ident: ast.Ident{Span: span(1, 8)},
 				Value: ast.TextLiteral{Value: "30s", Span: span(11, 14)},
 				Span:  span(0, 14),
 			},

@@ -119,7 +119,6 @@ func (a *assembler) parseComment(b block.Block) {
 	// the entire block span, so we don't need a parser to emit
 	// the ast node.
 	comment := ast.Comment{
-		Text: string(b.Span.Content()),
 		Span: b.Span,
 	}
 	a.file.Statements = append(a.file.Statements, comment)

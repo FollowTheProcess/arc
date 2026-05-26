@@ -172,7 +172,6 @@ func (p *parser) parseDirective() ast.Directive {
 // parseIdent parses an ident into an [ast.Ident].
 func (p *parser) parseIdent() ast.Ident {
 	return ast.Ident{
-		Name: p.text(),
 		Span: p.span(),
 	}
 }
