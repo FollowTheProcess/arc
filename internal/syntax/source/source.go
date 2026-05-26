@@ -57,7 +57,7 @@ func NewFile(name string, content []byte) *File {
 
 	return &File{
 		Name:        name,
-		content:     content,
+		content:     bytes.Clone(content), // Our own owned copy
 		lineOffsets: lineOffsets,
 	}
 }
@@ -200,6 +200,19 @@ func (s Span) Content() []byte {
 	end := min(max(s.EndOffset, start), n)
 
 	return s.File.content[start:end]
+}
+
+// Text returns the chunk of raw source text in the span
+// as a string value.
+//
+// Spans with offsets outside 0 <= offset <= len(content) are clamped to
+// the nearest end so callers always get a valid slice of content.
+func (s Span) Text() string {
+	// TODO: Could potentially use the strings.Builder trick
+	// of unsafe.String here but s.File.content must never be
+	// modified for that to be safe. Not sure if we'll need to
+	// do that or not yet so for now leave it like this
+	return string(s.Content())
 }
 
 // Snippet returns the source bytes covering the span plus contextLines of

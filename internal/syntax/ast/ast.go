@@ -69,14 +69,16 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 	switch n := node.(type) {
 	case File:
 		fmt.Fprintf(d.buf, "%sFile %s\n", indent, n.Pos())
+	case Comment:
+		fmt.Fprintf(d.buf, "%sComment %s\n", indent, n.Pos())
 	case Directive:
 		fmt.Fprintf(d.buf, "%sDirective %s\n", indent, n.Pos())
 	case Ident:
-		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Name, n.Pos())
+		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Pos().Text(), n.Pos())
 	case TextLiteral:
 		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
 	default:
-		fmt.Fprintf(d.buf, "%s<UNHANDLED %T>\n", indent, node)
+		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}
 
 	return dumpVisitor{buf: d.buf, depth: d.depth + 1}

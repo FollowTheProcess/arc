@@ -36,7 +36,7 @@ func Walk(v Visitor, node Node) {
 		if n.Value != nil {
 			Walk(v, n.Value)
 		}
-	case Ident, TextLiteral:
+	case Ident, TextLiteral, Comment:
 		// Leaves, no children to walk.
 	default:
 		panic(fmt.Sprintf("ast.Walk: unexpected node type %T", n))

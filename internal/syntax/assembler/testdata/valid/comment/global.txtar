@@ -1,0 +1,8 @@
+-- src.http --
+// I'm a comment
+# Me too
+-- want.txt --
+File src.http:1:1-2:9
+  Comment src.http:1:1-17
+  Comment src.http:2:1-9
+-- diagnostics.txt --
