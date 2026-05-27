@@ -57,8 +57,6 @@ type dumpVisitor struct {
 
 // Visit implements [Visitor], formatting node and returning a visitor one
 // level deeper for its children.
-//
-//nolint:ireturn // Visitor.Visit must return a Visitor to satisfy the interface.
 func (d dumpVisitor) Visit(node Node) Visitor {
 	if node == nil {
 		return nil
@@ -73,10 +71,12 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 		fmt.Fprintf(d.buf, "%sComment %s\n", indent, n.Pos())
 	case Directive:
 		fmt.Fprintf(d.buf, "%sDirective %s\n", indent, n.Pos())
-	case Ident:
+	case Ident, *Ident:
 		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Pos().Text(), n.Pos())
 	case TextLiteral:
 		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
+	case Request:
+		fmt.Fprintf(d.buf, "%sRequest %s\n", indent, n.Pos())
 	default:
 		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}

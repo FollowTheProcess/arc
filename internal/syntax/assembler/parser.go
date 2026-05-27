@@ -150,6 +150,11 @@ func (p *parser) parseDirective() ast.Directive {
 	// `@prompt ident ["description"]`
 	//   ^^^^^^ ^^^^^
 	//    one    two
+	//
+	// Not sure if it's better to have an ast.Prompt or handle this with
+	// a *Ident on ast.Directive which is nil unless it's a secret or prompt
+	//
+	// That sounds more extensible tbf so maybe that one
 
 	// Optional '='
 	if p.next.Is(token.Eq) {
@@ -177,8 +182,6 @@ func (p *parser) parseIdent() ast.Ident {
 }
 
 // parseExpression parses an arbitrary [ast.Expression].
-//
-//nolint:ireturn // Returning a generic expression is kinda the point.
 func (p *parser) parseExpression() ast.Expression {
 	// TODO: Precedence, interps, and all that fun stuff
 	switch p.current.Kind {
@@ -232,4 +235,35 @@ func (p *parser) parseQuotedText() ast.TextLiteral {
 			EndOffset:   end,
 		},
 	}
+}
+
+// parseSeparator parses a request separator with an optional name.
+//
+// If the name is found it is returned as an ident, otherwise nil.
+func (p *parser) parseSeparator() *ast.Ident {
+	if p.next.Is(token.Ident) {
+		p.advance()
+
+		return &ast.Ident{
+			Span: p.span(),
+		}
+	}
+
+	return nil
+}
+
+// parseRequestLine parses a request's METHOD, URL, [HTTPVersion] line.
+//
+// It assumes the current token is the METHOD ident.
+func (p *parser) parseRequestLine() (ast.Ident, ast.Expression) {
+	// TODO: HTTPVersion
+	method := p.parseIdent()
+
+	if p.expect(token.Text, token.OpenInterp) {
+		url := p.parseExpression()
+
+		return method, url
+	}
+
+	return method, nil
 }
