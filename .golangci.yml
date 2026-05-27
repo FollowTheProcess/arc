@@ -30,8 +30,10 @@ linters:
     - gomodguard  # Deprecated
     - gosmopolitan  # No need
     - grouper  # Imports take care of themselves, rest is common sense
+    - ireturn  # AST is full of interfaces we need to return (e.g. Expression)
     - lll  # Auto formatters do this and what they can't do I don't care about
     - maintidx  # This is just the inverse of complexity... which is cyclop
+    - mnd  # Annoying and too sensitive
     - noinlineerr  # Inline errors are fine
     - nonamedreturns  # Named returns are often helpful documentation, it's naked returns that are the issue
     - paralleltest  # I've never had Go tests take longer than a few seconds, it's fine

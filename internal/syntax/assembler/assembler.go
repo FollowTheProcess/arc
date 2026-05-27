@@ -5,6 +5,8 @@
 package assembler
 
 import (
+	"fmt"
+
 	"go.followtheprocess.codes/arc/internal/syntax/ast"
 	"go.followtheprocess.codes/arc/internal/syntax/block"
 	"go.followtheprocess.codes/arc/internal/syntax/diagnostic"
@@ -85,6 +87,8 @@ func (a *assembler) step() {
 		a.parseComment(current)
 	case block.Directive:
 		a.parseDirective(current)
+	case block.Separator:
+		a.assembleRequest()
 	case block.Error:
 		// make progress, but don't report. The block parser has already
 		// emitted a diagnostic for this
@@ -123,4 +127,59 @@ func (a *assembler) parseComment(b block.Block) {
 	}
 	a.file.Statements = append(a.file.Statements, comment)
 	a.advance()
+}
+
+func (a *assembler) assembleRequest() {
+	end := a.findRequestEnd()
+	req, diags := assembleRequest(a.blocks[a.pos:end])
+	a.file.Statements = append(a.file.Statements, req)
+	a.diagnostics = append(a.diagnostics, diags...)
+
+	// Skip to the end of the request
+	a.pos = end
+}
+
+// findRequestEnd returns the index one past the last block belonging to the
+// request that starts at blocks[start]. A request runs until the next
+// Separator or the end of the stream.
+func (a *assembler) findRequestEnd() int {
+	for i := a.pos + 1; i < len(a.blocks); i++ {
+		if a.blocks[i].Kind == block.Separator {
+			return i
+		}
+	}
+
+	return len(a.blocks)
+}
+
+// assembleRequest builds a single [ast.Request] from the continuous run
+// of blocks that make it up. blocks[0] is the Separator.
+func assembleRequest(blocks []block.Block) (ast.Request, []diagnostic.Diagnostic) {
+	req := ast.Request{Span: source.Span{
+		File:        blocks[0].Span.File,
+		StartOffset: blocks[0].Span.StartOffset,
+		EndOffset:   blocks[len(blocks)-1].Span.EndOffset,
+	}}
+
+	var diags []diagnostic.Diagnostic
+
+	for _, b := range blocks {
+		p := newParser(b)
+
+		switch b.Kind {
+		case block.Separator:
+			// Only meaningful token is the name (ident)
+			req.Name = p.parseSeparator()
+		case block.RequestLine:
+			req.Method, req.URL = p.parseRequestLine()
+
+		default:
+			d := diagnostic.Error(fmt.Sprintf("unexpected block type: %s", b.Kind), b.Span)
+			diags = append(diags, d)
+		}
+
+		diags = append(diags, p.diagnostics...)
+	}
+
+	return req, diags
 }

@@ -36,8 +36,20 @@ func Walk(v Visitor, node Node) {
 		if n.Value != nil {
 			Walk(v, n.Value)
 		}
-	case Ident, TextLiteral, Comment:
+	case Ident, *Ident, TextLiteral, Comment, nil:
 		// Leaves, no children to walk.
+	case Request:
+		if n.Doc != nil {
+			Walk(v, n.Doc)
+		}
+
+		if n.Name != nil {
+			Walk(v, n.Name)
+		}
+
+		Walk(v, n.Method)
+		Walk(v, n.URL)
+
 	default:
 		panic(fmt.Sprintf("ast.Walk: unexpected node type %T", n))
 	}
@@ -58,8 +70,6 @@ func Inspect(node Node, f func(Node) bool) {
 type inspector func(Node) bool
 
 // Visit implements [Visitor] for inspector.
-//
-//nolint:ireturn // Visitor.Visit must return a Visitor to satisfy the interface.
 func (f inspector) Visit(node Node) Visitor {
 	if f(node) {
 		return f
