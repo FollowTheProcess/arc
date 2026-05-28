@@ -7,4 +7,4 @@
 <Token::Number start=7, end=11>
 <Token::Error start=11, end=15>
 -- diagnostics.txt --
-[error] src.http:1:12-16: unexpected '.' in number
+[error] testdata/invalid/directive/bad-number.txtar/src.http:1:12-16: unexpected '.' in number

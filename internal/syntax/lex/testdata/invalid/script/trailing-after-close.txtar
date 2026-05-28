@@ -7,4 +7,4 @@
 <Token::CloseScript start=10, end=12>
 <Token::Error start=13, end=17>
 -- diagnostics.txt --
-[error] src.http:1:14-18: unexpected content after script close
+[error] testdata/invalid/script/trailing-after-close.txtar/src.http:1:14-18: unexpected content after script close

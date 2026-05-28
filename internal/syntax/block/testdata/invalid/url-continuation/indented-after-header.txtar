@@ -18,5 +18,5 @@ Accept: application/json
 	<Token::Error start=59, end=72>	`/api/v1/items`
 	<Token::Error start=72, end=72>	``
 -- diagnostics.txt --
-[error] src.http:4:5-18: invalid header name
-[error] src.http:4:18: header line missing ':'
+[error] testdata/invalid/url-continuation/indented-after-header.txtar/src.http:4:5-18: invalid header name
+[error] testdata/invalid/url-continuation/indented-after-header.txtar/src.http:4:18: header line missing ':'

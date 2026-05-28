@@ -6,4 +6,4 @@ trailing content
 <Token::Text start=3, end=16>
 <Token::Error start=17, end=33>
 -- diagnostics.txt --
-[error] src.http:2:1-17: unexpected content after response redirect
+[error] testdata/invalid/response-redirect/trailing-content.txtar/src.http:2:1-17: unexpected content after response redirect

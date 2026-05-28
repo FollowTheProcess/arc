@@ -15,4 +15,4 @@ GET /foo
 	<Token::ResponseRedirect start=19, end=21>	`>>`
 	<Token::Error start=21, end=21>	``
 -- diagnostics.txt --
-[error] src.http:4:3: expected filepath following response redirect
+[error] testdata/invalid/response-redirect/no-filepath.txtar/src.http:4:3: expected filepath following response redirect

@@ -6,4 +6,4 @@
 <Token::Text start=2, end=20>
 <Token::CloseScript start=20, end=22>
 -- diagnostics.txt --
-[error] src.http:1:1: expected '<' or '>', got '{'
+[error] testdata/invalid/script/no-angle.txtar/src.http:1:1: expected '<' or '>', got '{'

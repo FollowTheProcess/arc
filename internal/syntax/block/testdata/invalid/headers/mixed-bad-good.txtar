@@ -19,4 +19,4 @@ Accept: application/json
 	<Token::Colon start=78, end=79>	`:`
 	<Token::Text start=80, end=96>	`application/json`
 -- diagnostics.txt --
-[error] src.http:3:14-15: header line missing ':'
+[error] testdata/invalid/headers/mixed-bad-good.txtar/src.http:3:14-15: header line missing ':'

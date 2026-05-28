@@ -10,4 +10,4 @@ GET https://example.com%^|/users
 	<Token::Error start=27, end=30>	`%^|`
 	<Token::Text start=30, end=36>	`/users`
 -- diagnostics.txt --
-[error] src.http:2:24-27: invalid character '%' in URL
+[error] testdata/invalid/request-line/mixed-bad-url-chars.txtar/src.http:2:24-27: invalid character '%' in URL

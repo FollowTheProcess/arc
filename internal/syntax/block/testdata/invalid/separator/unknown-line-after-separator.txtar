@@ -7,4 +7,4 @@ wat
 	<Token::Ident start=4, end=9>	`login`
 <Block::Error start=2:1, end=2:4>	`wat`
 -- diagnostics.txt --
-[error] src.http:2:1-4: unexpected line in this context: RequestPrelude
+[error] testdata/invalid/separator/unknown-line-after-separator.txtar/src.http:2:1-4: unexpected line in this context: RequestPrelude

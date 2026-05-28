@@ -5,4 +5,4 @@
 <Token::OpenScript start=2, end=4>
 <Token::Error start=4, end=29>
 -- diagnostics.txt --
-[error] src.http:1:5-30: unterminated script block
+[error] testdata/invalid/script/unterminated.txtar/src.http:1:5-30: unterminated script block

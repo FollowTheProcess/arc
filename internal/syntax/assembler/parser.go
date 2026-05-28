@@ -255,15 +255,38 @@ func (p *parser) parseSeparator() *ast.Ident {
 // parseRequestLine parses a request's METHOD, URL, [HTTPVersion] line.
 //
 // It assumes the current token is the METHOD ident.
-func (p *parser) parseRequestLine() (ast.Ident, ast.Expression) {
-	// TODO: HTTPVersion
-	method := p.parseIdent()
+func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, version *ast.HTTPVersion) {
+	method = p.parseIdent()
 
 	if p.expect(token.Text, token.OpenInterp) {
-		url := p.parseExpression(token.LowestPrecedence)
-
-		return method, url
+		url = p.parseExpression(token.LowestPrecedence)
 	}
 
-	return method, nil
+	// Optional HTTP/<version>
+	if p.next.Is(token.Text) {
+		p.advance()
+		start := p.current.Start
+
+		version = &ast.HTTPVersion{
+			Span: p.span(),
+		}
+
+		if !p.expect(token.Number) {
+			// No version number, bad
+			return method, url, version
+		}
+
+		version = &ast.HTTPVersion{
+			Version: ast.NumberLiteral{
+				Span: p.span(),
+			},
+			Span: source.Span{
+				File:        p.span().File,
+				StartOffset: start,
+				EndOffset:   p.span().EndOffset,
+			},
+		}
+	}
+
+	return method, url, version
 }

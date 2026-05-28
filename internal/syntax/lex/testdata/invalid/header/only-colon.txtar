@@ -4,4 +4,4 @@
 <Token::Error start=0, end=0>
 <Token::Colon start=0, end=1>
 -- diagnostics.txt --
-[error] src.http:1:1: invalid header name
+[error] testdata/invalid/header/only-colon.txtar/src.http:1:1: invalid header name

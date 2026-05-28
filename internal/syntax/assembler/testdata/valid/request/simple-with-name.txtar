@@ -2,9 +2,9 @@
 ### login
 POST https://something.com/users/login
 -- want.txt --
-File src.http:1:1-2:39
-  Request src.http:1:1-2:39
-    Ident "login" src.http:1:5-10
-    Ident "POST" src.http:2:1-5
-    TextLiteral "https://something.com/users/login" src.http:2:6-39
+File testdata/valid/request/simple-with-name.txtar/src.http:1:1-2:39
+  Request testdata/valid/request/simple-with-name.txtar/src.http:1:1-2:39
+    Ident "login" testdata/valid/request/simple-with-name.txtar/src.http:1:5-10
+    Ident "POST" testdata/valid/request/simple-with-name.txtar/src.http:2:1-5
+    TextLiteral "https://something.com/users/login" testdata/valid/request/simple-with-name.txtar/src.http:2:6-39
 -- diagnostics.txt --

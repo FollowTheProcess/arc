@@ -6,4 +6,4 @@ GET https://example.com%%%/users/123
 <Token::Error start=23, end=26>
 <Token::Text start=26, end=36>
 -- diagnostics.txt --
-[error] src.http:1:24-27: invalid character '%' in URL
+[error] testdata/invalid/request-line/bad-url-char.txtar/src.http:1:24-27: invalid character '%' in URL

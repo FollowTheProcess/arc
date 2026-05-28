@@ -91,6 +91,7 @@ func Separator(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 func RequestLine(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 	s := newScanner(span)
 
+	// Method
 	s.takeWhile(isUpperAlpha)
 	s.emit(token.Ident)
 
@@ -103,6 +104,13 @@ func RequestLine(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 
 		if s.restStartsWith("{{") {
 			scanInterp(s)
+
+			continue
+		}
+
+		if s.takeExact("HTTP/") {
+			s.emit(token.Text)
+			scanNumber(s)
 
 			continue
 		}

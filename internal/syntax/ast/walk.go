@@ -36,7 +36,7 @@ func Walk(v Visitor, node Node) {
 		if n.Value != nil {
 			Walk(v, n.Value)
 		}
-	case Ident, *Ident, TextLiteral, Comment, nil:
+	case Ident, *Ident, TextLiteral, Comment, NumberLiteral, nil:
 		// Leaves, no children to walk.
 	case Request:
 		if n.Doc != nil {
@@ -49,6 +49,14 @@ func Walk(v Visitor, node Node) {
 
 		Walk(v, n.Method)
 		Walk(v, n.URL)
+
+		if n.HTTPVersion != nil {
+			Walk(v, n.HTTPVersion)
+		}
+	case *HTTPVersion:
+		if n != nil {
+			Walk(v, n.Version)
+		}
 
 	default:
 		panic(fmt.Sprintf("ast.Walk: unexpected node type %T", n))

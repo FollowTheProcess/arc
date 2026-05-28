@@ -1,0 +1,9 @@
+-- src.http --
+GET https://api.com HTTP/xyz
+-- tokens.txt --
+<Token::Ident start=0, end=3>
+<Token::Text start=4, end=19>
+<Token::Text start=20, end=25>
+<Token::Error start=25, end=28>
+-- diagnostics.txt --
+[error] testdata/invalid/request-line/http-version-bad-number.txtar/src.http:1:26-29: number must have digits

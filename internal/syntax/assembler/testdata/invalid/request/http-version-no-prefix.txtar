@@ -1,0 +1,11 @@
+-- src.http --
+###
+GET https://something.com 1.2
+-- want.txt --
+File testdata/invalid/request/http-version-no-prefix.txtar/src.http:1:1-2:30
+  Request testdata/invalid/request/http-version-no-prefix.txtar/src.http:1:1-2:30
+    Ident "GET" testdata/invalid/request/http-version-no-prefix.txtar/src.http:2:1-4
+    TextLiteral "https://something.com" testdata/invalid/request/http-version-no-prefix.txtar/src.http:2:5-26
+    HTTPVersion testdata/invalid/request/http-version-no-prefix.txtar/src.http:2:27-30
+-- diagnostics.txt --
+[error] testdata/invalid/request/http-version-no-prefix.txtar/src.http:2:30: expected Number, got EOF

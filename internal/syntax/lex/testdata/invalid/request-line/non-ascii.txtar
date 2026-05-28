@@ -5,4 +5,4 @@ GET https://example.com/users/café
 <Token::Text start=4, end=33>
 <Token::Error start=33, end=35>
 -- diagnostics.txt --
-[error] src.http:1:34-36: invalid character 'é' in URL
+[error] testdata/invalid/request-line/non-ascii.txtar/src.http:1:34-36: invalid character 'é' in URL

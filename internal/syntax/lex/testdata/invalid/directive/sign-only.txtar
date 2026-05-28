@@ -6,4 +6,4 @@
 <Token::Eq start=3, end=4>
 <Token::Error start=5, end=8>
 -- diagnostics.txt --
-[error] src.http:1:6-9: number must have digits
+[error] testdata/invalid/directive/sign-only.txtar/src.http:1:6-9: number must have digits

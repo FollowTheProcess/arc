@@ -75,8 +75,14 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Pos().Text(), n.Pos())
 	case TextLiteral:
 		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
+	case NumberLiteral:
+		if len(n.Span.Content()) != 0 {
+			fmt.Fprintf(d.buf, "%sNumberLiteral %q %s\n", indent, n.Pos().Text(), n.Pos())
+		}
 	case Request:
 		fmt.Fprintf(d.buf, "%sRequest %s\n", indent, n.Pos())
+	case *HTTPVersion:
+		fmt.Fprintf(d.buf, "%sHTTPVersion %s\n", indent, n.Pos())
 	default:
 		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}

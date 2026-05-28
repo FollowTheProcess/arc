@@ -5,4 +5,4 @@
 <Token::Error start=3, end=6>
 <Token::CloseInterp start=7, end=9>
 -- diagnostics.txt --
-[error] src.http:1:4-7: unexpected character in interpolation: '1'
+[error] testdata/invalid/interps/digit-start.txtar/src.http:1:4-7: unexpected character in interpolation: '1'

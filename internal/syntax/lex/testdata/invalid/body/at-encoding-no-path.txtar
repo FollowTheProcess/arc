@@ -6,4 +6,4 @@
 <Token::Ident start=2, end=6>
 <Token::Error start=6, end=6>
 -- diagnostics.txt --
-[error] src.http:1:7: expected filepath
+[error] testdata/invalid/body/at-encoding-no-path.txtar/src.http:1:7: expected filepath

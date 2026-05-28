@@ -4,8 +4,8 @@ This is actually totally valid anyway as far as the assembler is concerned
 -- src.http --
 @no-redirect = "x"
 -- want.txt --
-File src.http:1:1-19
-  Directive src.http:1:1-19
-    Ident "no-redirect" src.http:1:2-13
-    TextLiteral "x" src.http:1:16-19
+File testdata/invalid/directive/flag-with-value.txtar/src.http:1:1-19
+  Directive testdata/invalid/directive/flag-with-value.txtar/src.http:1:1-19
+    Ident "no-redirect" testdata/invalid/directive/flag-with-value.txtar/src.http:1:2-13
+    TextLiteral "x" testdata/invalid/directive/flag-with-value.txtar/src.http:1:16-19
 -- diagnostics.txt --

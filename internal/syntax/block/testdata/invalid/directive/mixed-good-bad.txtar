@@ -25,4 +25,4 @@
 	<Token::Text start=41, end=52>	`still works`
 	<Token::Quote start=52, end=53>	`"`
 -- diagnostics.txt --
-[error] src.http:2:2: expected an ident following '@', got ' '
+[error] testdata/invalid/directive/mixed-good-bad.txtar/src.http:2:2: expected an ident following '@', got ' '

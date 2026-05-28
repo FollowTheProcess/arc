@@ -6,5 +6,5 @@ trailing
 <Token::Error start=1, end=1>
 <Token::Error start=2, end=10>
 -- diagnostics.txt --
-[error] src.http:1:2: expected filepath
-[error] src.http:2:1-9: unexpected content after file-ref body
+[error] testdata/invalid/body/no-path-with-trailing.txtar/src.http:1:2: expected filepath
+[error] testdata/invalid/body/no-path-with-trailing.txtar/src.http:2:1-9: unexpected content after file-ref body

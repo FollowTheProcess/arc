@@ -7,4 +7,4 @@
 <Token::Number start=5, end=9>
 <Token::Error start=9, end=12>
 -- diagnostics.txt --
-[error] src.http:1:10-13: unexpected 'a' in number
+[error] testdata/invalid/directive/number-trailing-letters.txtar/src.http:1:10-13: unexpected 'a' in number

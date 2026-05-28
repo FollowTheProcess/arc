@@ -17,12 +17,20 @@ type (
 		Value string // The interpreted (unquoted) text value
 		Span  source.Span
 	}
+
+	// NumberLiteral is a number expression, can be an integer
+	// or a decimal.
+	NumberLiteral struct {
+		Span source.Span
+	}
 )
 
 // Pos implementations.
-func (i Ident) Pos() source.Span       { return i.Span }
-func (t TextLiteral) Pos() source.Span { return t.Span }
+func (i Ident) Pos() source.Span         { return i.Span }
+func (t TextLiteral) Pos() source.Span   { return t.Span }
+func (n NumberLiteral) Pos() source.Span { return n.Span }
 
 // Expression implementations.
-func (i Ident) expressionNode()       {}
-func (t TextLiteral) expressionNode() {}
+func (i Ident) expressionNode()         {}
+func (t TextLiteral) expressionNode()   {}
+func (n NumberLiteral) expressionNode() {}

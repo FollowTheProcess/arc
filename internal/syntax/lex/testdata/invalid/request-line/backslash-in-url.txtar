@@ -6,4 +6,4 @@ GET https://example.com\path
 <Token::Error start=23, end=24>
 <Token::Text start=24, end=28>
 -- diagnostics.txt --
-[error] src.http:1:24-25: invalid character '\\' in URL
+[error] testdata/invalid/request-line/backslash-in-url.txtar/src.http:1:24-25: invalid character '\\' in URL

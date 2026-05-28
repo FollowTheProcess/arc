@@ -6,4 +6,4 @@
 	<Token::Ident start=4, end=9>	`login`
 	<Token::Error start=9, end=12>	`!@#`
 -- diagnostics.txt --
-[error] src.http:1:10-13: invalid character '!' in separator
+[error] testdata/invalid/separator/sep-bad-chars-after-name.txtar/src.http:1:10-13: invalid character '!' in separator

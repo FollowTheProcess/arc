@@ -7,4 +7,4 @@ This is some text with an {{ interp that wasn't closed
 <Token::Error start=36, end=36>
 <Token::Text start=36, end=54>
 -- diagnostics.txt --
-[error] src.http:1:37: unterminated interpolation
+[error] testdata/invalid/interps/unterminated.txtar/src.http:1:37: unterminated interpolation

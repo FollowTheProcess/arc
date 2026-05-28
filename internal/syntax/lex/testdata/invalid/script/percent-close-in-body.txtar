@@ -7,4 +7,4 @@
 <Token::CloseScript start=6, end=8>
 <Token::Error start=8, end=12>
 -- diagnostics.txt --
-[error] src.http:1:9-13: unexpected content after script close
+[error] testdata/invalid/script/percent-close-in-body.txtar/src.http:1:9-13: unexpected content after script close

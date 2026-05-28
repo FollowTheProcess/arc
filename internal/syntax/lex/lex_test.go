@@ -105,7 +105,7 @@ func runLexCase(t *testing.T, tokeniser lex.Tokeniser, file string) {
 	test.True(t, want.Has("tokens.txt"), test.Context("archive %q missing tokens.txt", file))
 	test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
 
-	span := lineSpan(src)
+	span := lineSpan(file, src)
 
 	tokens, diagnostics := tokeniser(span)
 
@@ -143,7 +143,7 @@ func fuzzTokeniser(f *testing.F, name string, tokeniser lex.Tokeniser) {
 	test.True(f, seeded > 0, test.Context("no .txtar files found for tokeniser %s", name))
 
 	f.Fuzz(func(t *testing.T, src string) {
-		span := lineSpan(src)
+		span := lineSpan(name, src)
 		content := span.Content()
 		tokens, diagnostics := tokeniser(span)
 
@@ -284,8 +284,13 @@ func assertNoSilentDataLoss(
 // txtar sections retain their trailing newline, trim it off the span
 // bounds (but keep it in the file) so [source.Span.Content] returns
 // what [source.File.Lines] would have yielded.
-func lineSpan(src string) source.Span {
-	file := source.NewFile("src.http", []byte(src))
+func lineSpan(name, src string) source.Span {
+	// Give tests unique names (helps with debugging individual tests)
+	// but don't inject OS separators into the fixtures
+	path := filepath.Join(name, "src.http")
+	path = filepath.ToSlash(path)
+
+	file := source.NewFile(path, []byte(src))
 	end := len(strings.TrimRight(src, "\r\n"))
 
 	return source.Span{

@@ -5,4 +5,4 @@ Content-Type application/json
 <Token::Error start=13, end=14>
 <Token::Text start=14, end=29>
 -- diagnostics.txt --
-[error] src.http:1:14-15: header line missing ':'
+[error] testdata/invalid/header/missing-colon.txtar/src.http:1:14-15: header line missing ':'
