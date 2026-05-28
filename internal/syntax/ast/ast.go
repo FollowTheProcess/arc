@@ -76,7 +76,9 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 	case TextLiteral:
 		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
 	case NumberLiteral:
-		fmt.Fprintf(d.buf, "%sNumberLiteral %q %s\n", indent, n.Pos().Text(), n.Pos())
+		if len(n.Span.Content()) != 0 {
+			fmt.Fprintf(d.buf, "%sNumberLiteral %q %s\n", indent, n.Pos().Text(), n.Pos())
+		}
 	case Request:
 		fmt.Fprintf(d.buf, "%sRequest %s\n", indent, n.Pos())
 	case *HTTPVersion:

@@ -6,5 +6,6 @@ File testdata/invalid/request/http-version-no-number.txtar/src.http:1:1-2:32
   Request testdata/invalid/request/http-version-no-number.txtar/src.http:1:1-2:32
     Ident "GET" testdata/invalid/request/http-version-no-number.txtar/src.http:2:1-4
     TextLiteral "https://something.com" testdata/invalid/request/http-version-no-number.txtar/src.http:2:5-26
+    HTTPVersion testdata/invalid/request/http-version-no-number.txtar/src.http:2:27-32
 -- diagnostics.txt --
-[error] testdata/invalid/request/http-version-no-number.txtar/src.http:2:27-32: expected 'HTTP/<version>'
+[error] testdata/invalid/request/http-version-no-number.txtar/src.http:2:32: number must have digits

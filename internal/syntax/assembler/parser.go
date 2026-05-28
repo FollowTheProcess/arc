@@ -1,7 +1,6 @@
 package assembler
 
 import (
-	"bytes"
 	"fmt"
 
 	"go.followtheprocess.codes/arc/internal/syntax/ast"
@@ -266,49 +265,28 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 	// Optional HTTP/<version>
 	if p.next.Is(token.Text) {
 		p.advance()
-		version = p.parseHTTPVersion()
+		start := p.current.Start
+
+		version = &ast.HTTPVersion{
+			Span: p.span(),
+		}
+
+		if !p.expect(token.Number) {
+			// No version number, bad
+			return method, url, version
+		}
+
+		version = &ast.HTTPVersion{
+			Version: ast.NumberLiteral{
+				Span: p.span(),
+			},
+			Span: source.Span{
+				File:        p.span().File,
+				StartOffset: start,
+				EndOffset:   p.span().EndOffset,
+			},
+		}
 	}
 
 	return method, url, version
-}
-
-// parseHTTPVersion parses HTTP/<version> text.
-//
-// On any parse failure it emits a diagnostic and returns nil; the malformed
-// text's location is preserved by the diagnostic, so there's no half-formed
-// node for downstream consumers to reason about.
-func (p *parser) parseHTTPVersion() *ast.HTTPVersion {
-	const prefix = "HTTP/"
-
-	span := p.span()
-	content := span.Content()
-
-	prefixStart := bytes.Index(content, []byte(prefix))
-	if prefixStart == -1 {
-		p.error(p.current, "invalid HTTP version: missing 'HTTP/' prefix")
-
-		return nil
-	}
-
-	// versionStart is the offset of the version number within content, i.e.
-	// just past the "HTTP/" prefix.
-	versionStart := prefixStart + len(prefix)
-	if versionStart >= len(content) {
-		p.error(p.current, "expected 'HTTP/<version>'")
-
-		return nil
-	}
-
-	return &ast.HTTPVersion{
-		Span: span,
-		// Span offsets are file-relative, so anchor the version to the start
-		// of the HTTP/<version> token rather than to the content slice.
-		Version: ast.NumberLiteral{
-			Span: source.Span{
-				File:        span.File,
-				StartOffset: span.StartOffset + versionStart,
-				EndOffset:   span.EndOffset,
-			},
-		},
-	}
 }
