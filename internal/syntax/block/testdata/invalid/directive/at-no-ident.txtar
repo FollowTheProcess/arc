@@ -9,4 +9,4 @@
 	<Token::Text start=5, end=10>	`value`
 	<Token::Quote start=10, end=11>	`"`
 -- diagnostics.txt --
-[error] src.http:1:2: expected an ident following '@', got ' '
+[error] testdata/invalid/directive/at-no-ident.txtar/src.http:1:2: expected an ident following '@', got ' '

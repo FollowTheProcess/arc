@@ -6,4 +6,4 @@
 <Token::Error start=6, end=6>
 <Token::CloseInterp start=6, end=8>
 -- diagnostics.txt --
-[error] src.http:1:7: empty interpolation
+[error] testdata/invalid/response-redirect/empty-interp.txtar/src.http:1:7: empty interpolation

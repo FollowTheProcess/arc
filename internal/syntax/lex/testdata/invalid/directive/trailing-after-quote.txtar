@@ -9,4 +9,4 @@
 <Token::Quote start=11, end=12>
 <Token::Error start=13, end=21>
 -- diagnostics.txt --
-[error] src.http:1:14-22: unexpected content after directive value
+[error] testdata/invalid/directive/trailing-after-quote.txtar/src.http:1:14-22: unexpected content after directive value

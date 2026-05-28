@@ -4,4 +4,4 @@
 <Token::LAngle start=0, end=1>
 <Token::Error start=1, end=1>
 -- diagnostics.txt --
-[error] src.http:1:2: expected filepath
+[error] testdata/invalid/body/no-filepath.txtar/src.http:1:2: expected filepath

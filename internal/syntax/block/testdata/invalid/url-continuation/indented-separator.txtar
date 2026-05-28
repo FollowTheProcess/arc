@@ -11,4 +11,4 @@ GET https://example.com
 	<Token::Text start=14, end=33>	`https://example.com`
 <Block::Error start=3:1, end=3:8>	`    ###`
 -- diagnostics.txt --
-[error] src.http:3:1-8: unexpected line in this context: RequestHeaders
+[error] testdata/invalid/url-continuation/indented-separator.txtar/src.http:3:1-8: unexpected line in this context: RequestHeaders

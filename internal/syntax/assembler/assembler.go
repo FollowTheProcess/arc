@@ -171,7 +171,7 @@ func assembleRequest(blocks []block.Block) (ast.Request, []diagnostic.Diagnostic
 			// Only meaningful token is the name (ident)
 			req.Name = p.parseSeparator()
 		case block.RequestLine:
-			req.Method, req.URL = p.parseRequestLine()
+			req.Method, req.URL, req.HTTPVersion = p.parseRequestLine()
 
 		default:
 			d := diagnostic.Error(fmt.Sprintf("unexpected block type: %s", b.Kind), b.Span)

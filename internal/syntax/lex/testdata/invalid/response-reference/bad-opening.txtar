@@ -3,4 +3,4 @@
 -- tokens.txt --
 <Token::Error start=0, end=15>
 -- diagnostics.txt --
-[error] src.http:1:1-16: expected '<>', got "> response.json"
+[error] testdata/invalid/response-reference/bad-opening.txtar/src.http:1:1-16: expected '<>', got "> response.json"

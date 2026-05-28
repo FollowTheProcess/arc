@@ -3,4 +3,4 @@
 -- tokens.txt --
 <Token::Error start=0, end=3>
 -- diagnostics.txt --
-[error] src.http:1:1-4: expected '@' got "!00"
+[error] testdata/invalid/directive/garbage.txtar/src.http:1:1-4: expected '@' got "!00"

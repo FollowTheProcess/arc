@@ -5,4 +5,4 @@
 <Token::OpenScript start=2, end=4>
 <Token::Error start=4, end=4>
 -- diagnostics.txt --
-[error] src.http:1:5: unterminated script block
+[error] testdata/invalid/script/open-fence-eof.txtar/src.http:1:5: unterminated script block

@@ -5,4 +5,4 @@
 <Token::Colon start=2, end=3>
 <Token::Text start=4, end=9>
 -- diagnostics.txt --
-[error] src.http:1:1-3: invalid header name
+[error] testdata/invalid/header/bad-leading-chars.txtar/src.http:1:1-3: invalid header name

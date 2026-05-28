@@ -8,4 +8,4 @@
 <Token::Text start=14, end=23>
 <Token::Error start=23, end=23>
 -- diagnostics.txt --
-[error] src.http:1:24: unterminated string literal, expected closing '"'
+[error] testdata/invalid/directive/unterminated-quote.txtar/src.http:1:24: unterminated string literal, expected closing '"'

@@ -5,4 +5,4 @@ GET https://example.com<<<
 <Token::Text start=4, end=23>
 <Token::Error start=23, end=26>
 -- diagnostics.txt --
-[error] src.http:1:24-27: invalid character '<' in URL
+[error] testdata/invalid/request-line/bad-at-end.txtar/src.http:1:24-27: invalid character '<' in URL

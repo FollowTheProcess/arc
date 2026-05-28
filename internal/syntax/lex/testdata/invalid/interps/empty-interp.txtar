@@ -5,4 +5,4 @@
 <Token::Error start=3, end=3>
 <Token::CloseInterp start=3, end=5>
 -- diagnostics.txt --
-[error] src.http:1:4: empty interpolation
+[error] testdata/invalid/interps/empty-interp.txtar/src.http:1:4: empty interpolation

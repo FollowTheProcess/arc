@@ -4,4 +4,4 @@ Content-Type
 <Token::Ident start=0, end=12>
 <Token::Error start=12, end=12>
 -- diagnostics.txt --
-[error] src.http:1:13: header line missing ':'
+[error] testdata/invalid/header/name-only.txtar/src.http:1:13: header line missing ':'

@@ -3,4 +3,4 @@
 -- want.txt --
 <Block::Error start=1:1, end=1:14>	`/api/v1/items`
 -- diagnostics.txt --
-[error] src.http:1:1-14: unexpected line in this context: Initial
+[error] testdata/invalid/url-continuation/indented-at-top-level.txtar/src.http:1:1-14: unexpected line in this context: Initial

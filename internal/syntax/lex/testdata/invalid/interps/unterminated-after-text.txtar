@@ -6,4 +6,4 @@ prefix {{ user
 <Token::Ident start=10, end=14>
 <Token::Error start=14, end=14>
 -- diagnostics.txt --
-[error] src.http:1:15: unterminated interpolation
+[error] testdata/invalid/interps/unterminated-after-text.txtar/src.http:1:15: unterminated interpolation

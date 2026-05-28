@@ -14,4 +14,4 @@ GET https://api.example.com/users
 	<Token::Colon start=49, end=50>	`:`
 	<Token::Text start=51, end=56>	`value`
 -- diagnostics.txt --
-[error] src.http:3:1-8: invalid header name
+[error] testdata/invalid/headers/bad-name.txtar/src.http:3:1-8: invalid header name

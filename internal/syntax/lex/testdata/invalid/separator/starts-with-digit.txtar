@@ -5,4 +5,4 @@
 <Token::Error start=4, end=5>
 <Token::Ident start=5, end=10>
 -- diagnostics.txt --
-[error] src.http:1:5-6: identifier cannot start with '1'
+[error] testdata/invalid/separator/starts-with-digit.txtar/src.http:1:5-6: identifier cannot start with '1'

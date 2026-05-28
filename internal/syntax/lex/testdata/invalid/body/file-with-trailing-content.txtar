@@ -6,4 +6,4 @@
 <Token::Text start=2, end=13>
 <Token::Error start=14, end=37>
 -- diagnostics.txt --
-[error] src.http:2:1-24: unexpected content after file-ref body
+[error] testdata/invalid/body/file-with-trailing-content.txtar/src.http:2:1-24: unexpected content after file-ref body

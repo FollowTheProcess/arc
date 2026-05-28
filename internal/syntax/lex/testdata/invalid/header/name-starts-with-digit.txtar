@@ -5,4 +5,4 @@
 <Token::Colon start=7, end=8>
 <Token::Text start=9, end=14>
 -- diagnostics.txt --
-[error] src.http:1:1-8: invalid header name
+[error] testdata/invalid/header/name-starts-with-digit.txtar/src.http:1:1-8: invalid header name

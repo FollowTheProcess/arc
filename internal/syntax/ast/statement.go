@@ -25,24 +25,34 @@ type (
 
 	// Request is the AST node representing a http request.
 	Request struct {
-		Doc    *Comment // Optional doc comment attached to the request
-		Name   *Ident   // Optional `### [name]` or `# @name`
-		Method Ident
-		URL    Expression
-		Span   source.Span // The entire request span
+		Doc         *Comment // Optional doc comment attached to the request
+		Name        *Ident   // Optional `### [name]` or `# @name`
+		Method      Ident
+		URL         Expression
+		HTTPVersion *HTTPVersion
+		Span        source.Span // The entire request span
 
 		// TODO: HTTPVersion, Headers, BodyExpr etc.
+	}
+
+	// HTTPVersion is the AST node representing a `HTTP/<version>` statement
+	// following a URL.
+	HTTPVersion struct {
+		Version NumberLiteral
+		Span    source.Span // Includes the HTTP/ prefix
 	}
 )
 
 // Pos implementations.
-func (f File) Pos() source.Span      { return f.Span }
-func (c Comment) Pos() source.Span   { return c.Span }
-func (d Directive) Pos() source.Span { return d.Span }
-func (r Request) Pos() source.Span   { return r.Span }
+func (f File) Pos() source.Span        { return f.Span }
+func (c Comment) Pos() source.Span     { return c.Span }
+func (d Directive) Pos() source.Span   { return d.Span }
+func (r Request) Pos() source.Span     { return r.Span }
+func (h HTTPVersion) Pos() source.Span { return h.Span }
 
 // Statement implementations.
-func (f File) statementNode()      {}
-func (c Comment) statementNode()   {}
-func (d Directive) statementNode() {}
-func (r Request) statementNode()   {}
+func (f File) statementNode()        {}
+func (c Comment) statementNode()     {}
+func (d Directive) statementNode()   {}
+func (r Request) statementNode()     {}
+func (h HTTPVersion) statementNode() {}

@@ -8,5 +8,5 @@ GET https://example.com%abc%/path
 <Token::Error start=27, end=28>
 <Token::Text start=28, end=33>
 -- diagnostics.txt --
-[error] src.http:1:24-25: invalid character '%' in URL
-[error] src.http:1:28-29: invalid character '%' in URL
+[error] testdata/invalid/request-line/multiple-bad-runs.txtar/src.http:1:24-25: invalid character '%' in URL
+[error] testdata/invalid/request-line/multiple-bad-runs.txtar/src.http:1:28-29: invalid character '%' in URL

@@ -1,0 +1,11 @@
+-- src.http --
+###
+GET https://something.com HTTP/words
+-- want.txt --
+File testdata/invalid/request/http-version-bad-number.txtar/src.http:1:1-2:37
+  Request testdata/invalid/request/http-version-bad-number.txtar/src.http:1:1-2:37
+    Ident "GET" testdata/invalid/request/http-version-bad-number.txtar/src.http:2:1-4
+    TextLiteral "https://something.com" testdata/invalid/request/http-version-bad-number.txtar/src.http:2:5-26
+    HTTPVersion testdata/invalid/request/http-version-bad-number.txtar/src.http:2:27-37
+      NumberLiteral "words" testdata/invalid/request/http-version-bad-number.txtar/src.http:2:32-37
+-- diagnostics.txt --

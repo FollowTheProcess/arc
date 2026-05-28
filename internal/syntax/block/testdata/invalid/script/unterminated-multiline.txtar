@@ -15,5 +15,5 @@ console.log("oops")
 console.log("oops")
 `
 -- diagnostics.txt --
-[error] src.http:2:5-3:21: unterminated script block
-[error] src.http:2:1-3:21: unterminated script, expected '%}' before EOF
+[error] testdata/invalid/script/unterminated-multiline.txtar/src.http:2:5-3:21: unterminated script block
+[error] testdata/invalid/script/unterminated-multiline.txtar/src.http:2:1-3:21: unterminated script, expected '%}' before EOF

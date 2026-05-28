@@ -4,4 +4,4 @@ no-redirect
 <Token::Error start=0, end=0>
 <Token::Ident start=0, end=11>
 -- diagnostics.txt --
-[error] src.http:1:1: expected '@' got "no-redirect"
+[error] testdata/invalid/directive/no-at.txtar/src.http:1:1: expected '@' got "no-redirect"

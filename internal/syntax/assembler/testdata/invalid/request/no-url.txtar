@@ -2,8 +2,8 @@
 ###
 GET
 -- want.txt --
-File src.http:1:1-2:4
-  Request src.http:1:1-2:4
-    Ident "GET" src.http:2:1-4
+File testdata/invalid/request/no-url.txtar/src.http:1:1-2:4
+  Request testdata/invalid/request/no-url.txtar/src.http:1:1-2:4
+    Ident "GET" testdata/invalid/request/no-url.txtar/src.http:2:1-4
 -- diagnostics.txt --
-[error] src.http:2:4: expected one of [Text OpenInterp], got EOF
+[error] testdata/invalid/request/no-url.txtar/src.http:2:4: expected one of [Text OpenInterp], got EOF

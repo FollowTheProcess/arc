@@ -2,8 +2,8 @@
 ###
 GET https://something.com
 -- want.txt --
-File src.http:1:1-2:26
-  Request src.http:1:1-2:26
-    Ident "GET" src.http:2:1-4
-    TextLiteral "https://something.com" src.http:2:5-26
+File testdata/valid/request/simple.txtar/src.http:1:1-2:26
+  Request testdata/valid/request/simple.txtar/src.http:1:1-2:26
+    Ident "GET" testdata/valid/request/simple.txtar/src.http:2:1-4
+    TextLiteral "https://something.com" testdata/valid/request/simple.txtar/src.http:2:5-26
 -- diagnostics.txt --

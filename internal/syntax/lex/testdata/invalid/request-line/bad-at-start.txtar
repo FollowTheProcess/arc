@@ -5,4 +5,4 @@ GET %%%/users
 <Token::Error start=4, end=7>
 <Token::Text start=7, end=13>
 -- diagnostics.txt --
-[error] src.http:1:5-8: invalid character '%' in URL
+[error] testdata/invalid/request-line/bad-at-start.txtar/src.http:1:5-8: invalid character '%' in URL

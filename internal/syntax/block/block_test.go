@@ -195,7 +195,12 @@ func runBlockParserTest(t *testing.T, file string) {
 	test.True(t, want.Has("want.txt"), test.Context("archive %q missing want.txt", file))
 	test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
 
-	srcFile := source.NewFile("src.http", []byte(src))
+	// Give tests unique names (helps with debugging individual tests)
+	// but don't inject OS separators into the fixtures
+	path := filepath.Join(file, "src.http")
+	path = filepath.ToSlash(path)
+
+	srcFile := source.NewFile(path, []byte(src))
 
 	blocks, diagnostics := block.Parse(srcFile)
 

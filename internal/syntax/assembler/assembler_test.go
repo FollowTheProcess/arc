@@ -160,7 +160,9 @@ func runAssemblerTest(t *testing.T, file string) {
 	test.True(t, want.Has("want.txt"), test.Context("archive %q missing want.txt", file))
 	test.True(t, want.Has("diagnostics.txt"), test.Context("archive %q missing diagnostics.txt", file))
 
-	srcFile := source.NewFile("src.http", []byte(src))
+	path := filepath.Join(file, "src.http")
+	path = filepath.ToSlash(path)
+	srcFile := source.NewFile(path, []byte(src))
 
 	var allDiags []diagnostic.Diagnostic
 

@@ -10,4 +10,4 @@
 	<Token::Separator start=9, end=12>	`###`
 	<Token::Ident start=13, end=17>	`good`
 -- diagnostics.txt --
-[error] src.http:1:5-6: identifier cannot start with '1'
+[error] testdata/invalid/separator/bad-sep-then-good-sep.txtar/src.http:1:5-6: identifier cannot start with '1'

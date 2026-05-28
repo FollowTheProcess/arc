@@ -4,4 +4,4 @@
 <Token::ResponseRedirectForce start=0, end=3>
 <Token::Error start=3, end=3>
 -- diagnostics.txt --
-[error] src.http:1:4: expected filepath following response redirect
+[error] testdata/invalid/response-redirect/force-no-filepath.txtar/src.http:1:4: expected filepath following response redirect
