@@ -15,6 +15,14 @@ import (
 	"slices"
 )
 
+const (
+	// HighestPrecedence is the maximum precedence for precedence based parsing.
+	HighestPrecedence = 7
+
+	// LowestPrecedence is the lowest precedence.
+	LowestPrecedence = 0
+)
+
 // Token is a lexical token in a .http file.
 type Token struct {
 	Kind  Kind // The kind of token this is
@@ -30,4 +38,16 @@ func (t Token) String() string {
 // Is reports whether the token is any of the provided [Kind]s.
 func (t Token) Is(kinds ...Kind) bool {
 	return slices.Contains(kinds, t.Kind)
+}
+
+// Precedence returns the precedence of the token, or [LowestPrecedence].
+func (t Token) Precedence() int {
+	switch t.Kind {
+	case OpenInterp:
+		return HighestPrecedence
+	case Dot:
+		return HighestPrecedence - 1
+	default:
+		return LowestPrecedence
+	}
 }

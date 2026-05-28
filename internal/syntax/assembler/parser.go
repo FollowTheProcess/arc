@@ -169,7 +169,7 @@ func (p *parser) parseDirective() ast.Directive {
 	p.advance()
 
 	// Value (expression)
-	node.Value = p.parseExpression()
+	node.Value = p.parseExpression(token.LowestPrecedence)
 
 	return node
 }
@@ -182,7 +182,7 @@ func (p *parser) parseIdent() ast.Ident {
 }
 
 // parseExpression parses an arbitrary [ast.Expression].
-func (p *parser) parseExpression() ast.Expression {
+func (p *parser) parseExpression(precedence int) ast.Expression {
 	// TODO: Precedence, interps, and all that fun stuff
 	switch p.current.Kind {
 	case token.Text:
@@ -260,7 +260,7 @@ func (p *parser) parseRequestLine() (ast.Ident, ast.Expression) {
 	method := p.parseIdent()
 
 	if p.expect(token.Text, token.OpenInterp) {
-		url := p.parseExpression()
+		url := p.parseExpression(token.LowestPrecedence)
 
 		return method, url
 	}

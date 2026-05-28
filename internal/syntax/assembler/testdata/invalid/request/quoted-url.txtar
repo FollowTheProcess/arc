@@ -1,0 +1,10 @@
+-- src.http --
+###
+GET "https://something.quoted"
+-- want.txt --
+File src.http:1:1-2:31
+  Request src.http:1:1-2:31
+    Ident "GET" src.http:2:1-4
+-- diagnostics.txt --
+[error] src.http:2:5-6: invalid character '"' in URL
+[error] src.http:2:30-31: invalid character '"' in URL
