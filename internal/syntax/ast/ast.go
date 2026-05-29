@@ -83,6 +83,8 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 		fmt.Fprintf(d.buf, "%sRequest %s\n", indent, n.Pos())
 	case *HTTPVersion:
 		fmt.Fprintf(d.buf, "%sHTTPVersion %s\n", indent, n.Pos())
+	case Header:
+		fmt.Fprintf(d.buf, "%sHeader %s\n", indent, n.Pos())
 	default:
 		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}

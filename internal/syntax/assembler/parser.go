@@ -169,7 +169,7 @@ func (p *parser) parseDirective() ast.Directive {
 	p.advance()
 
 	// Value (expression)
-	node.Value = p.parseExpression(token.LowestPrecedence)
+	node.Value = p.parseExpression()
 
 	return node
 }
@@ -182,7 +182,7 @@ func (p *parser) parseIdent() ast.Ident {
 }
 
 // parseExpression parses an arbitrary [ast.Expression].
-func (p *parser) parseExpression(precedence int) ast.Expression {
+func (p *parser) parseExpression() ast.Expression {
 	// TODO: Precedence, interps, and all that fun stuff
 	switch p.current.Kind {
 	case token.Text:
@@ -191,6 +191,9 @@ func (p *parser) parseExpression(precedence int) ast.Expression {
 		return p.parseQuotedText()
 	case token.Ident:
 		return p.parseIdent()
+	case token.Error:
+		// Nothing, it will have already been reported by the lexer
+		return nil
 	default:
 		p.errorf(p.current, "parseExpression: unexpected token %s", p.current.Kind)
 
@@ -259,34 +262,53 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 	method = p.parseIdent()
 
 	if p.expect(token.Text, token.OpenInterp) {
-		url = p.parseExpression(token.LowestPrecedence)
+		url = p.parseExpression()
 	}
 
 	// Optional HTTP/<version>
-	if p.next.Is(token.Text) {
-		p.advance()
-		start := p.current.Start
+	if !p.next.Is(token.Text) {
+		return method, url, nil
+	}
 
-		version = &ast.HTTPVersion{
+	p.advance()
+	start := p.current.Start
+
+	version = &ast.HTTPVersion{
+		Span: p.span(),
+	}
+
+	if !p.expect(token.Number) {
+		// No version number, bad
+		return method, url, version
+	}
+
+	version = &ast.HTTPVersion{
+		Version: ast.NumberLiteral{
 			Span: p.span(),
-		}
-
-		if !p.expect(token.Number) {
-			// No version number, bad
-			return method, url, version
-		}
-
-		version = &ast.HTTPVersion{
-			Version: ast.NumberLiteral{
-				Span: p.span(),
-			},
-			Span: source.Span{
-				File:        p.span().File,
-				StartOffset: start,
-				EndOffset:   p.span().EndOffset,
-			},
-		}
+		},
+		Span: source.Span{
+			File:        p.span().File,
+			StartOffset: start,
+			EndOffset:   p.span().EndOffset,
+		},
 	}
 
 	return method, url, version
+}
+
+// parseHeader parses a header line into an [ast.Header].
+func (p *parser) parseHeader() ast.Header {
+	// Block pass means we can assume ident
+	name := p.parseIdent()
+
+	p.expect(token.Colon)
+	p.advance() // Discard the colon
+
+	value := p.parseExpression()
+
+	return ast.Header{
+		Value: value,
+		Span:  p.block.Span,
+		Name:  name,
+	}
 }
