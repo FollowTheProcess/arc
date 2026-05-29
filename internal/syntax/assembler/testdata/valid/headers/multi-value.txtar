@@ -1,0 +1,22 @@
+-- src.http --
+### multi-value
+GET https://api.example.com/items
+Accept: text/html, application/json, */*;q=0.5
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.5
+-- want.txt --
+File testdata/valid/headers/multi-value.txtar/src.http:1:1-5:32
+  Request testdata/valid/headers/multi-value.txtar/src.http:1:1-5:32
+    Ident "multi-value" testdata/valid/headers/multi-value.txtar/src.http:1:5-16
+    Ident "GET" testdata/valid/headers/multi-value.txtar/src.http:2:1-4
+    TextLiteral "https://api.example.com/items" testdata/valid/headers/multi-value.txtar/src.http:2:5-34
+    Header testdata/valid/headers/multi-value.txtar/src.http:3:1-47
+      Ident "Accept" testdata/valid/headers/multi-value.txtar/src.http:3:1-7
+      TextLiteral "text/html, application/json, */*;q=0.5" testdata/valid/headers/multi-value.txtar/src.http:3:9-47
+    Header testdata/valid/headers/multi-value.txtar/src.http:4:1-35
+      Ident "Accept-Encoding" testdata/valid/headers/multi-value.txtar/src.http:4:1-16
+      TextLiteral "gzip, deflate, br" testdata/valid/headers/multi-value.txtar/src.http:4:18-35
+    Header testdata/valid/headers/multi-value.txtar/src.http:5:1-32
+      Ident "Accept-Language" testdata/valid/headers/multi-value.txtar/src.http:5:1-16
+      TextLiteral "en-US,en;q=0.5" testdata/valid/headers/multi-value.txtar/src.http:5:18-32
+-- diagnostics.txt --

@@ -30,6 +30,7 @@ type (
 		Method      Ident
 		URL         Expression
 		HTTPVersion *HTTPVersion
+		Headers     []Header
 		Span        source.Span // The entire request span
 
 		// TODO: HTTPVersion, Headers, BodyExpr etc.
@@ -41,6 +42,13 @@ type (
 		Version NumberLiteral
 		Span    source.Span // Includes the HTTP/ prefix
 	}
+
+	// Header is the AST node representing a single HTTP header statement.
+	Header struct {
+		Value Expression
+		Span  source.Span
+		Name  Ident
+	}
 )
 
 // Pos implementations.
@@ -49,6 +57,7 @@ func (c Comment) Pos() source.Span     { return c.Span }
 func (d Directive) Pos() source.Span   { return d.Span }
 func (r Request) Pos() source.Span     { return r.Span }
 func (h HTTPVersion) Pos() source.Span { return h.Span }
+func (h Header) Pos() source.Span      { return h.Span }
 
 // Statement implementations.
 func (f File) statementNode()        {}
@@ -56,3 +65,4 @@ func (c Comment) statementNode()     {}
 func (d Directive) statementNode()   {}
 func (r Request) statementNode()     {}
 func (h HTTPVersion) statementNode() {}
+func (h Header) statementNode()      {}

@@ -53,11 +53,20 @@ func Walk(v Visitor, node Node) {
 		if n.HTTPVersion != nil {
 			Walk(v, n.HTTPVersion)
 		}
+
+		for _, header := range n.Headers {
+			Walk(v, header)
+		}
 	case *HTTPVersion:
 		if n != nil {
 			Walk(v, n.Version)
 		}
+	case Header:
+		Walk(v, n.Name)
 
+		if n.Value != nil {
+			Walk(v, n.Value)
+		}
 	default:
 		panic(fmt.Sprintf("ast.Walk: unexpected node type %T", n))
 	}
