@@ -67,7 +67,7 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 	switch n := node.(type) {
 	case File:
 		fmt.Fprintf(d.buf, "%sFile %s\n", indent, n.Pos())
-	case Comment:
+	case Comment, *Comment:
 		fmt.Fprintf(d.buf, "%sComment %s\n", indent, n.Pos())
 	case Directive:
 		fmt.Fprintf(d.buf, "%sDirective %s\n", indent, n.Pos())

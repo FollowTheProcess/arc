@@ -183,7 +183,6 @@ func (p *parser) parseIdent() ast.Ident {
 
 // parseExpression parses an arbitrary [ast.Expression].
 func (p *parser) parseExpression() ast.Expression {
-	// TODO: Precedence, interps, and all that fun stuff
 	switch p.current.Kind {
 	case token.Text:
 		return p.parseTextLiteral()

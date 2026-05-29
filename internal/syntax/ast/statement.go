@@ -32,8 +32,6 @@ type (
 		HTTPVersion *HTTPVersion
 		Headers     []Header
 		Span        source.Span // The entire request span
-
-		// TODO: HTTPVersion, Headers, BodyExpr etc.
 	}
 
 	// HTTPVersion is the AST node representing a `HTTP/<version>` statement

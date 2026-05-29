@@ -19,8 +19,6 @@ type Visitor interface {
 // returned by v.Visit(node) is not nil, Walk is invoked recursively with w for
 // each of the non-nil children of node, followed by a call of w.Visit(nil).
 func Walk(v Visitor, node Node) {
-	// TODO: Add more cases when we have more nodes
-	// Will self-reveal with a panic hopefully
 	if v = v.Visit(node); v == nil {
 		return
 	}
@@ -36,8 +34,6 @@ func Walk(v Visitor, node Node) {
 		if n.Value != nil {
 			Walk(v, n.Value)
 		}
-	case Ident, *Ident, TextLiteral, Comment, NumberLiteral, nil:
-		// Leaves, no children to walk.
 	case Request:
 		if n.Doc != nil {
 			Walk(v, n.Doc)
@@ -67,6 +63,8 @@ func Walk(v Visitor, node Node) {
 		if n.Value != nil {
 			Walk(v, n.Value)
 		}
+	case Ident, *Ident, TextLiteral, Comment, *Comment, NumberLiteral, nil:
+		// Leaves, no children to walk.
 	default:
 		panic(fmt.Sprintf("ast.Walk: unexpected node type %T", n))
 	}

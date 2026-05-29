@@ -107,7 +107,23 @@ func TestInspectVisitsEveryNodeDepthFirst(t *testing.T) {
 		return true
 	})
 
-	want := "ast.File\nast.Directive\nast.Ident\nast.TextLiteral"
+	want := strings.Join([]string{
+		"ast.File",
+		"ast.Comment",
+		"ast.Directive",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"ast.Request",
+		"*ast.Comment",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"*ast.HTTPVersion",
+		"ast.NumberLiteral",
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
 }
 
@@ -127,27 +143,66 @@ func TestInspectStopsDescendingWhenCallbackReturnsFalse(t *testing.T) {
 		return !isDirective
 	})
 
-	want := "ast.File\nast.Directive"
+	want := strings.Join([]string{
+		"ast.File",
+		"ast.Comment",
+		"ast.Directive",
+		"ast.Request",
+		"*ast.Comment",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"*ast.HTTPVersion",
+		"ast.NumberLiteral",
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
 }
 
-// tree is a small AST used by the traversal tests: a single file containing
-// one `@timeout = 30s` directive with both an ident and a value.
+// tree is the AST used by the traversal tests.
 func tree() ast.File {
-	// TODO: Add more to this when we have more nodes
-	file := source.NewFile("test.http", []byte("@timeout = 30s\n"))
+	const src = `# config
+@timeout = 30s
+### get-user
+# Fetch a user
+GET https://example.com HTTP/1.1
+Accept: application/json
+`
+
+	file := source.NewFile("test.http", []byte(src))
 	span := func(start, end int) source.Span {
 		return source.Span{File: file, StartOffset: start, EndOffset: end}
 	}
 
 	return ast.File{
 		Statements: []ast.Statement{
+			ast.Comment{Span: span(0, 8)},
 			ast.Directive{
-				Ident: ast.Ident{Span: span(1, 8)},
-				Value: ast.TextLiteral{Value: "30s", Span: span(11, 14)},
-				Span:  span(0, 14),
+				Ident: ast.Ident{Span: span(10, 17)},
+				Value: ast.TextLiteral{Value: "30s", Span: span(20, 23)},
+				Span:  span(9, 23),
+			},
+			ast.Request{
+				Doc:    &ast.Comment{Span: span(37, 51)},
+				Name:   &ast.Ident{Span: span(28, 36)},
+				Method: ast.Ident{Span: span(52, 55)},
+				URL:    ast.TextLiteral{Value: "https://example.com", Span: span(56, 75)},
+				HTTPVersion: &ast.HTTPVersion{
+					Version: ast.NumberLiteral{Span: span(81, 84)},
+					Span:    span(76, 84),
+				},
+				Headers: []ast.Header{
+					{
+						Name:  ast.Ident{Span: span(85, 91)},
+						Value: ast.TextLiteral{Value: "application/json", Span: span(93, 109)},
+						Span:  span(85, 109),
+					},
+				},
+				Span: span(24, 109),
 			},
 		},
-		Span: span(0, 14),
+		Span: span(0, len(src)),
 	}
 }
