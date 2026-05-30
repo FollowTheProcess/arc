@@ -169,7 +169,7 @@ func (p *parser) parseDirective() ast.Directive {
 	p.advance()
 
 	// Value (expression)
-	node.Value = p.parseExpression()
+	node.Value = p.parseTemplate()
 
 	return node
 }
@@ -181,20 +181,89 @@ func (p *parser) parseIdent() ast.Ident {
 	}
 }
 
-// parseExpression parses an arbitrary [ast.Expression].
-func (p *parser) parseExpression() ast.Expression {
+// parseTemplate parses a run of literal and possibly interpolated
+// expressions into an [ast.Template] or just the literal if there's
+// only one part.
+func (p *parser) parseTemplate() ast.Expression {
+	var parts []ast.Expression
+
+	for {
+		switch p.current.Kind {
+		case token.Text:
+			parts = append(parts, p.parseTextLiteral())
+		case token.Quote:
+			parts = append(parts, p.parseQuotedText())
+		case token.OpenInterp:
+			parts = append(parts, p.parseInterp())
+		case token.Error:
+			// Nothing, the lexer has already reported
+			return nil
+		default:
+			p.errorf(p.current, "parseTemplate: unexpected token %s", p.current.Kind)
+
+			return nil
+		}
+
+		// A continuous run of template tokens
+		if p.next.Is(token.Text, token.Quote, token.OpenInterp) && p.next.Start == p.current.End {
+			p.advance()
+
+			continue // go round again
+		}
+
+		break
+	}
+
+	// If there's only 1 part, it's a literal, just emit that
+	switch len(parts) {
+	case 0:
+		return nil
+	case 1:
+		return parts[0]
+	default:
+		return ast.Template{
+			Parts: parts,
+			Span: source.Span{
+				File:        p.block.Span.File,
+				StartOffset: parts[0].Pos().StartOffset,
+				EndOffset:   parts[len(parts)-1].Pos().EndOffset,
+			},
+		}
+	}
+}
+
+// parseInterp parses an interpolation e.g. `{{ <inner> }}`.
+func (p *parser) parseInterp() ast.Interp {
+	start := p.current.Start
+
+	p.advance() // Consume the OpenInterp
+
+	expr := p.parseInterpExpr()
+
+	p.expect(token.CloseInterp)
+
+	return ast.Interp{
+		Span: source.Span{
+			File:        p.block.Span.File,
+			StartOffset: start,
+			EndOffset:   p.current.End,
+		},
+		Inner: expr,
+	}
+}
+
+// parseInterpExpr parses the inner expression inside a '{{ ... }}'.
+func (p *parser) parseInterpExpr() ast.Expression {
+	// TODO: This is where we need to expand the switch case when
+	// interps can contain more than just idents
 	switch p.current.Kind {
-	case token.Text:
-		return p.parseTextLiteral()
-	case token.Quote:
-		return p.parseQuotedText()
 	case token.Ident:
 		return p.parseIdent()
 	case token.Error:
-		// Nothing, it will have already been reported by the lexer
+		// Nothing, lexer has already reported
 		return nil
 	default:
-		p.errorf(p.current, "parseExpression: unexpected token %s", p.current.Kind)
+		p.errorf(p.current, "parseInterp: unexpected token %s", p.current.Kind)
 
 		return nil
 	}
@@ -261,7 +330,7 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 	method = p.parseIdent()
 
 	if p.expect(token.Text, token.OpenInterp) {
-		url = p.parseExpression()
+		url = p.parseTemplate()
 	}
 
 	// Optional HTTP/<version>
@@ -311,7 +380,7 @@ func (p *parser) parseHeader() ast.Header {
 	p.expect(token.Colon)
 	p.advance() // Discard the colon
 
-	value := p.parseExpression()
+	value := p.parseTemplate()
 
 	return ast.Header{
 		Value: value,

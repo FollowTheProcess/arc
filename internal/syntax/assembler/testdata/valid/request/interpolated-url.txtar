@@ -1,0 +1,12 @@
+-- src.http --
+###
+GET https://something.com/{{ endpoint }}
+-- want.txt --
+File testdata/valid/request/interpolated-url.txtar/src.http:1:1-2:41
+  Request testdata/valid/request/interpolated-url.txtar/src.http:1:1-2:41
+    Ident "GET" testdata/valid/request/interpolated-url.txtar/src.http:2:1-4
+    Template testdata/valid/request/interpolated-url.txtar/src.http:2:5-41
+      TextLiteral "https://something.com/" testdata/valid/request/interpolated-url.txtar/src.http:2:5-27
+      Interp testdata/valid/request/interpolated-url.txtar/src.http:2:27-41
+        Ident "endpoint" testdata/valid/request/interpolated-url.txtar/src.http:2:30-38
+-- diagnostics.txt --

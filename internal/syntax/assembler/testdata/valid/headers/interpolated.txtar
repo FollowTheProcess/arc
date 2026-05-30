@@ -1,0 +1,32 @@
+-- src.http --
+### auth
+GET https://api.example.com/me
+Authorization: Bearer {{ token }}
+X-Tenant: {{ tenantId }}
+Cookie: session={{ sessionId }}; csrf={{ csrfToken }}
+-- want.txt --
+File testdata/valid/headers/interpolated.txtar/src.http:1:1-5:54
+  Request testdata/valid/headers/interpolated.txtar/src.http:1:1-5:54
+    Ident "auth" testdata/valid/headers/interpolated.txtar/src.http:1:5-9
+    Ident "GET" testdata/valid/headers/interpolated.txtar/src.http:2:1-4
+    TextLiteral "https://api.example.com/me" testdata/valid/headers/interpolated.txtar/src.http:2:5-31
+    Header testdata/valid/headers/interpolated.txtar/src.http:3:1-34
+      Ident "Authorization" testdata/valid/headers/interpolated.txtar/src.http:3:1-14
+      Template testdata/valid/headers/interpolated.txtar/src.http:3:16-34
+        TextLiteral "Bearer " testdata/valid/headers/interpolated.txtar/src.http:3:16-23
+        Interp testdata/valid/headers/interpolated.txtar/src.http:3:23-34
+          Ident "token" testdata/valid/headers/interpolated.txtar/src.http:3:26-31
+    Header testdata/valid/headers/interpolated.txtar/src.http:4:1-25
+      Ident "X-Tenant" testdata/valid/headers/interpolated.txtar/src.http:4:1-9
+      Interp testdata/valid/headers/interpolated.txtar/src.http:4:11-25
+        Ident "tenantId" testdata/valid/headers/interpolated.txtar/src.http:4:14-22
+    Header testdata/valid/headers/interpolated.txtar/src.http:5:1-54
+      Ident "Cookie" testdata/valid/headers/interpolated.txtar/src.http:5:1-7
+      Template testdata/valid/headers/interpolated.txtar/src.http:5:9-54
+        TextLiteral "session=" testdata/valid/headers/interpolated.txtar/src.http:5:9-17
+        Interp testdata/valid/headers/interpolated.txtar/src.http:5:17-32
+          Ident "sessionId" testdata/valid/headers/interpolated.txtar/src.http:5:20-29
+        TextLiteral "; csrf=" testdata/valid/headers/interpolated.txtar/src.http:5:32-39
+        Interp testdata/valid/headers/interpolated.txtar/src.http:5:39-54
+          Ident "csrfToken" testdata/valid/headers/interpolated.txtar/src.http:5:42-51
+-- diagnostics.txt --
