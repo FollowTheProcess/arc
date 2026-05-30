@@ -1,0 +1,8 @@
+-- src.http --
+@pi = 3.14159
+-- want.txt --
+File testdata/valid/directive/number.txtar/src.http:1:1-14
+  Directive testdata/valid/directive/number.txtar/src.http:1:1-14
+    Ident "pi" testdata/valid/directive/number.txtar/src.http:1:2-4
+    NumberLiteral "3.14159" testdata/valid/directive/number.txtar/src.http:1:7-14
+-- diagnostics.txt --

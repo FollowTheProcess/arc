@@ -170,7 +170,7 @@ func (p *parser) parseDirective() ast.Directive {
 	p.advance()
 
 	// Value (expression)
-	node.Value = p.parseTemplate()
+	node.Value = p.parseValue()
 
 	return node
 }
@@ -182,10 +182,10 @@ func (p *parser) parseIdent() ast.Ident {
 	}
 }
 
-// parseTemplate parses a run of literal and possibly interpolated
-// expressions into an [ast.Template] or just the literal if there's
-// only one part.
-func (p *parser) parseTemplate() ast.Expression {
+// parseValue parses a directive, header, or request value: a run of literal
+// text and interpolations (an [ast.Template], or a bare part if there's only
+// one), a quoted text value, or a number.
+func (p *parser) parseValue() ast.Expression {
 	// Optional opening quote (only directive text values are quoted).
 	var quote *token.Token
 
@@ -219,11 +219,13 @@ func (p *parser) parseTemplate() ast.Expression {
 			parts = append(parts, p.parseTextLiteral())
 		case token.OpenInterp:
 			parts = append(parts, p.parseInterp())
+		case token.Number:
+			parts = append(parts, p.parseNumberLiteral())
 		case token.Error:
 			// Nothing, the lexer has already reported
 			return nil
 		default:
-			p.errorf(p.current, "parseTemplate: unexpected token %s", p.current.Kind)
+			p.errorf(p.current, "parseValue: unexpected token %s", p.current.Kind)
 
 			return nil
 		}
@@ -333,6 +335,13 @@ func (p *parser) parseTextLiteral() ast.TextLiteral {
 	}
 }
 
+// parseNumberLiteral parses a NumberLiteral.
+func (p *parser) parseNumberLiteral() ast.NumberLiteral {
+	return ast.NumberLiteral{
+		Span: p.span(),
+	}
+}
+
 // parseSeparator parses a request separator with an optional name.
 //
 // If the name is found it is returned as an ident, otherwise nil.
@@ -355,7 +364,7 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 	method = p.parseIdent()
 
 	if p.expect(token.Text, token.OpenInterp) {
-		url = p.parseTemplate()
+		url = p.parseValue()
 	}
 
 	// Optional HTTP/<version>
@@ -405,7 +414,7 @@ func (p *parser) parseHeader() ast.Header {
 	p.expect(token.Colon)
 	p.advance() // Discard the colon
 
-	value := p.parseTemplate()
+	value := p.parseValue()
 
 	return ast.Header{
 		Value: value,
