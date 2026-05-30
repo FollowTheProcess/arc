@@ -2,9 +2,6 @@
 package ast
 
 import (
-	"fmt"
-	"strings"
-
 	"go.followtheprocess.codes/arc/internal/syntax/source"
 )
 
@@ -27,67 +24,4 @@ type Expression interface {
 	Node
 
 	expressionNode()
-}
-
-// Dump returns a text representation of an ast [Node].
-//
-// It is primarily used for debugging and inspecting the ast.
-func Dump(node Node) string {
-	buf := &strings.Builder{}
-
-	if node == nil {
-		buf.WriteString("<nil>\n")
-
-		return buf.String()
-	}
-
-	// Traversal lives in [Walk]; the visitor only formats each node it's
-	// handed and tracks indentation depth.
-	Walk(dumpVisitor{buf: buf}, node)
-
-	return buf.String()
-}
-
-// dumpVisitor is a [Visitor] that writes an indented text representation of
-// each node it visits, used by [Dump].
-type dumpVisitor struct {
-	buf   *strings.Builder
-	depth int
-}
-
-// Visit implements [Visitor], formatting node and returning a visitor one
-// level deeper for its children.
-func (d dumpVisitor) Visit(node Node) Visitor {
-	if node == nil {
-		return nil
-	}
-
-	indent := strings.Repeat("  ", d.depth)
-
-	switch n := node.(type) {
-	case File:
-		fmt.Fprintf(d.buf, "%sFile %s\n", indent, n.Pos())
-	case Comment, *Comment:
-		fmt.Fprintf(d.buf, "%sComment %s\n", indent, n.Pos())
-	case Directive:
-		fmt.Fprintf(d.buf, "%sDirective %s\n", indent, n.Pos())
-	case Ident, *Ident:
-		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Pos().Text(), n.Pos())
-	case TextLiteral:
-		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
-	case NumberLiteral:
-		if len(n.Span.Content()) != 0 {
-			fmt.Fprintf(d.buf, "%sNumberLiteral %q %s\n", indent, n.Pos().Text(), n.Pos())
-		}
-	case Request:
-		fmt.Fprintf(d.buf, "%sRequest %s\n", indent, n.Pos())
-	case *HTTPVersion:
-		fmt.Fprintf(d.buf, "%sHTTPVersion %s\n", indent, n.Pos())
-	case Header:
-		fmt.Fprintf(d.buf, "%sHeader %s\n", indent, n.Pos())
-	default:
-		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
-	}
-
-	return dumpVisitor{buf: d.buf, depth: d.depth + 1}
 }

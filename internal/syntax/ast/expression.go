@@ -23,14 +23,31 @@ type (
 	NumberLiteral struct {
 		Span source.Span
 	}
+
+	// Template is a sequence of literal and interpolation expressions
+	// e.g. `Bearer {{ token }}` or a URL containing interps.
+	Template struct {
+		Parts []Expression
+		Span  source.Span
+	}
+
+	// Interp is a single `{{ ... }}` with an inner expression.
+	Interp struct {
+		Inner Expression
+		Span  source.Span
+	}
 )
 
 // Pos implementations.
 func (i Ident) Pos() source.Span         { return i.Span }
 func (t TextLiteral) Pos() source.Span   { return t.Span }
 func (n NumberLiteral) Pos() source.Span { return n.Span }
+func (t Template) Pos() source.Span      { return t.Span }
+func (i Interp) Pos() source.Span        { return i.Span }
 
 // Expression implementations.
 func (i Ident) expressionNode()         {}
 func (t TextLiteral) expressionNode()   {}
 func (n NumberLiteral) expressionNode() {}
+func (t Template) expressionNode()      {}
+func (i Interp) expressionNode()        {}
