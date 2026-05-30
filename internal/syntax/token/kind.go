@@ -12,6 +12,7 @@ const (
 	Comment                           // Comment
 	Separator                         // Separator
 	Text                              // Text
+	HTTPVersion                       // HTTPVersion
 	Quote                             // Quote
 	Ident                             // Ident
 	Dollar                            // Dollar

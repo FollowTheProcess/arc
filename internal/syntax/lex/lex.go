@@ -109,7 +109,7 @@ func RequestLine(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 		}
 
 		if s.takeExact("HTTP/") {
-			s.emit(token.Text)
+			s.emit(token.HTTPVersion)
 			scanNumber(s)
 
 			continue

@@ -265,7 +265,7 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 	}
 
 	// Optional HTTP/<version>
-	if !p.next.Is(token.Text) {
+	if !p.next.Is(token.HTTPVersion) {
 		return method, url, nil
 	}
 

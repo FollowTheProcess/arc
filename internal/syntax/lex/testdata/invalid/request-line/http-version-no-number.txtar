@@ -3,7 +3,7 @@ GET https://api.com HTTP/
 -- tokens.txt --
 <Token::Ident start=0, end=3>
 <Token::Text start=4, end=19>
-<Token::Text start=20, end=25>
+<Token::HTTPVersion start=20, end=25>
 <Token::Error start=25, end=25>
 -- diagnostics.txt --
 [error] testdata/invalid/request-line/http-version-no-number.txtar/src.http:1:26: number must have digits
