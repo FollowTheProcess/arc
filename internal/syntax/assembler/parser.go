@@ -265,7 +265,15 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 	}
 
 	// Optional HTTP/<version>
+	if p.next.Is(token.EOF) {
+		return method, url, nil
+	}
+
 	if !p.next.Is(token.HTTPVersion) {
+		// A third field that isn't a version
+		p.advance()
+		p.errorf(p.current, "expected HTTP version (e.g. HTTP/1.2), found %q", p.text())
+
 		return method, url, nil
 	}
 
