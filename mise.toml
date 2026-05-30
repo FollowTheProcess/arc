@@ -4,7 +4,7 @@
 #   mise run bench -- -benchtime 5s
 
 [tools]
-goreleaser = "2.15.4"
+goreleaser = "2.16.0"
 golangci-lint = "latest"
 typos = "latest"
 "go:go.uber.org/nilaway/cmd/nilaway" = "latest"
