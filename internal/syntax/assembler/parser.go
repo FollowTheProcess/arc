@@ -2,6 +2,7 @@ package assembler
 
 import (
 	"fmt"
+	"strings"
 
 	"go.followtheprocess.codes/arc/internal/syntax/ast"
 	"go.followtheprocess.codes/arc/internal/syntax/block"
@@ -185,14 +186,37 @@ func (p *parser) parseIdent() ast.Ident {
 // expressions into an [ast.Template] or just the literal if there's
 // only one part.
 func (p *parser) parseTemplate() ast.Expression {
+	// Optional opening quote (only directive text values are quoted).
+	var quote *token.Token
+
+	if p.current.Is(token.Quote) {
+		open := p.current
+		quote = &open
+
+		// An empty quoted value "" has no inner parts; emit an empty literal
+		// spanning the quotes.
+		if p.next.Is(token.Quote) {
+			p.advance()
+
+			return ast.TextLiteral{
+				Value: "",
+				Span: source.Span{
+					File:        p.block.Span.File,
+					StartOffset: open.Start,
+					EndOffset:   p.current.End,
+				},
+			}
+		}
+
+		p.advance() // Consume the opening quote
+	}
+
 	var parts []ast.Expression
 
 	for {
 		switch p.current.Kind {
 		case token.Text:
 			parts = append(parts, p.parseTextLiteral())
-		case token.Quote:
-			parts = append(parts, p.parseQuotedText())
 		case token.OpenInterp:
 			parts = append(parts, p.parseInterp())
 		case token.Error:
@@ -205,13 +229,26 @@ func (p *parser) parseTemplate() ast.Expression {
 		}
 
 		// A continuous run of template tokens
-		if p.next.Is(token.Text, token.Quote, token.OpenInterp) && p.next.Start == p.current.End {
+		if p.next.Is(token.Text, token.OpenInterp) && p.next.Start == p.current.End {
 			p.advance()
 
 			continue // go round again
 		}
 
 		break
+	}
+
+	if quote != nil {
+		end := p.current.End
+		if p.expect(token.Quote) {
+			end = p.current.End
+		}
+
+		return p.quotedValue(parts, source.Span{
+			File:        p.block.Span.File,
+			StartOffset: quote.Start,
+			EndOffset:   end,
+		})
 	}
 
 	// If there's only 1 part, it's a literal, just emit that
@@ -230,6 +267,25 @@ func (p *parser) parseTemplate() ast.Expression {
 			},
 		}
 	}
+}
+
+// quotedValue assembles the parts of a quoted value into a node spanning the
+// quotes. A value with no interpolations collapses to a single [ast.TextLiteral],
+// otherwise it's an [ast.Template].
+func (p *parser) quotedValue(parts []ast.Expression, span source.Span) ast.Expression {
+	var value strings.Builder
+
+	for _, part := range parts {
+		lit, ok := part.(ast.TextLiteral)
+		if !ok {
+			// An interpolation, so this is a genuine template.
+			return ast.Template{Parts: parts, Span: span}
+		}
+
+		value.WriteString(lit.Value)
+	}
+
+	return ast.TextLiteral{Value: value.String(), Span: span}
 }
 
 // parseInterp parses an interpolation e.g. `{{ <inner> }}`.
@@ -274,37 +330,6 @@ func (p *parser) parseTextLiteral() ast.TextLiteral {
 	return ast.TextLiteral{
 		Value: p.text(),
 		Span:  p.span(),
-	}
-}
-
-// parseQuotedText parses a quoted string of text as a TextLiteral.
-//
-// The resulting span covers the entire literal including the surrounding
-// quotes, while Value holds only the unquoted text. An empty literal ("")
-// is valid and yields an empty Value.
-func (p *parser) parseQuotedText() ast.TextLiteral {
-	open := p.current // Opening quote
-	end := open.End
-
-	var value string
-
-	if p.next.Is(token.Text) {
-		p.advance()
-		value = p.text()
-		end = p.current.End
-	}
-
-	if p.expect(token.Quote) {
-		end = p.current.End
-	}
-
-	return ast.TextLiteral{
-		Value: value,
-		Span: source.Span{
-			File:        p.block.Span.File,
-			StartOffset: open.Start,
-			EndOffset:   end,
-		},
 	}
 }
 
