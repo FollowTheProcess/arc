@@ -1,0 +1,6 @@
+# config
+@timeout = 30s
+### get-user
+# Fetch a user
+GET https://example.com HTTP/1.1
+Authorization: Bearer {{ token }}

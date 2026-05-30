@@ -1,6 +1,0 @@
-File test.http:1:1-2:16
-  Directive test.http:1:1-13
-    Ident "no-redirect" test.http:1:2-13
-  Directive test.http:2:1-15
-    Ident "timeout" test.http:2:2-9
-    TextLiteral "30s" test.http:2:12-15
