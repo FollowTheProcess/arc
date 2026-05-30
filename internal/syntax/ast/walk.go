@@ -143,29 +143,29 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 
 	switch n := node.(type) {
 	case File:
-		fmt.Fprintf(d.buf, "%sFile %s\n", indent, n.Pos())
+		fmt.Fprintf(d.buf, "%sFile %s\n", indent, n.Span())
 	case Comment, *Comment:
-		fmt.Fprintf(d.buf, "%sComment %s\n", indent, n.Pos())
+		fmt.Fprintf(d.buf, "%sComment %s\n", indent, n.Span())
 	case Directive:
-		fmt.Fprintf(d.buf, "%sDirective %s\n", indent, n.Pos())
+		fmt.Fprintf(d.buf, "%sDirective %s\n", indent, n.Span())
 	case Ident, *Ident:
-		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Pos().Text(), n.Pos())
+		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Span().Text(), n.Span())
 	case TextLiteral:
-		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Pos())
+		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Span())
 	case NumberLiteral:
-		if len(n.Span.Content()) != 0 {
-			fmt.Fprintf(d.buf, "%sNumberLiteral %q %s\n", indent, n.Pos().Text(), n.Pos())
+		if len(n.Span().Content()) != 0 {
+			fmt.Fprintf(d.buf, "%sNumberLiteral %q %s\n", indent, n.Span().Text(), n.Span())
 		}
 	case Request:
-		fmt.Fprintf(d.buf, "%sRequest %s\n", indent, n.Pos())
+		fmt.Fprintf(d.buf, "%sRequest %s\n", indent, n.Span())
 	case *HTTPVersion:
-		fmt.Fprintf(d.buf, "%sHTTPVersion %s\n", indent, n.Pos())
+		fmt.Fprintf(d.buf, "%sHTTPVersion %s\n", indent, n.Span())
 	case Header:
-		fmt.Fprintf(d.buf, "%sHeader %s\n", indent, n.Pos())
+		fmt.Fprintf(d.buf, "%sHeader %s\n", indent, n.Span())
 	case Template:
-		fmt.Fprintf(d.buf, "%sTemplate %s\n", indent, n.Pos())
+		fmt.Fprintf(d.buf, "%sTemplate %s\n", indent, n.Span())
 	case Interp:
-		fmt.Fprintf(d.buf, "%sInterp %s\n", indent, n.Pos())
+		fmt.Fprintf(d.buf, "%sInterp %s\n", indent, n.Span())
 	default:
 		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}

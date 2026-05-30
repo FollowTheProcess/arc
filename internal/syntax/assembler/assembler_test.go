@@ -121,7 +121,7 @@ func assertNodeSpans(t *testing.T, file *source.File, root ast.Node) {
 			return true
 		}
 
-		span := node.Pos()
+		span := node.Span()
 		if span.File == nil {
 			return true
 		}

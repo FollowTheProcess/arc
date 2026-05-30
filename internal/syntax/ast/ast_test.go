@@ -34,15 +34,15 @@ func TestDump(t *testing.T) {
 
 	// `@no-redirect`, a flag directive with no value.
 	noRedirect := ast.Directive{
-		Ident: ast.Ident{Span: span(1, 12)},
-		Span:  span(0, 12),
+		Ident: ast.Ident{Range: span(1, 12)},
+		Range: span(0, 12),
 	}
 
 	// `@timeout = 30s`, a directive with an ident and a value.
 	timeout := ast.Directive{
-		Ident: ast.Ident{Span: span(14, 21)},
-		Value: ast.TextLiteral{Value: "30s", Span: span(24, 27)},
-		Span:  span(13, 27),
+		Ident: ast.Ident{Range: span(14, 21)},
+		Value: ast.TextLiteral{Value: "30s", Range: span(24, 27)},
+		Range: span(13, 27),
 	}
 
 	tests := []struct {
@@ -55,11 +55,11 @@ func TestDump(t *testing.T) {
 		},
 		{
 			name: "ident",
-			node: ast.Ident{Span: span(14, 21)},
+			node: ast.Ident{Range: span(14, 21)},
 		},
 		{
 			name: "text literal",
-			node: ast.TextLiteral{Value: "30s", Span: span(24, 27)},
+			node: ast.TextLiteral{Value: "30s", Range: span(24, 27)},
 		},
 		{
 			name: "flag directive",
@@ -71,13 +71,13 @@ func TestDump(t *testing.T) {
 		},
 		{
 			name: "empty file",
-			node: ast.File{Span: span(0, 0)},
+			node: ast.File{Range: span(0, 0)},
 		},
 		{
 			name: "file with directives",
 			node: ast.File{
 				Statements: []ast.Statement{noRedirect, timeout},
-				Span:       span(0, len(src)),
+				Range:      span(0, len(src)),
 			},
 		},
 	}
@@ -178,31 +178,31 @@ Accept: application/json
 
 	return ast.File{
 		Statements: []ast.Statement{
-			ast.Comment{Span: span(0, 8)},
+			ast.Comment{Range: span(0, 8)},
 			ast.Directive{
-				Ident: ast.Ident{Span: span(10, 17)},
-				Value: ast.TextLiteral{Value: "30s", Span: span(20, 23)},
-				Span:  span(9, 23),
+				Ident: ast.Ident{Range: span(10, 17)},
+				Value: ast.TextLiteral{Value: "30s", Range: span(20, 23)},
+				Range: span(9, 23),
 			},
 			ast.Request{
-				Doc:    &ast.Comment{Span: span(37, 51)},
-				Name:   &ast.Ident{Span: span(28, 36)},
-				Method: ast.Ident{Span: span(52, 55)},
-				URL:    ast.TextLiteral{Value: "https://example.com", Span: span(56, 75)},
+				Doc:    &ast.Comment{Range: span(37, 51)},
+				Name:   &ast.Ident{Range: span(28, 36)},
+				Method: ast.Ident{Range: span(52, 55)},
+				URL:    ast.TextLiteral{Value: "https://example.com", Range: span(56, 75)},
 				HTTPVersion: &ast.HTTPVersion{
-					Version: ast.NumberLiteral{Span: span(81, 84)},
-					Span:    span(76, 84),
+					Version: ast.NumberLiteral{Range: span(81, 84)},
+					Range:   span(76, 84),
 				},
 				Headers: []ast.Header{
 					{
-						Name:  ast.Ident{Span: span(85, 91)},
-						Value: ast.TextLiteral{Value: "application/json", Span: span(93, 109)},
-						Span:  span(85, 109),
+						Name:  ast.Ident{Range: span(85, 91)},
+						Value: ast.TextLiteral{Value: "application/json", Range: span(93, 109)},
+						Range: span(85, 109),
 					},
 				},
-				Span: span(24, 109),
+				Range: span(24, 109),
 			},
 		},
-		Span: span(0, len(src)),
+		Range: span(0, len(src)),
 	}
 }
