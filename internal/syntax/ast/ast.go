@@ -7,9 +7,9 @@ import (
 
 // Node is the interface implemented by all AST nodes.
 type Node interface {
-	// Pos returns the [source.Span] containing the node in the original
+	// Span returns the [source.Span] containing the node in the original
 	// source text.
-	Pos() source.Span
+	Span() source.Span
 }
 
 // Statement is the interface implemented by all statement AST nodes.

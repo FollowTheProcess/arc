@@ -24,7 +24,7 @@ func Assemble(blocks []block.Block) (ast.File, []diagnostic.Diagnostic) {
 
 	a := &assembler{
 		blocks: blocks,
-		file: ast.File{Span: source.Span{
+		file: ast.File{Range: source.Span{
 			File:        blocks[0].Span.File,
 			StartOffset: blocks[0].Span.StartOffset,
 			EndOffset:   blocks[len(blocks)-1].Span.EndOffset,
@@ -123,7 +123,7 @@ func (a *assembler) parseComment(b block.Block) {
 	// the entire block span, so we don't need a parser to emit
 	// the ast node.
 	comment := ast.Comment{
-		Span: b.Span,
+		Range: b.Span,
 	}
 	a.file.Statements = append(a.file.Statements, comment)
 	a.advance()
@@ -155,7 +155,7 @@ func (a *assembler) findRequestEnd() int {
 // assembleRequest builds a single [ast.Request] from the continuous run
 // of blocks that make it up. blocks[0] is the Separator.
 func assembleRequest(blocks []block.Block) (ast.Request, []diagnostic.Diagnostic) {
-	req := ast.Request{Span: source.Span{
+	req := ast.Request{Range: source.Span{
 		File:        blocks[0].Span.File,
 		StartOffset: blocks[0].Span.StartOffset,
 		EndOffset:   blocks[len(blocks)-1].Span.EndOffset,

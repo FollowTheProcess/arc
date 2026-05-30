@@ -6,12 +6,12 @@ type (
 	// File is the AST node representing a single .http file.
 	File struct {
 		Statements []Statement
-		Span       source.Span
+		Range      source.Span
 	}
 
 	// Comment represents a single line comment.
 	Comment struct {
-		Span source.Span
+		Range source.Span
 	}
 
 	// Directive is the AST node representing a directive e.g.
@@ -20,7 +20,7 @@ type (
 	Directive struct {
 		Value Expression
 		Ident Ident
-		Span  source.Span
+		Range source.Span
 	}
 
 	// Request is the AST node representing a http request.
@@ -31,31 +31,31 @@ type (
 		URL         Expression
 		HTTPVersion *HTTPVersion
 		Headers     []Header
-		Span        source.Span // The entire request span
+		Range       source.Span // The entire request span
 	}
 
 	// HTTPVersion is the AST node representing a `HTTP/<version>` statement
 	// following a URL.
 	HTTPVersion struct {
 		Version NumberLiteral
-		Span    source.Span // Includes the HTTP/ prefix
+		Range   source.Span // Includes the HTTP/ prefix
 	}
 
 	// Header is the AST node representing a single HTTP header statement.
 	Header struct {
 		Value Expression
-		Span  source.Span
+		Range source.Span
 		Name  Ident
 	}
 )
 
-// Pos implementations.
-func (f File) Pos() source.Span        { return f.Span }
-func (c Comment) Pos() source.Span     { return c.Span }
-func (d Directive) Pos() source.Span   { return d.Span }
-func (r Request) Pos() source.Span     { return r.Span }
-func (h HTTPVersion) Pos() source.Span { return h.Span }
-func (h Header) Pos() source.Span      { return h.Span }
+// Span implementations.
+func (f File) Span() source.Span        { return f.Range }
+func (c Comment) Span() source.Span     { return c.Range }
+func (d Directive) Span() source.Span   { return d.Range }
+func (r Request) Span() source.Span     { return r.Range }
+func (h HTTPVersion) Span() source.Span { return h.Range }
+func (h Header) Span() source.Span      { return h.Range }
 
 // Statement implementations.
 func (f File) statementNode()        {}

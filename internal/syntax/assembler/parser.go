@@ -131,7 +131,7 @@ func (p *parser) text() string {
 // parseDirective parses a directive block's tokens into an [ast.Directive].
 func (p *parser) parseDirective() ast.Directive {
 	node := ast.Directive{
-		Span: p.block.Span,
+		Range: p.block.Span,
 	}
 
 	// Optional leading comment
@@ -178,7 +178,7 @@ func (p *parser) parseDirective() ast.Directive {
 // parseIdent parses an ident into an [ast.Ident].
 func (p *parser) parseIdent() ast.Ident {
 	return ast.Ident{
-		Span: p.span(),
+		Range: p.span(),
 	}
 }
 
@@ -200,7 +200,7 @@ func (p *parser) parseValue() ast.Expression {
 
 			return ast.TextLiteral{
 				Value: "",
-				Span: source.Span{
+				Range: source.Span{
 					File:        p.block.Span.File,
 					StartOffset: open.Start,
 					EndOffset:   p.current.End,
@@ -262,10 +262,10 @@ func (p *parser) parseValue() ast.Expression {
 	default:
 		return ast.Template{
 			Parts: parts,
-			Span: source.Span{
+			Range: source.Span{
 				File:        p.block.Span.File,
-				StartOffset: parts[0].Pos().StartOffset,
-				EndOffset:   parts[len(parts)-1].Pos().EndOffset,
+				StartOffset: parts[0].Span().StartOffset,
+				EndOffset:   parts[len(parts)-1].Span().EndOffset,
 			},
 		}
 	}
@@ -281,13 +281,13 @@ func (p *parser) quotedValue(parts []ast.Expression, span source.Span) ast.Expre
 		lit, ok := part.(ast.TextLiteral)
 		if !ok {
 			// An interpolation, so this is a genuine template.
-			return ast.Template{Parts: parts, Span: span}
+			return ast.Template{Parts: parts, Range: span}
 		}
 
 		value.WriteString(lit.Value)
 	}
 
-	return ast.TextLiteral{Value: value.String(), Span: span}
+	return ast.TextLiteral{Value: value.String(), Range: span}
 }
 
 // parseInterp parses an interpolation e.g. `{{ <inner> }}`.
@@ -301,7 +301,7 @@ func (p *parser) parseInterp() ast.Interp {
 	p.expect(token.CloseInterp)
 
 	return ast.Interp{
-		Span: source.Span{
+		Range: source.Span{
 			File:        p.block.Span.File,
 			StartOffset: start,
 			EndOffset:   p.current.End,
@@ -331,14 +331,14 @@ func (p *parser) parseInterpExpr() ast.Expression {
 func (p *parser) parseTextLiteral() ast.TextLiteral {
 	return ast.TextLiteral{
 		Value: p.text(),
-		Span:  p.span(),
+		Range: p.span(),
 	}
 }
 
 // parseNumberLiteral parses a NumberLiteral.
 func (p *parser) parseNumberLiteral() ast.NumberLiteral {
 	return ast.NumberLiteral{
-		Span: p.span(),
+		Range: p.span(),
 	}
 }
 
@@ -350,7 +350,7 @@ func (p *parser) parseSeparator() *ast.Ident {
 		p.advance()
 
 		return &ast.Ident{
-			Span: p.span(),
+			Range: p.span(),
 		}
 	}
 
@@ -384,7 +384,7 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 	start := p.current.Start
 
 	version = &ast.HTTPVersion{
-		Span: p.span(),
+		Range: p.span(),
 	}
 
 	if !p.expect(token.Number) {
@@ -394,9 +394,9 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 
 	version = &ast.HTTPVersion{
 		Version: ast.NumberLiteral{
-			Span: p.span(),
+			Range: p.span(),
 		},
-		Span: source.Span{
+		Range: source.Span{
 			File:        p.span().File,
 			StartOffset: start,
 			EndOffset:   p.span().EndOffset,
@@ -418,7 +418,7 @@ func (p *parser) parseHeader() ast.Header {
 
 	return ast.Header{
 		Value: value,
-		Span:  p.block.Span,
+		Range: p.block.Span,
 		Name:  name,
 	}
 }

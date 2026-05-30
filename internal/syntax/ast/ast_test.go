@@ -1,9 +1,11 @@
 package ast_test
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -22,29 +24,6 @@ func TestDump(t *testing.T) {
 	// Force colour for diffs but only locally
 	test.ColorEnabled(os.Getenv("CI") == "")
 
-	// A representative .http source from which the test nodes draw their spans,
-	// so the dumped positions read like real parser output.
-	const src = "@no-redirect\n@timeout = 30s\n"
-
-	file := source.NewFile("test.http", []byte(src))
-
-	span := func(start, end int) source.Span {
-		return source.Span{File: file, StartOffset: start, EndOffset: end}
-	}
-
-	// `@no-redirect`, a flag directive with no value.
-	noRedirect := ast.Directive{
-		Ident: ast.Ident{Span: span(1, 12)},
-		Span:  span(0, 12),
-	}
-
-	// `@timeout = 30s`, a directive with an ident and a value.
-	timeout := ast.Directive{
-		Ident: ast.Ident{Span: span(14, 21)},
-		Value: ast.TextLiteral{Value: "30s", Span: span(24, 27)},
-		Span:  span(13, 27),
-	}
-
 	tests := []struct {
 		node ast.Node // Node under test
 		name string   // Name of the test case
@@ -54,31 +33,9 @@ func TestDump(t *testing.T) {
 			node: nil,
 		},
 		{
-			name: "ident",
-			node: ast.Ident{Span: span(14, 21)},
-		},
-		{
-			name: "text literal",
-			node: ast.TextLiteral{Value: "30s", Span: span(24, 27)},
-		},
-		{
-			name: "flag directive",
-			node: noRedirect,
-		},
-		{
-			name: "directive with value",
-			node: timeout,
-		},
-		{
-			name: "empty file",
-			node: ast.File{Span: span(0, 0)},
-		},
-		{
-			name: "file with directives",
-			node: ast.File{
-				Statements: []ast.Statement{noRedirect, timeout},
-				Span:       span(0, len(src)),
-			},
+			// Dump recurses, so dumping the fixture exercises every node type.
+			name: "file",
+			node: tree(t),
 		},
 	}
 
@@ -99,7 +56,7 @@ func TestDump(t *testing.T) {
 func TestInspectVisitsEveryNodeDepthFirst(t *testing.T) {
 	var got []string
 
-	ast.Inspect(tree(), func(node ast.Node) bool {
+	ast.Inspect(tree(t), func(node ast.Node) bool {
 		if node != nil {
 			got = append(got, fmt.Sprintf("%T", node))
 		}
@@ -122,7 +79,10 @@ func TestInspectVisitsEveryNodeDepthFirst(t *testing.T) {
 		"ast.NumberLiteral",
 		"ast.Header",
 		"ast.Ident",
+		"ast.Template",
 		"ast.TextLiteral",
+		"ast.Interp",
+		"ast.Ident",
 	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
 }
@@ -130,7 +90,7 @@ func TestInspectVisitsEveryNodeDepthFirst(t *testing.T) {
 func TestInspectStopsDescendingWhenCallbackReturnsFalse(t *testing.T) {
 	var got []string
 
-	ast.Inspect(tree(), func(node ast.Node) bool {
+	ast.Inspect(tree(t), func(node ast.Node) bool {
 		if node == nil {
 			return true
 		}
@@ -156,53 +116,74 @@ func TestInspectStopsDescendingWhenCallbackReturnsFalse(t *testing.T) {
 		"ast.NumberLiteral",
 		"ast.Header",
 		"ast.Ident",
+		"ast.Template",
 		"ast.TextLiteral",
+		"ast.Interp",
+		"ast.Ident",
 	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
 }
 
-// tree is the AST used by the traversal tests.
-func tree() ast.File {
-	const src = `# config
-@timeout = 30s
-### get-user
-# Fetch a user
-GET https://example.com HTTP/1.1
-Accept: application/json
-`
+// tree builds the AST for testdata/fixture.http, exercising every node type in
+// the package. Node spans are derived from the fixture text by substring lookup
+// so the fixture reads like real source rather than a table of byte offsets.
+func tree(t *testing.T) ast.File {
+	t.Helper()
 
-	file := source.NewFile("test.http", []byte(src))
-	span := func(start, end int) source.Span {
-		return source.Span{File: file, StartOffset: start, EndOffset: end}
+	src, err := os.ReadFile(filepath.Join("testdata", "fixture.http"))
+	test.Ok(t, err)
+
+	file := source.NewFile("fixture.http", src)
+
+	// span returns the span of the first occurrence of sub in the fixture.
+	span := func(sub string) source.Span {
+		i := bytes.Index(src, []byte(sub))
+		test.True(t, i >= 0, test.Context("substring %q not found in fixture", sub))
+
+		return source.Span{File: file, StartOffset: i, EndOffset: i + len(sub)}
+	}
+
+	// enclosing spans from the start of from to the end of to.
+	enclosing := func(from, to source.Span) source.Span {
+		return source.Span{File: file, StartOffset: from.StartOffset, EndOffset: to.EndOffset}
 	}
 
 	return ast.File{
 		Statements: []ast.Statement{
-			ast.Comment{Span: span(0, 8)},
+			ast.Comment{Range: span("# config")},
 			ast.Directive{
-				Ident: ast.Ident{Span: span(10, 17)},
-				Value: ast.TextLiteral{Value: "30s", Span: span(20, 23)},
-				Span:  span(9, 23),
+				Ident: ast.Ident{Range: span("timeout")},
+				Value: ast.TextLiteral{Value: "30s", Range: span("30s")},
+				Range: span("@timeout = 30s"),
 			},
 			ast.Request{
-				Doc:    &ast.Comment{Span: span(37, 51)},
-				Name:   &ast.Ident{Span: span(28, 36)},
-				Method: ast.Ident{Span: span(52, 55)},
-				URL:    ast.TextLiteral{Value: "https://example.com", Span: span(56, 75)},
+				Doc:    &ast.Comment{Range: span("# Fetch a user")},
+				Name:   &ast.Ident{Range: span("get-user")},
+				Method: ast.Ident{Range: span("GET")},
+				URL:    ast.TextLiteral{Value: "https://example.com", Range: span("https://example.com")},
 				HTTPVersion: &ast.HTTPVersion{
-					Version: ast.NumberLiteral{Span: span(81, 84)},
-					Span:    span(76, 84),
+					Version: ast.NumberLiteral{Range: span("1.1")},
+					Range:   span("HTTP/1.1"),
 				},
 				Headers: []ast.Header{
 					{
-						Name:  ast.Ident{Span: span(85, 91)},
-						Value: ast.TextLiteral{Value: "application/json", Span: span(93, 109)},
-						Span:  span(85, 109),
+						Name: ast.Ident{Range: span("Authorization")},
+						Value: ast.Template{
+							Parts: []ast.Expression{
+								ast.TextLiteral{Value: "Bearer ", Range: span("Bearer ")},
+								ast.Interp{
+									Inner: ast.Ident{Range: span("token")},
+									Range: span("{{ token }}"),
+								},
+							},
+							Range: span("Bearer {{ token }}"),
+						},
+						Range: span("Authorization: Bearer {{ token }}"),
 					},
 				},
-				Span: span(24, 109),
+				Range: enclosing(span("### get-user"), span("{{ token }}")),
 			},
 		},
-		Span: span(0, len(src)),
+		Range: source.Span{File: file, StartOffset: 0, EndOffset: len(src)},
 	}
 }

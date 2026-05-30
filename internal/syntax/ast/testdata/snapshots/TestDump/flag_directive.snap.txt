@@ -1,2 +1,0 @@
-Directive test.http:1:1-13
-  Ident "no-redirect" test.http:1:2-13

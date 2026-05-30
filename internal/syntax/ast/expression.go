@@ -5,7 +5,7 @@ import "go.followtheprocess.codes/arc/internal/syntax/source"
 type (
 	// Ident is a named identifier expression.
 	Ident struct {
-		Span source.Span
+		Range source.Span
 	}
 
 	// TextLiteral is an (optionally quoted) string of text.
@@ -15,35 +15,35 @@ type (
 	// any surrounding quotes.
 	TextLiteral struct {
 		Value string // The interpreted (unquoted) text value
-		Span  source.Span
+		Range source.Span
 	}
 
 	// NumberLiteral is a number expression, can be an integer
 	// or a decimal.
 	NumberLiteral struct {
-		Span source.Span
+		Range source.Span
 	}
 
 	// Template is a sequence of literal and interpolation expressions
 	// e.g. `Bearer {{ token }}` or a URL containing interps.
 	Template struct {
 		Parts []Expression
-		Span  source.Span
+		Range source.Span
 	}
 
 	// Interp is a single `{{ ... }}` with an inner expression.
 	Interp struct {
 		Inner Expression
-		Span  source.Span
+		Range source.Span
 	}
 )
 
-// Pos implementations.
-func (i Ident) Pos() source.Span         { return i.Span }
-func (t TextLiteral) Pos() source.Span   { return t.Span }
-func (n NumberLiteral) Pos() source.Span { return n.Span }
-func (t Template) Pos() source.Span      { return t.Span }
-func (i Interp) Pos() source.Span        { return i.Span }
+// Span implementations.
+func (i Ident) Span() source.Span         { return i.Range }
+func (t TextLiteral) Span() source.Span   { return t.Range }
+func (n NumberLiteral) Span() source.Span { return n.Range }
+func (t Template) Span() source.Span      { return t.Range }
+func (i Interp) Span() source.Span        { return i.Range }
 
 // Expression implementations.
 func (i Ident) expressionNode()         {}
