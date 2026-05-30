@@ -1,0 +1,16 @@
+-- src.http --
+###
+GET https://api.example.com
+X-Request-Id: {{ requestId }}-v2
+-- want.txt --
+File testdata/valid/headers/interp-then-literal.txtar/src.http:1:1-3:33
+  Request testdata/valid/headers/interp-then-literal.txtar/src.http:1:1-3:33
+    Ident "GET" testdata/valid/headers/interp-then-literal.txtar/src.http:2:1-4
+    TextLiteral "https://api.example.com" testdata/valid/headers/interp-then-literal.txtar/src.http:2:5-28
+    Header testdata/valid/headers/interp-then-literal.txtar/src.http:3:1-33
+      Ident "X-Request-Id" testdata/valid/headers/interp-then-literal.txtar/src.http:3:1-13
+      Template testdata/valid/headers/interp-then-literal.txtar/src.http:3:15-33
+        Interp testdata/valid/headers/interp-then-literal.txtar/src.http:3:15-30
+          Ident "requestId" testdata/valid/headers/interp-then-literal.txtar/src.http:3:18-27
+        TextLiteral "-v2" testdata/valid/headers/interp-then-literal.txtar/src.http:3:30-33
+-- diagnostics.txt --

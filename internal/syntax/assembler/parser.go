@@ -2,6 +2,7 @@ package assembler
 
 import (
 	"fmt"
+	"strings"
 
 	"go.followtheprocess.codes/arc/internal/syntax/ast"
 	"go.followtheprocess.codes/arc/internal/syntax/block"
@@ -169,7 +170,7 @@ func (p *parser) parseDirective() ast.Directive {
 	p.advance()
 
 	// Value (expression)
-	node.Value = p.parseExpression()
+	node.Value = p.parseValue()
 
 	return node
 }
@@ -181,20 +182,146 @@ func (p *parser) parseIdent() ast.Ident {
 	}
 }
 
-// parseExpression parses an arbitrary [ast.Expression].
-func (p *parser) parseExpression() ast.Expression {
+// parseValue parses a directive, header, or request value: a run of literal
+// text and interpolations (an [ast.Template], or a bare part if there's only
+// one), a quoted text value, or a number.
+func (p *parser) parseValue() ast.Expression {
+	// Optional opening quote (only directive text values are quoted).
+	var quote *token.Token
+
+	if p.current.Is(token.Quote) {
+		open := p.current
+		quote = &open
+
+		// An empty quoted value "" has no inner parts; emit an empty literal
+		// spanning the quotes.
+		if p.next.Is(token.Quote) {
+			p.advance()
+
+			return ast.TextLiteral{
+				Value: "",
+				Span: source.Span{
+					File:        p.block.Span.File,
+					StartOffset: open.Start,
+					EndOffset:   p.current.End,
+				},
+			}
+		}
+
+		p.advance() // Consume the opening quote
+	}
+
+	var parts []ast.Expression
+
+	for {
+		switch p.current.Kind {
+		case token.Text:
+			parts = append(parts, p.parseTextLiteral())
+		case token.OpenInterp:
+			parts = append(parts, p.parseInterp())
+		case token.Number:
+			parts = append(parts, p.parseNumberLiteral())
+		case token.Error:
+			// Nothing, the lexer has already reported
+			return nil
+		default:
+			p.errorf(p.current, "parseValue: unexpected token %s", p.current.Kind)
+
+			return nil
+		}
+
+		// A continuous run of template tokens
+		if p.next.Is(token.Text, token.OpenInterp) && p.next.Start == p.current.End {
+			p.advance()
+
+			continue // go round again
+		}
+
+		break
+	}
+
+	if quote != nil {
+		end := p.current.End
+		if p.expect(token.Quote) {
+			end = p.current.End
+		}
+
+		return p.quotedValue(parts, source.Span{
+			File:        p.block.Span.File,
+			StartOffset: quote.Start,
+			EndOffset:   end,
+		})
+	}
+
+	// If there's only 1 part, it's a literal, just emit that
+	switch len(parts) {
+	case 0:
+		return nil
+	case 1:
+		return parts[0]
+	default:
+		return ast.Template{
+			Parts: parts,
+			Span: source.Span{
+				File:        p.block.Span.File,
+				StartOffset: parts[0].Pos().StartOffset,
+				EndOffset:   parts[len(parts)-1].Pos().EndOffset,
+			},
+		}
+	}
+}
+
+// quotedValue assembles the parts of a quoted value into a node spanning the
+// quotes. A value with no interpolations collapses to a single [ast.TextLiteral],
+// otherwise it's an [ast.Template].
+func (p *parser) quotedValue(parts []ast.Expression, span source.Span) ast.Expression {
+	var value strings.Builder
+
+	for _, part := range parts {
+		lit, ok := part.(ast.TextLiteral)
+		if !ok {
+			// An interpolation, so this is a genuine template.
+			return ast.Template{Parts: parts, Span: span}
+		}
+
+		value.WriteString(lit.Value)
+	}
+
+	return ast.TextLiteral{Value: value.String(), Span: span}
+}
+
+// parseInterp parses an interpolation e.g. `{{ <inner> }}`.
+func (p *parser) parseInterp() ast.Interp {
+	start := p.current.Start
+
+	p.advance() // Consume the OpenInterp
+
+	expr := p.parseInterpExpr()
+
+	p.expect(token.CloseInterp)
+
+	return ast.Interp{
+		Span: source.Span{
+			File:        p.block.Span.File,
+			StartOffset: start,
+			EndOffset:   p.current.End,
+		},
+		Inner: expr,
+	}
+}
+
+// parseInterpExpr parses the inner expression inside a '{{ ... }}'.
+func (p *parser) parseInterpExpr() ast.Expression {
+	// TODO: This is where we need to expand the switch case when
+	// interps can contain more than just idents
 	switch p.current.Kind {
-	case token.Text:
-		return p.parseTextLiteral()
-	case token.Quote:
-		return p.parseQuotedText()
 	case token.Ident:
 		return p.parseIdent()
 	case token.Error:
-		// Nothing, it will have already been reported by the lexer
+		// Nothing, lexer has already reported
 		return nil
 	default:
-		p.errorf(p.current, "parseExpression: unexpected token %s", p.current.Kind)
+		p.errorf(p.current, "parseInterp: unexpected token %s", p.current.Kind)
 
 		return nil
 	}
@@ -208,34 +335,10 @@ func (p *parser) parseTextLiteral() ast.TextLiteral {
 	}
 }
 
-// parseQuotedText parses a quoted string of text as a TextLiteral.
-//
-// The resulting span covers the entire literal including the surrounding
-// quotes, while Value holds only the unquoted text. An empty literal ("")
-// is valid and yields an empty Value.
-func (p *parser) parseQuotedText() ast.TextLiteral {
-	open := p.current // Opening quote
-	end := open.End
-
-	var value string
-
-	if p.next.Is(token.Text) {
-		p.advance()
-		value = p.text()
-		end = p.current.End
-	}
-
-	if p.expect(token.Quote) {
-		end = p.current.End
-	}
-
-	return ast.TextLiteral{
-		Value: value,
-		Span: source.Span{
-			File:        p.block.Span.File,
-			StartOffset: open.Start,
-			EndOffset:   end,
-		},
+// parseNumberLiteral parses a NumberLiteral.
+func (p *parser) parseNumberLiteral() ast.NumberLiteral {
+	return ast.NumberLiteral{
+		Span: p.span(),
 	}
 }
 
@@ -261,7 +364,7 @@ func (p *parser) parseRequestLine() (method ast.Ident, url ast.Expression, versi
 	method = p.parseIdent()
 
 	if p.expect(token.Text, token.OpenInterp) {
-		url = p.parseExpression()
+		url = p.parseValue()
 	}
 
 	// Optional HTTP/<version>
@@ -311,7 +414,7 @@ func (p *parser) parseHeader() ast.Header {
 	p.expect(token.Colon)
 	p.advance() // Discard the colon
 
-	value := p.parseExpression()
+	value := p.parseValue()
 
 	return ast.Header{
 		Value: value,
