@@ -8,3 +8,4 @@ File testdata/invalid/request/quoted-url.txtar/src.http:1:1-2:31
 -- diagnostics.txt --
 [error] testdata/invalid/request/quoted-url.txtar/src.http:2:5-6: invalid character '"' in URL
 [error] testdata/invalid/request/quoted-url.txtar/src.http:2:30-31: invalid character '"' in URL
+[error] testdata/invalid/request/quoted-url.txtar/src.http:2:5-6: expected HTTP version (e.g. HTTP/1.2), found "\""

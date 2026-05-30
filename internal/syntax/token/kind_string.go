@@ -13,31 +13,32 @@ func _() {
 	_ = x[Comment-2]
 	_ = x[Separator-3]
 	_ = x[Text-4]
-	_ = x[Quote-5]
-	_ = x[Ident-6]
-	_ = x[Dollar-7]
-	_ = x[At-8]
-	_ = x[Dot-9]
-	_ = x[LParen-10]
-	_ = x[RParen-11]
-	_ = x[LAngle-12]
-	_ = x[RAngle-13]
-	_ = x[Comma-14]
-	_ = x[Colon-15]
-	_ = x[Eq-16]
-	_ = x[Number-17]
-	_ = x[OpenInterp-18]
-	_ = x[CloseInterp-19]
-	_ = x[OpenScript-20]
-	_ = x[CloseScript-21]
-	_ = x[ResponseRedirect-22]
-	_ = x[ResponseRedirectForce-23]
-	_ = x[ResponseReference-24]
+	_ = x[HTTPVersion-5]
+	_ = x[Quote-6]
+	_ = x[Ident-7]
+	_ = x[Dollar-8]
+	_ = x[At-9]
+	_ = x[Dot-10]
+	_ = x[LParen-11]
+	_ = x[RParen-12]
+	_ = x[LAngle-13]
+	_ = x[RAngle-14]
+	_ = x[Comma-15]
+	_ = x[Colon-16]
+	_ = x[Eq-17]
+	_ = x[Number-18]
+	_ = x[OpenInterp-19]
+	_ = x[CloseInterp-20]
+	_ = x[OpenScript-21]
+	_ = x[CloseScript-22]
+	_ = x[ResponseRedirect-23]
+	_ = x[ResponseRedirectForce-24]
+	_ = x[ResponseReference-25]
 }
 
-const _Kind_name = "EOFErrorCommentSeparatorTextQuoteIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
+const _Kind_name = "EOFErrorCommentSeparatorTextHTTPVersionQuoteIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
 
-var _Kind_index = [...]uint8{0, 3, 8, 15, 24, 28, 33, 38, 44, 46, 49, 55, 61, 67, 73, 78, 83, 85, 91, 101, 112, 122, 133, 149, 170, 187}
+var _Kind_index = [...]uint8{0, 3, 8, 15, 24, 28, 39, 44, 49, 55, 57, 60, 66, 72, 78, 84, 89, 94, 96, 102, 112, 123, 133, 144, 160, 181, 198}
 
 func (i Kind) String() string {
 	idx := int(i) - 0
