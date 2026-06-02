@@ -313,11 +313,76 @@ func (p *parser) parseInterp() ast.Interp {
 
 // parseInterpExpr parses the inner expression inside a '{{ ... }}'.
 func (p *parser) parseInterpExpr() ast.Expression {
-	// TODO: This is where we need to expand the switch case when
-	// interps can contain more than just idents
+	left := p.parsePrimaryExpr()
+	if left == nil {
+		// parsePrimaryExpr already diagnosed; nothing to attach trailers to.
+		return nil
+	}
+
+	for {
+		switch p.next.Kind {
+		case token.Dot:
+			left = p.parseSelector(left)
+		case token.LParen:
+			left = p.parseCall(left)
+		default:
+			return left
+		}
+	}
+}
+
+// parseSelector parses a selector expression (left.sel) into an [ast.Selector].
+func (p *parser) parseSelector(left ast.Expression) ast.Selector {
+	p.advance() // Consume the '.'
+
+	var sel ast.Ident
+	if p.expect(token.Ident) {
+		sel = p.parseIdent()
+	}
+
+	return ast.Selector{
+		Expr: left,
+		Sel:  sel,
+		Range: source.Span{
+			File:        p.block.Span.File,
+			StartOffset: left.Span().StartOffset,
+			EndOffset:   p.current.End,
+		},
+	}
+}
+
+// parseCall parses a call expression (left.right(args...)) into an [ast.Call].
+func (p *parser) parseCall(left ast.Expression) ast.Call {
+	start := p.current.Start
+
+	args := p.parseArgs()
+
+	return ast.Call{
+		Fun:  left,
+		Args: args,
+		Range: source.Span{
+			File:        p.block.Span.File,
+			StartOffset: start,
+			EndOffset:   p.current.End,
+		},
+	}
+}
+
+// parseArgs parses a run of call argument expressions.
+func (p *parser) parseArgs() []ast.Expression {
+	// TODO: This, comma separated args until RParen
+	return nil
+}
+
+// parsePrimaryExpr parses a "primary" expression i.e. the left
+// associative side of most interp expressions so the `$env` in a builtin
+// or the ident of a variable etc.
+func (p *parser) parsePrimaryExpr() ast.Expression {
 	switch p.current.Kind {
 	case token.Ident:
 		return p.parseIdent()
+	case token.Dollar:
+		return p.parseBuiltin()
 	case token.Error:
 		// Nothing, lexer has already reported
 		return nil
@@ -325,6 +390,23 @@ func (p *parser) parseInterpExpr() ast.Expression {
 		p.errorf(p.current, "parseInterp: unexpected token %s", p.current.Kind)
 
 		return nil
+	}
+}
+
+// parseBuiltin parses a `$` rooted builtin expression like `$env` or
+// `$random`.
+func (p *parser) parseBuiltin() ast.Builtin {
+	start := p.current.Start // The '$'
+
+	p.expect(token.Ident)
+
+	return ast.Builtin{
+		Name: p.parseIdent(),
+		Range: source.Span{
+			File:        p.block.Span.File,
+			StartOffset: start,
+			EndOffset:   p.current.End,
+		},
 	}
 }
 
