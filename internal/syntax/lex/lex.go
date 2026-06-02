@@ -647,30 +647,43 @@ func scanInterp(s *scanner) {
 		return
 	}
 
-	switch {
-	case isAlpha(s.peek()):
-		s.takeWhile(isIdent)
-		s.emit(token.Ident)
-	default:
-		// TODO(@FollowTheProcess): Do all the other things that can appear inside {{ ... }}
-		// Take the contiguous run of unrecognised characters so the rest of
-		// the interp can resume from a known boundary (whitespace, '}}', or EOF).
-		bad := s.peek()
-		s.next()
-
-		for !s.atEOF() && !isLineSpace(s.peek()) && !s.restStartsWith("}}") {
+	for !s.restStartsWith("}}") && !s.atEOF() {
+		switch {
+		case isAlpha(s.peek()):
+			s.takeWhile(isIdent)
+			s.emit(token.Ident)
+		case isDigit(s.peek()):
+			scanNumber(s)
+		case s.take("$"):
+			s.emit(token.Dollar)
+		case s.take("."):
+			s.emit(token.Dot)
+		case s.take("("):
+			s.emit(token.LParen)
+		case s.take(")"):
+			s.emit(token.RParen)
+		case s.take(","):
+			s.emit(token.Comma)
+		default:
+			// Take the contiguous run of unrecognised characters so the rest of
+			// the interp can resume from a known boundary (whitespace, '}}', or EOF).
+			bad := s.peek()
 			s.next()
+
+			for !s.atEOF() && !isLineSpace(s.peek()) && !s.restStartsWith("}}") {
+				s.next()
+			}
+
+			s.errorf("unexpected character in interpolation: %q", bad)
 		}
 
-		s.errorf("unexpected character in interpolation: %q", bad)
+		s.skip(isLineSpace)
 	}
 
-	s.skip(isLineSpace)
-
-	if !s.takeExact("}}") {
-		s.error("unterminated interpolation")
-	} else {
+	if s.takeExact("}}") {
 		s.emit(token.CloseInterp)
+	} else {
+		s.error("unterminated interpolation")
 	}
 }
 

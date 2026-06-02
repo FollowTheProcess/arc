@@ -7,7 +7,10 @@
 <Token::Quote start=5, end=6>
 <Token::OpenInterp start=6, end=8>
 <Token::Ident start=9, end=13>
-<Token::Error start=13, end=13>
-<Token::Quote start=13, end=14>
+<Token::Error start=13, end=14>
+<Token::Error start=14, end=14>
+<Token::Error start=14, end=14>
 -- diagnostics.txt --
-[error] testdata/invalid/directive/unterminated-interp.txtar/src.http:1:14: unterminated interpolation
+[error] testdata/invalid/directive/unterminated-interp.txtar/src.http:1:14-15: unexpected character in interpolation: '"'
+[error] testdata/invalid/directive/unterminated-interp.txtar/src.http:1:15: unterminated interpolation
+[error] testdata/invalid/directive/unterminated-interp.txtar/src.http:1:15: unterminated string literal, expected closing '"'

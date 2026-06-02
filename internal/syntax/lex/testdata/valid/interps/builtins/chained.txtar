@@ -1,0 +1,16 @@
+-- src.http --
+{{ $something.very.long.and.dotted }}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Dollar start=3, end=4>
+<Token::Ident start=4, end=13>
+<Token::Dot start=13, end=14>
+<Token::Ident start=14, end=18>
+<Token::Dot start=18, end=19>
+<Token::Ident start=19, end=23>
+<Token::Dot start=23, end=24>
+<Token::Ident start=24, end=27>
+<Token::Dot start=27, end=28>
+<Token::Ident start=28, end=34>
+<Token::CloseInterp start=35, end=37>
+-- diagnostics.txt --
