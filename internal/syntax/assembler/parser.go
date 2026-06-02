@@ -351,26 +351,38 @@ func (p *parser) parseSelector(left ast.Expression) ast.Selector {
 	}
 }
 
-// parseCall parses a call expression (left.right(args...)) into an [ast.Call].
+// parseCall parses a call expression (left(args...)) into an [ast.Call].
+//
+// It is called with p.current on left's final token and p.next on the '(',
+// returning with p.current on the closing ')' (or the last token consumed if
+// the call is unterminated).
 func (p *parser) parseCall(left ast.Expression) ast.Call {
-	start := p.current.Start
+	p.advance() // Consume the '('
 
 	args := p.parseArgs()
+
+	p.expect(token.RParen)
 
 	return ast.Call{
 		Fun:  left,
 		Args: args,
 		Range: source.Span{
 			File:        p.block.Span.File,
-			StartOffset: start,
+			StartOffset: left.Span().StartOffset,
 			EndOffset:   p.current.End,
 		},
 	}
 }
 
-// parseArgs parses a run of call argument expressions.
+// parseArgs parses a run of call argument expressions, stopping before the
+// closing ')'.
 func (p *parser) parseArgs() []ast.Expression {
-	// TODO: This, comma separated args until RParen
+	// TODO: build the argument expressions (comma-separated expressions)
+	// this just consumes stuff
+	for !p.next.Is(token.RParen, token.CloseInterp, token.EOF, token.Error) {
+		p.advance()
+	}
+
 	return nil
 }
 
