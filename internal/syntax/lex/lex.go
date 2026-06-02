@@ -268,6 +268,10 @@ func Directive(span source.Span) ([]token.Token, []diagnostic.Diagnostic) {
 		scanNumber(s)
 
 	default:
+		if s.restStartsWith("{{") {
+			scanInterp(s)
+		}
+
 		// Flag directives (e.g. @no-redirect) don't take a value so we can't
 		// just error unconditionally. When there is content though, consume
 		// it so the diagnostic span reflects the entire bad range
@@ -647,6 +651,7 @@ func scanInterp(s *scanner) {
 		return
 	}
 
+interp:
 	for !s.restStartsWith("}}") && !s.atEOF() {
 		switch {
 		case isAlpha(s.peek()):
@@ -664,6 +669,26 @@ func scanInterp(s *scanner) {
 			s.emit(token.RParen)
 		case s.take(","):
 			s.emit(token.Comma)
+		case s.peek() == '"':
+			// A '"' only opens a string-literal argument in operand position:
+			// immediately after '{{', '(' or ','. Anywhere else it cannot be
+			// part of this interpolation, so it belongs to the enclosing
+			// context (e.g. a directive value's closing quote). Leave it
+			// unconsumed and stop, the missing '}}' is reported as an
+			// unterminated interpolation below.
+			if !operandPosition(s.tokens) {
+				break interp
+			}
+
+			s.take(`"`)
+			s.emit(token.Quote)
+			scanInterpolatedQuotedText(s)
+
+			if s.take(`"`) {
+				s.emit(token.Quote)
+			} else {
+				s.error(`unterminated string literal, expected closing '"'`)
+			}
 		default:
 			// Take the contiguous run of unrecognised characters so the rest of
 			// the interp can resume from a known boundary (whitespace, '}}', or EOF).
@@ -684,6 +709,22 @@ func scanInterp(s *scanner) {
 		s.emit(token.CloseInterp)
 	} else {
 		s.error("unterminated interpolation")
+	}
+}
+
+// operandPosition reports whether the most recently emitted token leaves an
+// interpolation expecting an operand, i.e. a point at which a '"' would open a
+// string-literal argument: immediately after '{{', '(' or ','.
+func operandPosition(tokens []token.Token) bool {
+	if len(tokens) == 0 {
+		return false
+	}
+
+	switch tokens[len(tokens)-1].Kind {
+	case token.OpenInterp, token.LParen, token.Comma:
+		return true
+	default:
+		return false
 	}
 }
 

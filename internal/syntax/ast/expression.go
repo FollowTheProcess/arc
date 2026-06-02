@@ -14,8 +14,9 @@ type (
 	// unescaped), while Span covers the raw literal in source including
 	// any surrounding quotes.
 	TextLiteral struct {
-		Value string // The interpreted (unquoted) text value
-		Range source.Span
+		Value  string // The interpreted (unquoted) text value
+		Range  source.Span
+		Quoted bool // Whether Value was originally quoted or bare
 	}
 
 	// NumberLiteral is a number expression, can be an integer

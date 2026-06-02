@@ -199,7 +199,8 @@ func (p *parser) parseValue() ast.Expression {
 			p.advance()
 
 			return ast.TextLiteral{
-				Value: "",
+				Value:  "",
+				Quoted: true,
 				Range: source.Span{
 					File:        p.block.Span.File,
 					StartOffset: open.Start,
@@ -287,7 +288,7 @@ func (p *parser) quotedValue(parts []ast.Expression, span source.Span) ast.Expre
 		value.WriteString(lit.Value)
 	}
 
-	return ast.TextLiteral{Value: value.String(), Range: span}
+	return ast.TextLiteral{Value: value.String(), Range: span, Quoted: true}
 }
 
 // parseInterp parses an interpolation e.g. `{{ <inner> }}`.
