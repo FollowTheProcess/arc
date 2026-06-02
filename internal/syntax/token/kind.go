@@ -22,6 +22,8 @@ const (
 	RParen                            // RParen
 	LAngle                            // LAngle
 	RAngle                            // RAngle
+	LBracket                          // LBracket
+	RBracket                          // RBracket
 	Comma                             // Comma
 	Colon                             // Colon
 	Eq                                // Eq

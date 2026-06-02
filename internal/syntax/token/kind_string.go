@@ -23,22 +23,24 @@ func _() {
 	_ = x[RParen-12]
 	_ = x[LAngle-13]
 	_ = x[RAngle-14]
-	_ = x[Comma-15]
-	_ = x[Colon-16]
-	_ = x[Eq-17]
-	_ = x[Number-18]
-	_ = x[OpenInterp-19]
-	_ = x[CloseInterp-20]
-	_ = x[OpenScript-21]
-	_ = x[CloseScript-22]
-	_ = x[ResponseRedirect-23]
-	_ = x[ResponseRedirectForce-24]
-	_ = x[ResponseReference-25]
+	_ = x[LBracket-15]
+	_ = x[RBracket-16]
+	_ = x[Comma-17]
+	_ = x[Colon-18]
+	_ = x[Eq-19]
+	_ = x[Number-20]
+	_ = x[OpenInterp-21]
+	_ = x[CloseInterp-22]
+	_ = x[OpenScript-23]
+	_ = x[CloseScript-24]
+	_ = x[ResponseRedirect-25]
+	_ = x[ResponseRedirectForce-26]
+	_ = x[ResponseReference-27]
 }
 
-const _Kind_name = "EOFErrorCommentSeparatorTextHTTPVersionQuoteIdentDollarAtDotLParenRParenLAngleRAngleCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
+const _Kind_name = "EOFErrorCommentSeparatorTextHTTPVersionQuoteIdentDollarAtDotLParenRParenLAngleRAngleLBracketRBracketCommaColonEqNumberOpenInterpCloseInterpOpenScriptCloseScriptResponseRedirectResponseRedirectForceResponseReference"
 
-var _Kind_index = [...]uint8{0, 3, 8, 15, 24, 28, 39, 44, 49, 55, 57, 60, 66, 72, 78, 84, 89, 94, 96, 102, 112, 123, 133, 144, 160, 181, 198}
+var _Kind_index = [...]uint8{0, 3, 8, 15, 24, 28, 39, 44, 49, 55, 57, 60, 66, 72, 78, 84, 92, 100, 105, 110, 112, 118, 128, 139, 149, 160, 176, 197, 214}
 
 func (i Kind) String() string {
 	idx := int(i) - 0
