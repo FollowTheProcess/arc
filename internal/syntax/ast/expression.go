@@ -36,6 +36,28 @@ type (
 		Inner Expression
 		Range source.Span
 	}
+
+	// Builtin is a `$` prefixed builtin root like `$env` or the
+	// `$random` in `$random.int`.
+	Builtin struct {
+		Name  Ident
+		Range source.Span
+	}
+
+	// Selector is a dotted accessor Expr.Sel, e.g. `response.body` or
+	// `$random.uuid`.
+	Selector struct {
+		Expr  Expression
+		Sel   Ident
+		Range source.Span
+	}
+
+	// Call is a call trailer Fun(Args...), e.g. `$random.int(1, 100)`.
+	Call struct {
+		Fun   Expression
+		Args  []Expression
+		Range source.Span
+	}
 )
 
 // Span implementations.
@@ -44,6 +66,9 @@ func (t TextLiteral) Span() source.Span   { return t.Range }
 func (n NumberLiteral) Span() source.Span { return n.Range }
 func (t Template) Span() source.Span      { return t.Range }
 func (i Interp) Span() source.Span        { return i.Range }
+func (b Builtin) Span() source.Span       { return b.Range }
+func (s Selector) Span() source.Span      { return s.Range }
+func (c Call) Span() source.Span          { return c.Range }
 
 // Expression implementations.
 func (i Ident) expressionNode()         {}
@@ -51,3 +76,6 @@ func (t TextLiteral) expressionNode()   {}
 func (n NumberLiteral) expressionNode() {}
 func (t Template) expressionNode()      {}
 func (i Interp) expressionNode()        {}
+func (b Builtin) expressionNode()       {}
+func (s Selector) expressionNode()      {}
+func (c Call) expressionNode()          {}

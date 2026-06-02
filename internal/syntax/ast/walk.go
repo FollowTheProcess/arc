@@ -49,7 +49,10 @@ func Walk(v Visitor, node Node) {
 		}
 
 		Walk(v, n.Method)
-		Walk(v, n.URL)
+
+		if n.URL != nil {
+			Walk(v, n.URL)
+		}
 
 		if n.HTTPVersion != nil {
 			Walk(v, n.HTTPVersion)
@@ -75,6 +78,22 @@ func Walk(v Visitor, node Node) {
 	case Interp:
 		if n.Inner != nil {
 			Walk(v, n.Inner)
+		}
+	case Builtin:
+		Walk(v, n.Name)
+	case Selector:
+		if n.Expr != nil {
+			Walk(v, n.Expr)
+		}
+
+		Walk(v, n.Sel)
+	case Call:
+		if n.Fun != nil {
+			Walk(v, n.Fun)
+		}
+
+		for _, expr := range n.Args {
+			Walk(v, expr)
 		}
 	case Ident, *Ident, TextLiteral, Comment, *Comment, NumberLiteral, nil:
 		// Leaves, no children to walk.
@@ -166,6 +185,12 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 		fmt.Fprintf(d.buf, "%sTemplate %s\n", indent, n.Span())
 	case Interp:
 		fmt.Fprintf(d.buf, "%sInterp %s\n", indent, n.Span())
+	case Builtin:
+		fmt.Fprintf(d.buf, "%sBuiltin %s\n", indent, n.Span())
+	case Selector:
+		fmt.Fprintf(d.buf, "%sSelector %s\n", indent, n.Span())
+	case Call:
+		fmt.Fprintf(d.buf, "%sCall %s\n", indent, n.Span())
 	default:
 		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}
