@@ -7,20 +7,20 @@ import (
 
 // Visitor is invoked by [Walk] for each node it encounters.
 //
-// If the visitor w returned by Visit is non-nil, [Walk] visits each of the
-// children of node with w, followed by a call of w.Visit(nil).
+// If the visitor v returned by Visit is non-nil, [Walk] visits each of the
+// children of node with v, followed by a call of v.Visit(nil).
 type Visitor interface {
 	// Visit is called by [Walk] for each node it encounters. The returned
-	// visitor w controls traversal of node's children: if non-nil, Walk
-	// visits them with w, otherwise it skips them.
-	Visit(node Node) (w Visitor)
+	// visitor v controls traversal of node's children: if non-nil, Walk
+	// visits them with v, otherwise it skips them.
+	Visit(node Node) (v Visitor)
 }
 
 // Walk traverses an AST in depth-first order.
 //
-// It starts by calling v.Visit(node); node must not be nil. If the visitor w
-// returned by v.Visit(node) is not nil, Walk is invoked recursively with w for
-// each of the non-nil children of node, followed by a call of w.Visit(nil).
+// It starts by calling v.Visit(node); node must not be nil. If the visitor v
+// returned by v.Visit(node) is not nil, Walk is invoked recursively with v for
+// each of the non-nil children of node, followed by a call of v.Visit(nil).
 //
 //nolint:gocognit // Self contained ast recursive walking
 func Walk(v Visitor, node Node) {
