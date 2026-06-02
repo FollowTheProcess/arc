@@ -1,6 +1,9 @@
 {
   "languages": {
     "Txtar": {
+      // The txtar test cases in here intentionally carry trailing whitespace,
+      // tab indents, missing EOF newlines etc. to test the lexer/parser so
+      // this stops Zed from automatically cleaning them up.
       "format_on_save": "off",
       "remove_trailing_whitespace_on_save": false,
       "ensure_final_newline_on_save": false,

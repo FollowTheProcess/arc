@@ -67,21 +67,47 @@ func TestInspectVisitsEveryNodeDepthFirst(t *testing.T) {
 	want := strings.Join([]string{
 		"ast.File",
 		"ast.Comment",
+		// @timeout = 30s
 		"ast.Directive",
 		"ast.Ident",
 		"ast.TextLiteral",
+		// @base = {{ $env.BASE_URL }}
+		"ast.Directive",
+		"ast.Ident",
+		"ast.Interp",
+		"ast.Selector",
+		"ast.Builtin",
+		"ast.Ident",
+		"ast.Ident",
 		"ast.Request",
 		"*ast.Comment",
 		"*ast.Ident",
 		"ast.Ident",
+		// URL: https://example.com/users/{{ $random.int(1, 100) }}
+		"ast.Template",
 		"ast.TextLiteral",
+		"ast.Interp",
+		"ast.Call",
+		"ast.Selector",
+		"ast.Builtin",
+		"ast.Ident",
+		"ast.Ident",
+		"ast.NumberLiteral",
+		"ast.NumberLiteral",
 		"*ast.HTTPVersion",
 		"ast.NumberLiteral",
+		// Authorization: Bearer {{ token }}
 		"ast.Header",
 		"ast.Ident",
 		"ast.Template",
 		"ast.TextLiteral",
 		"ast.Interp",
+		"ast.Ident",
+		// X-Request-Id: {{ $uuid }}
+		"ast.Header",
+		"ast.Ident",
+		"ast.Interp",
+		"ast.Builtin",
 		"ast.Ident",
 	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
@@ -106,19 +132,38 @@ func TestInspectStopsDescendingWhenCallbackReturnsFalse(t *testing.T) {
 	want := strings.Join([]string{
 		"ast.File",
 		"ast.Comment",
+		// Both directives are visited but not descended into.
+		"ast.Directive",
 		"ast.Directive",
 		"ast.Request",
 		"*ast.Comment",
 		"*ast.Ident",
 		"ast.Ident",
+		// URL: https://example.com/users/{{ $random.int(1, 100) }}
+		"ast.Template",
 		"ast.TextLiteral",
+		"ast.Interp",
+		"ast.Call",
+		"ast.Selector",
+		"ast.Builtin",
+		"ast.Ident",
+		"ast.Ident",
+		"ast.NumberLiteral",
+		"ast.NumberLiteral",
 		"*ast.HTTPVersion",
 		"ast.NumberLiteral",
+		// Authorization: Bearer {{ token }}
 		"ast.Header",
 		"ast.Ident",
 		"ast.Template",
 		"ast.TextLiteral",
 		"ast.Interp",
+		"ast.Ident",
+		// X-Request-Id: {{ $uuid }}
+		"ast.Header",
+		"ast.Ident",
+		"ast.Interp",
+		"ast.Builtin",
 		"ast.Ident",
 	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
@@ -156,11 +201,54 @@ func tree(t *testing.T) ast.File {
 				Value: ast.TextLiteral{Value: "30s", Range: span("30s")},
 				Range: span("@timeout = 30s"),
 			},
+			ast.Directive{
+				Ident: ast.Ident{Range: span("base")},
+				// @base = {{ $env.BASE_URL }} -> a builtin selector.
+				Value: ast.Interp{
+					Inner: ast.Selector{
+						Expr: ast.Builtin{
+							Name:  ast.Ident{Range: span("env")},
+							Range: span("$env"),
+						},
+						Sel:   ast.Ident{Range: span("BASE_URL")},
+						Range: span("$env.BASE_URL"),
+					},
+					Range: span("{{ $env.BASE_URL }}"),
+				},
+				Range: span("@base = {{ $env.BASE_URL }}"),
+			},
 			ast.Request{
 				Doc:    &ast.Comment{Range: span("# Fetch a user")},
 				Name:   &ast.Ident{Range: span("get-user")},
 				Method: ast.Ident{Range: span("GET")},
-				URL:    ast.TextLiteral{Value: "https://example.com", Range: span("https://example.com")},
+				// URL interleaves literal text with a builtin call.
+				URL: ast.Template{
+					Parts: []ast.Expression{
+						ast.TextLiteral{
+							Value: "https://example.com/users/",
+							Range: span("https://example.com/users/"),
+						},
+						ast.Interp{
+							Inner: ast.Call{
+								Fun: ast.Selector{
+									Expr: ast.Builtin{
+										Name:  ast.Ident{Range: span("random")},
+										Range: span("$random"),
+									},
+									Sel:   ast.Ident{Range: span("int")},
+									Range: span("$random.int"),
+								},
+								Args: []ast.Expression{
+									ast.NumberLiteral{Range: span("1")},
+									ast.NumberLiteral{Range: span("100")},
+								},
+								Range: span("$random.int(1, 100)"),
+							},
+							Range: span("{{ $random.int(1, 100) }}"),
+						},
+					},
+					Range: span("https://example.com/users/{{ $random.int(1, 100) }}"),
+				},
 				HTTPVersion: &ast.HTTPVersion{
 					Version: ast.NumberLiteral{Range: span("1.1")},
 					Range:   span("HTTP/1.1"),
@@ -180,8 +268,20 @@ func tree(t *testing.T) ast.File {
 						},
 						Range: span("Authorization: Bearer {{ token }}"),
 					},
+					{
+						Name: ast.Ident{Range: span("X-Request-Id")},
+						// A bare builtin as the whole header value.
+						Value: ast.Interp{
+							Inner: ast.Builtin{
+								Name:  ast.Ident{Range: span("uuid")},
+								Range: span("$uuid"),
+							},
+							Range: span("{{ $uuid }}"),
+						},
+						Range: span("X-Request-Id: {{ $uuid }}"),
+					},
 				},
-				Range: enclosing(span("### get-user"), span("{{ token }}")),
+				Range: enclosing(span("### get-user"), span("{{ $uuid }}")),
 			},
 		},
 		Range: source.Span{File: file, StartOffset: 0, EndOffset: len(src)},

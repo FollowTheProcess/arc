@@ -7,20 +7,20 @@ import (
 
 // Visitor is invoked by [Walk] for each node it encounters.
 //
-// If the visitor w returned by Visit is non-nil, [Walk] visits each of the
-// children of node with w, followed by a call of w.Visit(nil).
+// If the visitor v returned by Visit is non-nil, [Walk] visits each of the
+// children of node with v, followed by a call of v.Visit(nil).
 type Visitor interface {
 	// Visit is called by [Walk] for each node it encounters. The returned
-	// visitor w controls traversal of node's children: if non-nil, Walk
-	// visits them with w, otherwise it skips them.
-	Visit(node Node) (w Visitor)
+	// visitor v controls traversal of node's children: if non-nil, Walk
+	// visits them with v, otherwise it skips them.
+	Visit(node Node) (v Visitor)
 }
 
 // Walk traverses an AST in depth-first order.
 //
-// It starts by calling v.Visit(node); node must not be nil. If the visitor w
-// returned by v.Visit(node) is not nil, Walk is invoked recursively with w for
-// each of the non-nil children of node, followed by a call of w.Visit(nil).
+// It starts by calling v.Visit(node); node must not be nil. If the visitor v
+// returned by v.Visit(node) is not nil, Walk is invoked recursively with v for
+// each of the non-nil children of node, followed by a call of v.Visit(nil).
 //
 //nolint:gocognit // Self contained ast recursive walking
 func Walk(v Visitor, node Node) {
@@ -49,7 +49,10 @@ func Walk(v Visitor, node Node) {
 		}
 
 		Walk(v, n.Method)
-		Walk(v, n.URL)
+
+		if n.URL != nil {
+			Walk(v, n.URL)
+		}
 
 		if n.HTTPVersion != nil {
 			Walk(v, n.HTTPVersion)
@@ -75,6 +78,22 @@ func Walk(v Visitor, node Node) {
 	case Interp:
 		if n.Inner != nil {
 			Walk(v, n.Inner)
+		}
+	case Builtin:
+		Walk(v, n.Name)
+	case Selector:
+		if n.Expr != nil {
+			Walk(v, n.Expr)
+		}
+
+		Walk(v, n.Sel)
+	case Call:
+		if n.Fun != nil {
+			Walk(v, n.Fun)
+		}
+
+		for _, expr := range n.Args {
+			Walk(v, expr)
 		}
 	case Ident, *Ident, TextLiteral, Comment, *Comment, NumberLiteral, nil:
 		// Leaves, no children to walk.
@@ -166,6 +185,12 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 		fmt.Fprintf(d.buf, "%sTemplate %s\n", indent, n.Span())
 	case Interp:
 		fmt.Fprintf(d.buf, "%sInterp %s\n", indent, n.Span())
+	case Builtin:
+		fmt.Fprintf(d.buf, "%sBuiltin %s\n", indent, n.Span())
+	case Selector:
+		fmt.Fprintf(d.buf, "%sSelector %s\n", indent, n.Span())
+	case Call:
+		fmt.Fprintf(d.buf, "%sCall %s\n", indent, n.Span())
 	default:
 		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}
