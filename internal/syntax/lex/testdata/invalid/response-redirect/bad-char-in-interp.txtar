@@ -1,9 +1,9 @@
 -- src.http --
->> {{ 123 }}
+>> {{ *&^ }}
 -- tokens.txt --
 <Token::ResponseRedirect start=0, end=2>
 <Token::OpenInterp start=3, end=5>
 <Token::Error start=6, end=9>
 <Token::CloseInterp start=10, end=12>
 -- diagnostics.txt --
-[error] testdata/invalid/response-redirect/bad-char-in-interp.txtar/src.http:1:7-10: unexpected character in interpolation: '1'
+[error] testdata/invalid/response-redirect/bad-char-in-interp.txtar/src.http:1:7-10: unexpected character in interpolation: '*'

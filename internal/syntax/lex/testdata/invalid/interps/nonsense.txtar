@@ -1,0 +1,8 @@
+-- src.http --
+{{ *^%£@ }}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Error start=3, end=9>
+<Token::CloseInterp start=10, end=12>
+-- diagnostics.txt --
+[error] testdata/invalid/interps/nonsense.txtar/src.http:1:4-10: unexpected character in interpolation: '*'

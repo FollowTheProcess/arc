@@ -1,0 +1,17 @@
+-- src.http --
+{{ $function.call(1, 2, 3) }}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Dollar start=3, end=4>
+<Token::Ident start=4, end=12>
+<Token::Dot start=12, end=13>
+<Token::Ident start=13, end=17>
+<Token::LParen start=17, end=18>
+<Token::Number start=18, end=19>
+<Token::Comma start=19, end=20>
+<Token::Number start=21, end=22>
+<Token::Comma start=22, end=23>
+<Token::Number start=24, end=25>
+<Token::RParen start=25, end=26>
+<Token::CloseInterp start=27, end=29>
+-- diagnostics.txt --

@@ -4,7 +4,11 @@ This is some text with an {{ interp that wasn't closed
 <Token::Text start=0, end=26>
 <Token::OpenInterp start=26, end=28>
 <Token::Ident start=29, end=35>
-<Token::Error start=36, end=36>
-<Token::Text start=36, end=54>
+<Token::Ident start=36, end=40>
+<Token::Ident start=41, end=45>
+<Token::Error start=45, end=47>
+<Token::Ident start=48, end=54>
+<Token::Error start=54, end=54>
 -- diagnostics.txt --
-[error] testdata/invalid/interps/unterminated.txtar/src.http:1:37: unterminated interpolation
+[error] testdata/invalid/interps/unterminated.txtar/src.http:1:46-48: unexpected character in interpolation: '\''
+[error] testdata/invalid/interps/unterminated.txtar/src.http:1:55: unterminated interpolation
