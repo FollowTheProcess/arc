@@ -1,0 +1,13 @@
+-- src.http --
+@number = {{ $env.NUMBER }}
+-- want.txt --
+File testdata/valid/directive/env-builtin.txtar/src.http:1:1-28
+  Directive testdata/valid/directive/env-builtin.txtar/src.http:1:1-28
+    Ident "number" testdata/valid/directive/env-builtin.txtar/src.http:1:2-8
+    Interp testdata/valid/directive/env-builtin.txtar/src.http:1:11-28
+      Selector testdata/valid/directive/env-builtin.txtar/src.http:1:14-25
+        Builtin testdata/valid/directive/env-builtin.txtar/src.http:1:14-18
+          Ident "env" testdata/valid/directive/env-builtin.txtar/src.http:1:15-18
+        Ident "NUMBER" testdata/valid/directive/env-builtin.txtar/src.http:1:19-25
+-- diagnostics.txt --
+
