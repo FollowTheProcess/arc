@@ -4,5 +4,5 @@
 File testdata/valid/directive/global.txtar/src.http:1:1-21
   Directive testdata/valid/directive/global.txtar/src.http:1:1-21
     Ident "something" testdata/valid/directive/global.txtar/src.http:1:2-11
-    TextLiteral "value" testdata/valid/directive/global.txtar/src.http:1:14-21
+    TextLiteral `value` testdata/valid/directive/global.txtar/src.http:1:14-21
 -- diagnostics.txt --

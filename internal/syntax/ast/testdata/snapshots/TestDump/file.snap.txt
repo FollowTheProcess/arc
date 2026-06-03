@@ -1,8 +1,8 @@
-File fixture.http:1:1-8:27
+File fixture.http:1:1-17:25
   Comment fixture.http:1:1-9
   Directive fixture.http:2:1-15
     Ident "timeout" fixture.http:2:2-9
-    TextLiteral "30s" fixture.http:2:12-15
+    TextLiteral `30s` fixture.http:2:12-15
   Directive fixture.http:3:1-28
     Ident "base" fixture.http:3:2-6
     Interp fixture.http:3:9-28
@@ -15,7 +15,7 @@ File fixture.http:1:1-8:27
     Ident "get-user" fixture.http:4:5-13
     Ident "GET" fixture.http:6:1-4
     Template fixture.http:6:5-56
-      TextLiteral "https://example.com/users/" fixture.http:6:5-31
+      TextLiteral `https://example.com/users/` fixture.http:6:5-31
       Interp fixture.http:6:31-56
         Call fixture.http:6:34-53
           Selector fixture.http:6:34-45
@@ -29,7 +29,7 @@ File fixture.http:1:1-8:27
     Header fixture.http:7:1-34
       Ident "Authorization" fixture.http:7:1-14
       Template fixture.http:7:16-34
-        TextLiteral "Bearer " fixture.http:7:16-23
+        TextLiteral `Bearer ` fixture.http:7:16-23
         Interp fixture.http:7:23-34
           Ident "token" fixture.http:7:26-31
     Header fixture.http:8:1-26
@@ -37,3 +37,23 @@ File fixture.http:1:1-8:27
       Interp fixture.http:8:15-26
         Builtin fixture.http:8:18-23
           Ident "uuid" fixture.http:8:19-23
+  Request fixture.http:9:1-13:27
+    Ident "create-user" fixture.http:9:5-16
+    Ident "POST" fixture.http:10:1-5
+    TextLiteral `https://example.com/items` fixture.http:10:6-31
+    Header fixture.http:11:1-31
+      Ident "Content-Type" fixture.http:11:1-13
+      TextLiteral `application/json` fixture.http:11:15-31
+    BodyInline fixture.http:13:1-27
+      Template fixture.http:13:1-27
+        TextLiteral `{"name": "` fixture.http:13:1-11
+        Interp fixture.http:13:11-25
+          Ident "userName" fixture.http:13:14-22
+        TextLiteral `"}` fixture.http:13:25-27
+  Request fixture.http:14:1-17:24
+    Ident "import-data" fixture.http:14:5-16
+    Ident "PUT" fixture.http:15:1-4
+    TextLiteral `https://example.com/import` fixture.http:15:5-31
+    BodyFile templated encoding="latin1" fixture.http:17:1-24
+      Template fixture.http:17:10-24
+        TextLiteral `./payload.json` fixture.http:17:10-24

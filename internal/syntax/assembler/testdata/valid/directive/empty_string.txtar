@@ -4,5 +4,5 @@
 File testdata/valid/directive/empty_string.txtar/src.http:1:1-8
   Directive testdata/valid/directive/empty_string.txtar/src.http:1:1-8
     Ident "x" testdata/valid/directive/empty_string.txtar/src.http:1:2-3
-    TextLiteral "" testdata/valid/directive/empty_string.txtar/src.http:1:6-8
+    TextLiteral `` testdata/valid/directive/empty_string.txtar/src.http:1:6-8
 -- diagnostics.txt --

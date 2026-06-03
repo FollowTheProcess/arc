@@ -565,3 +565,87 @@ func (p *parser) parseHeader() ast.Header {
 		Name:  name,
 	}
 }
+
+// parseBody parses a request body into one of the [ast.Body] nodes.
+func (p *parser) parseBody() ast.Body {
+	switch p.current.Kind {
+	case token.Text, token.OpenInterp:
+		// Inline body: a run of literal text and interpolations.
+		return p.parseInlineBody()
+	case token.LAngle:
+		// File body e.g. `< file.json`
+		return p.parseFileBody()
+	case token.Error:
+		// Nothing, lexer has already reported
+		return nil
+	default:
+		p.errorf(p.current, "parseBody: unexpected token %s", p.current.Kind)
+
+		return nil
+	}
+}
+
+// parseInlineBody parses a body provided inline in the source into
+// an [ast.BodyInline] node.
+func (p *parser) parseInlineBody() ast.BodyInline {
+	parts := p.parseTemplateParts()
+	if len(parts) == 0 {
+		return ast.BodyInline{} // parseTemplateParts already diagnosed
+	}
+
+	return ast.BodyInline{
+		Content: ast.Template{
+			Parts: parts,
+			Range: source.Span{
+				File:        p.block.Span.File,
+				StartOffset: parts[0].Span().StartOffset,
+				EndOffset:   parts[len(parts)-1].Span().EndOffset,
+			},
+		},
+		Range: p.block.Span,
+	}
+}
+
+// parseFileBody parses a body provided as a file reference into
+// an [ast.BodyFile] node.
+//
+// It assumes p.current is on the '<'.
+func (p *parser) parseFileBody() ast.BodyFile {
+	body := ast.BodyFile{Range: p.block.Span}
+
+	// Optional '@' marks the file contents for interpolation, e.g. `<@ file.json`
+	if p.next.Is(token.At) {
+		p.advance()
+
+		body.Templated = true
+	}
+
+	// Optional encoding, e.g. `<@latin1 file.json`
+	if p.next.Is(token.Ident) {
+		p.advance()
+
+		body.Encoding = p.text()
+	}
+
+	// The path is a run of literal text and interpolations which may open
+	// with either, e.g. `< {{ dir }}/file.json`
+	if !p.expect(token.Text, token.OpenInterp) {
+		return body // expect or the lexer already diagnosed
+	}
+
+	parts := p.parseTemplateParts()
+	if len(parts) == 0 {
+		return body // parseTemplateParts already diagnosed
+	}
+
+	body.Path = ast.Template{
+		Parts: parts,
+		Range: source.Span{
+			File:        p.block.Span.File,
+			StartOffset: parts[0].Span().StartOffset,
+			EndOffset:   parts[len(parts)-1].Span().EndOffset,
+		},
+	}
+
+	return body
+}

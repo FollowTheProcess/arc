@@ -9,14 +9,14 @@ File testdata/valid/headers/multiple.txtar/src.http:1:1-5:51
   Request testdata/valid/headers/multiple.txtar/src.http:1:1-5:51
     Ident "multiple" testdata/valid/headers/multiple.txtar/src.http:1:5-13
     Ident "GET" testdata/valid/headers/multiple.txtar/src.http:2:1-4
-    TextLiteral "https://api.example.com/items" testdata/valid/headers/multiple.txtar/src.http:2:5-34
+    TextLiteral `https://api.example.com/items` testdata/valid/headers/multiple.txtar/src.http:2:5-34
     Header testdata/valid/headers/multiple.txtar/src.http:3:1-25
       Ident "Accept" testdata/valid/headers/multiple.txtar/src.http:3:1-7
-      TextLiteral "application/json" testdata/valid/headers/multiple.txtar/src.http:3:9-25
+      TextLiteral `application/json` testdata/valid/headers/multiple.txtar/src.http:3:9-25
     Header testdata/valid/headers/multiple.txtar/src.http:4:1-35
       Ident "Authorization" testdata/valid/headers/multiple.txtar/src.http:4:1-14
-      TextLiteral "Bearer secret-token" testdata/valid/headers/multiple.txtar/src.http:4:16-35
+      TextLiteral `Bearer secret-token` testdata/valid/headers/multiple.txtar/src.http:4:16-35
     Header testdata/valid/headers/multiple.txtar/src.http:5:1-51
       Ident "X-Request-ID" testdata/valid/headers/multiple.txtar/src.http:5:1-13
-      TextLiteral "7c6f8d8e-1a2b-4c3d-9e8f-7a6b5c4d3e2f" testdata/valid/headers/multiple.txtar/src.http:5:15-51
+      TextLiteral `7c6f8d8e-1a2b-4c3d-9e8f-7a6b5c4d3e2f` testdata/valid/headers/multiple.txtar/src.http:5:15-51
 -- diagnostics.txt --

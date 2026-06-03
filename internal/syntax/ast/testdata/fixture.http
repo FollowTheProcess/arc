@@ -6,3 +6,12 @@
 GET https://example.com/users/{{ $random.int(1, 100) }} HTTP/1.1
 Authorization: Bearer {{ token }}
 X-Request-Id: {{ $uuid }}
+### create-user
+POST https://example.com/items
+Content-Type: application/json
+
+{"name": "{{ userName }}"}
+### import-data
+PUT https://example.com/import
+
+<@latin1 ./payload.json

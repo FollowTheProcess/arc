@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -61,6 +62,10 @@ func Walk(v Visitor, node Node) {
 		for _, header := range n.Headers {
 			Walk(v, header)
 		}
+
+		if n.Body != nil {
+			Walk(v, n.Body)
+		}
 	case *HTTPVersion:
 		if n != nil {
 			Walk(v, n.Version)
@@ -95,6 +100,10 @@ func Walk(v Visitor, node Node) {
 		for _, expr := range n.Args {
 			Walk(v, expr)
 		}
+	case BodyInline:
+		Walk(v, n.Content)
+	case BodyFile:
+		Walk(v, n.Path)
 	case Ident, *Ident, TextLiteral, Comment, *Comment, NumberLiteral, nil:
 		// Leaves, no children to walk.
 	default:
@@ -130,6 +139,25 @@ func Dump(node Node) string {
 	Walk(dumpVisitor{buf: buf}, node)
 
 	return buf.String()
+}
+
+// dumpEscaper escapes line-structure characters in [Dump] literal values so
+// each node renders on a single line.
+//
+//nolint:gochecknoglobals // Immutable and effectively constant, fine as a global
+var dumpEscaper = strings.NewReplacer("\n", `\n`, "\r", `\r`, "\t", `\t`)
+
+// dumpText renders a literal value for [Dump] output: backtick delimited with
+// only line-structure characters escaped, so interior quotes (common in JSON
+// bodies) read cleanly. Anything that still can't be backquoted after that
+// (backticks, other control characters) falls back to [strconv.Quote].
+func dumpText(s string) string {
+	escaped := dumpEscaper.Replace(s)
+	if !strconv.CanBackquote(escaped) {
+		return strconv.Quote(s)
+	}
+
+	return "`" + escaped + "`"
 }
 
 // inspector adapts an ordinary function to the [Visitor] interface.
@@ -170,7 +198,7 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 	case Ident, *Ident:
 		fmt.Fprintf(d.buf, "%sIdent %q %s\n", indent, n.Span().Text(), n.Span())
 	case TextLiteral:
-		fmt.Fprintf(d.buf, "%sTextLiteral %q %s\n", indent, n.Value, n.Span())
+		fmt.Fprintf(d.buf, "%sTextLiteral %s %s\n", indent, dumpText(n.Value), n.Span())
 	case NumberLiteral:
 		if len(n.Span().Content()) != 0 {
 			fmt.Fprintf(d.buf, "%sNumberLiteral %q %s\n", indent, n.Span().Text(), n.Span())
@@ -191,6 +219,20 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 		fmt.Fprintf(d.buf, "%sSelector %s\n", indent, n.Span())
 	case Call:
 		fmt.Fprintf(d.buf, "%sCall %s\n", indent, n.Span())
+	case BodyInline:
+		fmt.Fprintf(d.buf, "%sBodyInline %s\n", indent, n.Span())
+	case BodyFile:
+		fmt.Fprintf(d.buf, "%sBodyFile", indent)
+
+		if n.Templated {
+			d.buf.WriteString(" templated")
+		}
+
+		if n.Encoding != "" {
+			fmt.Fprintf(d.buf, " encoding=%q", n.Encoding)
+		}
+
+		fmt.Fprintf(d.buf, " %s\n", n.Span())
 	default:
 		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}
