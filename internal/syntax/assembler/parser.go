@@ -377,13 +377,29 @@ func (p *parser) parseCall(left ast.Expression) ast.Call {
 // parseArgs parses a run of call argument expressions, stopping before the
 // closing ')'.
 func (p *parser) parseArgs() []ast.Expression {
-	// TODO: build the argument expressions (comma-separated expressions)
-	// this just consumes stuff
-	for !p.next.Is(token.RParen, token.CloseInterp, token.EOF, token.Error) {
+	// Empty argument list, e.g. `$random.int()`
+	if p.next.Is(token.RParen) {
+		return nil
+	}
+
+	var args []ast.Expression
+
+	for {
+		p.advance()
+
+		if arg := p.parseInterpExpr(); arg != nil {
+			args = append(args, arg)
+		}
+
+		if !p.next.Is(token.Comma) {
+			break
+		}
+
+		// Consume the ','
 		p.advance()
 	}
 
-	return nil
+	return args
 }
 
 // parsePrimaryExpr parses a "primary" expression i.e. the left
@@ -395,6 +411,8 @@ func (p *parser) parsePrimaryExpr() ast.Expression {
 		return p.parseIdent()
 	case token.Dollar:
 		return p.parseBuiltin()
+	case token.Number:
+		return p.parseNumberLiteral()
 	case token.Error:
 		// Nothing, lexer has already reported
 		return nil
