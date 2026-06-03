@@ -174,6 +174,10 @@ func assembleRequest(blocks []block.Block) (ast.Request, []diagnostic.Diagnostic
 			req.Method, req.URL, req.HTTPVersion = p.parseRequestLine()
 		case block.Header:
 			req.Headers = append(req.Headers, p.parseHeader())
+		case block.Body:
+			req.Body = p.parseBody()
+		case block.Blank:
+			// Nothing
 		default:
 			d := diagnostic.Error(fmt.Sprintf("unexpected block type: %s", b.Kind), b.Span)
 			diags = append(diags, d)

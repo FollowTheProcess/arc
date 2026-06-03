@@ -109,6 +109,29 @@ func TestInspectVisitsEveryNodeDepthFirst(t *testing.T) {
 		"ast.Interp",
 		"ast.Builtin",
 		"ast.Ident",
+		"ast.Request",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// Content-Type: application/json
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// {"name": "{{ userName }}"}
+		"ast.BodyInline",
+		"ast.Template",
+		"ast.TextLiteral",
+		"ast.Interp",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"ast.Request",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// <@ ./payload.json
+		"ast.BodyFile",
+		"ast.Template",
+		"ast.TextLiteral",
 	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
 }
@@ -165,6 +188,29 @@ func TestInspectStopsDescendingWhenCallbackReturnsFalse(t *testing.T) {
 		"ast.Interp",
 		"ast.Builtin",
 		"ast.Ident",
+		"ast.Request",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// Content-Type: application/json
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// {"name": "{{ userName }}"}
+		"ast.BodyInline",
+		"ast.Template",
+		"ast.TextLiteral",
+		"ast.Interp",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"ast.Request",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// <@ ./payload.json
+		"ast.BodyFile",
+		"ast.Template",
+		"ast.TextLiteral",
 	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
 }
@@ -282,6 +328,61 @@ func tree(t *testing.T) ast.File {
 					},
 				},
 				Range: enclosing(span("### get-user"), span("{{ $uuid }}")),
+			},
+			ast.Request{
+				Name:   &ast.Ident{Range: span("create-user")},
+				Method: ast.Ident{Range: span("POST")},
+				URL: ast.TextLiteral{
+					Value: "https://example.com/items",
+					Range: span("https://example.com/items"),
+				},
+				Headers: []ast.Header{
+					{
+						Name: ast.Ident{Range: span("Content-Type")},
+						Value: ast.TextLiteral{
+							Value: "application/json",
+							Range: span("application/json"),
+						},
+						Range: span("Content-Type: application/json"),
+					},
+				},
+				// An inline body interleaving literal JSON with an interp.
+				Body: ast.BodyInline{
+					Content: ast.Template{
+						Parts: []ast.Expression{
+							ast.TextLiteral{Value: `{"name": "`, Range: span(`{"name": "`)},
+							ast.Interp{
+								Inner: ast.Ident{Range: span("userName")},
+								Range: span("{{ userName }}"),
+							},
+							ast.TextLiteral{Value: `"}`, Range: span(`"}`)},
+						},
+						Range: span(`{"name": "{{ userName }}"}`),
+					},
+					Range: span(`{"name": "{{ userName }}"}`),
+				},
+				Range: enclosing(span("### create-user"), span(`{"name": "{{ userName }}"}`)),
+			},
+			ast.Request{
+				Name:   &ast.Ident{Range: span("import-data")},
+				Method: ast.Ident{Range: span("PUT")},
+				URL: ast.TextLiteral{
+					Value: "https://example.com/import",
+					Range: span("https://example.com/import"),
+				},
+				// A templated file body with an encoding: <@latin1 ./payload.json.
+				Body: ast.BodyFile{
+					Path: ast.Template{
+						Parts: []ast.Expression{
+							ast.TextLiteral{Value: "./payload.json", Range: span("./payload.json")},
+						},
+						Range: span("./payload.json"),
+					},
+					Templated: true,
+					Encoding:  "latin1",
+					Range:     span("<@latin1 ./payload.json"),
+				},
+				Range: enclosing(span("### import-data"), span("<@latin1 ./payload.json")),
 			},
 		},
 		Range: source.Span{File: file, StartOffset: 0, EndOffset: len(src)},

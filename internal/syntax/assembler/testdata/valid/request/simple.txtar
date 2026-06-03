@@ -5,5 +5,5 @@ GET https://something.com
 File testdata/valid/request/simple.txtar/src.http:1:1-2:26
   Request testdata/valid/request/simple.txtar/src.http:1:1-2:26
     Ident "GET" testdata/valid/request/simple.txtar/src.http:2:1-4
-    TextLiteral "https://something.com" testdata/valid/request/simple.txtar/src.http:2:5-26
+    TextLiteral `https://something.com` testdata/valid/request/simple.txtar/src.http:2:5-26
 -- diagnostics.txt --

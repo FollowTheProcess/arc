@@ -6,7 +6,7 @@ File testdata/valid/request/back-to-back-interps.txtar/src.http:1:1-2:48
   Request testdata/valid/request/back-to-back-interps.txtar/src.http:1:1-2:48
     Ident "GET" testdata/valid/request/back-to-back-interps.txtar/src.http:2:1-4
     Template testdata/valid/request/back-to-back-interps.txtar/src.http:2:5-48
-      TextLiteral "https://api.example.com/" testdata/valid/request/back-to-back-interps.txtar/src.http:2:5-29
+      TextLiteral `https://api.example.com/` testdata/valid/request/back-to-back-interps.txtar/src.http:2:5-29
       Interp testdata/valid/request/back-to-back-interps.txtar/src.http:2:29-38
         Ident "org" testdata/valid/request/back-to-back-interps.txtar/src.http:2:32-35
       Interp testdata/valid/request/back-to-back-interps.txtar/src.http:2:38-48

@@ -7,5 +7,5 @@ This is actually totally valid anyway as far as the assembler is concerned
 File testdata/invalid/directive/flag-with-value.txtar/src.http:1:1-19
   Directive testdata/invalid/directive/flag-with-value.txtar/src.http:1:1-19
     Ident "no-redirect" testdata/invalid/directive/flag-with-value.txtar/src.http:1:2-13
-    TextLiteral "x" testdata/invalid/directive/flag-with-value.txtar/src.http:1:16-19
+    TextLiteral `x` testdata/invalid/directive/flag-with-value.txtar/src.http:1:16-19
 -- diagnostics.txt --

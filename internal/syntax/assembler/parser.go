@@ -565,3 +565,35 @@ func (p *parser) parseHeader() ast.Header {
 		Name:  name,
 	}
 }
+
+// parseBody parses a request body into one of the [ast.Body] nodes.
+func (p *parser) parseBody() ast.Body {
+	switch p.current.Kind {
+	case token.Text, token.OpenInterp:
+		// Inline body: a run of literal text and interpolations. The run
+		// can open with an interp, e.g. a body of just `{{ payload }}`.
+		parts := p.parseTemplateParts()
+		if len(parts) == 0 {
+			return nil // parseTemplateParts already diagnosed
+		}
+
+		return ast.BodyInline{
+			Content: ast.Template{
+				Parts: parts,
+				Range: source.Span{
+					File:        p.block.Span.File,
+					StartOffset: parts[0].Span().StartOffset,
+					EndOffset:   parts[len(parts)-1].Span().EndOffset,
+				},
+			},
+			Range: p.block.Span,
+		}
+	case token.Error:
+		// Nothing, lexer has already reported
+		return nil
+	default:
+		p.errorf(p.current, "parseBody: unexpected token %s", p.current.Kind)
+
+		return nil
+	}
+}

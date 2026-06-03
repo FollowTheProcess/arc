@@ -25,3 +25,10 @@ type Expression interface {
 
 	expressionNode()
 }
+
+// Body is the interface implemented by all body AST nodes.
+type Body interface {
+	Node
+
+	bodyNode()
+}

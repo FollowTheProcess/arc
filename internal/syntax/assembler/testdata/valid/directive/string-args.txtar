@@ -10,6 +10,6 @@ File testdata/valid/directive/string-args.txtar/src.http:1:1-45
           Builtin testdata/valid/directive/string-args.txtar/src.http:1:14-21
             Ident "random" testdata/valid/directive/string-args.txtar/src.http:1:15-21
           Ident "choice" testdata/valid/directive/string-args.txtar/src.http:1:22-28
-        TextLiteral "one" testdata/valid/directive/string-args.txtar/src.http:1:29-34
-        TextLiteral "two" testdata/valid/directive/string-args.txtar/src.http:1:36-41
+        TextLiteral `one` testdata/valid/directive/string-args.txtar/src.http:1:29-34
+        TextLiteral `two` testdata/valid/directive/string-args.txtar/src.http:1:36-41
 -- diagnostics.txt --

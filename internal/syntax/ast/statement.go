@@ -31,6 +31,7 @@ type (
 		URL         Expression
 		HTTPVersion *HTTPVersion
 		Headers     []Header
+		Body        Body        // Optional request body, nil if absent
 		Range       source.Span // The entire request span
 	}
 
