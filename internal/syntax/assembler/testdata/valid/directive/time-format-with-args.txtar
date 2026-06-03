@@ -1,0 +1,16 @@
+-- src.http --
+@fmt = {{ $time.format("rfc1123", -1, "d") }}
+-- want.txt --
+File testdata/valid/directive/time-format-with-args.txtar/src.http:1:1-46
+  Directive testdata/valid/directive/time-format-with-args.txtar/src.http:1:1-46
+    Ident "fmt" testdata/valid/directive/time-format-with-args.txtar/src.http:1:2-5
+    Interp testdata/valid/directive/time-format-with-args.txtar/src.http:1:8-46
+      Call testdata/valid/directive/time-format-with-args.txtar/src.http:1:11-43
+        Selector testdata/valid/directive/time-format-with-args.txtar/src.http:1:11-23
+          Builtin testdata/valid/directive/time-format-with-args.txtar/src.http:1:11-16
+            Ident "time" testdata/valid/directive/time-format-with-args.txtar/src.http:1:12-16
+          Ident "format" testdata/valid/directive/time-format-with-args.txtar/src.http:1:17-23
+        TextLiteral "rfc1123" testdata/valid/directive/time-format-with-args.txtar/src.http:1:24-33
+        NumberLiteral "-1" testdata/valid/directive/time-format-with-args.txtar/src.http:1:35-37
+        TextLiteral "d" testdata/valid/directive/time-format-with-args.txtar/src.http:1:39-42
+-- diagnostics.txt --

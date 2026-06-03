@@ -182,77 +182,16 @@ func (p *parser) parseIdent() ast.Ident {
 	}
 }
 
-// parseValue parses a directive, header, or request value: a run of literal
-// text and interpolations (an [ast.Template], or a bare part if there's only
-// one), a quoted text value, or a number.
+// parseValue parses a directive, header, or request value: a quoted text value,
+// or a run of literal text and interpolations (an [ast.Template], or a bare part
+// if there's only one).
 func (p *parser) parseValue() ast.Expression {
-	// Optional opening quote (only directive text values are quoted).
-	var quote *token.Token
-
+	// Only directive text values are quoted.
 	if p.current.Is(token.Quote) {
-		open := p.current
-		quote = &open
-
-		// An empty quoted value "" has no inner parts; emit an empty literal
-		// spanning the quotes.
-		if p.next.Is(token.Quote) {
-			p.advance()
-
-			return ast.TextLiteral{
-				Value:  "",
-				Quoted: true,
-				Range: source.Span{
-					File:        p.block.Span.File,
-					StartOffset: open.Start,
-					EndOffset:   p.current.End,
-				},
-			}
-		}
-
-		p.advance() // Consume the opening quote
+		return p.parseQuotedText()
 	}
 
-	var parts []ast.Expression
-
-	for {
-		switch p.current.Kind {
-		case token.Text:
-			parts = append(parts, p.parseTextLiteral())
-		case token.OpenInterp:
-			parts = append(parts, p.parseInterp())
-		case token.Number:
-			parts = append(parts, p.parseNumberLiteral())
-		case token.Error:
-			// Nothing, the lexer has already reported
-			return nil
-		default:
-			p.errorf(p.current, "parseValue: unexpected token %s", p.current.Kind)
-
-			return nil
-		}
-
-		// A continuous run of template tokens
-		if p.next.Is(token.Text, token.OpenInterp) && p.next.Start == p.current.End {
-			p.advance()
-
-			continue // go round again
-		}
-
-		break
-	}
-
-	if quote != nil {
-		end := p.current.End
-		if p.expect(token.Quote) {
-			end = p.current.End
-		}
-
-		return p.quotedValue(parts, source.Span{
-			File:        p.block.Span.File,
-			StartOffset: quote.Start,
-			EndOffset:   end,
-		})
-	}
+	parts := p.parseTemplateParts()
 
 	// If there's only 1 part, it's a literal, just emit that
 	switch len(parts) {
@@ -269,6 +208,82 @@ func (p *parser) parseValue() ast.Expression {
 				EndOffset:   parts[len(parts)-1].Span().EndOffset,
 			},
 		}
+	}
+}
+
+// parseQuotedText parses a double-quoted text value, e.g. `"rfc1123"` or
+// `"Bearer {{ token }}"`. A value with no interpolations collapses to a single
+// [ast.TextLiteral]; otherwise it's an [ast.Template]. Either way the node spans
+// the surrounding quotes.
+//
+// It assumes p.current is on the opening quote and returns with p.current on the
+// closing quote.
+func (p *parser) parseQuotedText() ast.Expression {
+	open := p.current
+
+	// An empty quoted value "" has no inner parts; emit an empty literal
+	// spanning the quotes.
+	if p.next.Is(token.Quote) {
+		p.advance()
+
+		return ast.TextLiteral{
+			Value:  "",
+			Quoted: true,
+			Range: source.Span{
+				File:        p.block.Span.File,
+				StartOffset: open.Start,
+				EndOffset:   p.current.End,
+			},
+		}
+	}
+
+	p.advance() // Consume the opening quote
+
+	parts := p.parseTemplateParts()
+
+	end := p.current.End
+	if p.expect(token.Quote) {
+		end = p.current.End
+	}
+
+	return p.quotedValue(parts, source.Span{
+		File:        p.block.Span.File,
+		StartOffset: open.Start,
+		EndOffset:   end,
+	})
+}
+
+// parseTemplateParts collects a contiguous run of template parts (literal text,
+// interpolations, and numbers) starting at p.current, returning with p.current
+// on the last part consumed.
+func (p *parser) parseTemplateParts() []ast.Expression {
+	var parts []ast.Expression
+
+	for {
+		switch p.current.Kind {
+		case token.Text:
+			parts = append(parts, p.parseTextLiteral())
+		case token.OpenInterp:
+			parts = append(parts, p.parseInterp())
+		case token.Number:
+			parts = append(parts, p.parseNumberLiteral())
+		case token.Error:
+			// Nothing, the lexer has already reported
+			return parts
+		default:
+			p.errorf(p.current, "parseValue: unexpected token %s", p.current.Kind)
+
+			return parts
+		}
+
+		// A continuous run of template tokens
+		if p.next.Is(token.Text, token.OpenInterp) && p.next.Start == p.current.End {
+			p.advance()
+
+			continue // go round again
+		}
+
+		return parts
 	}
 }
 
@@ -385,6 +400,19 @@ func (p *parser) parseArgs() []ast.Expression {
 	var args []ast.Expression
 
 	for {
+		// Each iteration must begin a fresh argument. A separator or premature
+		// end here means a stray/trailing comma or an unterminated call, e.g.
+		// `(1, 100,)` or `(,)`.
+		if p.next.Is(token.RParen, token.Comma, token.CloseInterp, token.EOF) {
+			p.errorf(p.next, "expected an argument, found %s", p.next.Kind)
+
+			break
+		}
+
+		if p.next.Is(token.Error) {
+			break // Already diagnosed by the lexer
+		}
+
 		p.advance()
 
 		if arg := p.parseInterpExpr(); arg != nil {
@@ -413,6 +441,8 @@ func (p *parser) parsePrimaryExpr() ast.Expression {
 		return p.parseBuiltin()
 	case token.Number:
 		return p.parseNumberLiteral()
+	case token.Quote:
+		return p.parseQuotedText()
 	case token.Error:
 		// Nothing, lexer has already reported
 		return nil

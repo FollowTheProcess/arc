@@ -1,0 +1,16 @@
+-- src.http --
+@n = {{ $random.int(1, 100 }}
+-- want.txt --
+File testdata/invalid/directive/call-unterminated.txtar/src.http:1:1-30
+  Directive testdata/invalid/directive/call-unterminated.txtar/src.http:1:1-30
+    Ident "n" testdata/invalid/directive/call-unterminated.txtar/src.http:1:2-3
+    Interp testdata/invalid/directive/call-unterminated.txtar/src.http:1:6-30
+      Call testdata/invalid/directive/call-unterminated.txtar/src.http:1:9-27
+        Selector testdata/invalid/directive/call-unterminated.txtar/src.http:1:9-20
+          Builtin testdata/invalid/directive/call-unterminated.txtar/src.http:1:9-16
+            Ident "random" testdata/invalid/directive/call-unterminated.txtar/src.http:1:10-16
+          Ident "int" testdata/invalid/directive/call-unterminated.txtar/src.http:1:17-20
+        NumberLiteral "1" testdata/invalid/directive/call-unterminated.txtar/src.http:1:21-22
+        NumberLiteral "100" testdata/invalid/directive/call-unterminated.txtar/src.http:1:24-27
+-- diagnostics.txt --
+[error] testdata/invalid/directive/call-unterminated.txtar/src.http:1:28-30: expected RParen, got CloseInterp
