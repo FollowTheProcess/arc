@@ -10,4 +10,3 @@ File testdata/valid/directive/env-builtin.txtar/src.http:1:1-28
           Ident "env" testdata/valid/directive/env-builtin.txtar/src.http:1:15-18
         Ident "NUMBER" testdata/valid/directive/env-builtin.txtar/src.http:1:19-25
 -- diagnostics.txt --
-

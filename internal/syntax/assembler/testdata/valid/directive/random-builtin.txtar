@@ -1,0 +1,12 @@
+-- src.http --
+@number = {{ $random.int }}
+-- want.txt --
+File testdata/valid/directive/random-builtin.txtar/src.http:1:1-28
+  Directive testdata/valid/directive/random-builtin.txtar/src.http:1:1-28
+    Ident "number" testdata/valid/directive/random-builtin.txtar/src.http:1:2-8
+    Interp testdata/valid/directive/random-builtin.txtar/src.http:1:11-28
+      Selector testdata/valid/directive/random-builtin.txtar/src.http:1:14-25
+        Builtin testdata/valid/directive/random-builtin.txtar/src.http:1:14-21
+          Ident "random" testdata/valid/directive/random-builtin.txtar/src.http:1:15-21
+        Ident "int" testdata/valid/directive/random-builtin.txtar/src.http:1:22-25
+-- diagnostics.txt --
