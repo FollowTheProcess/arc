@@ -231,6 +231,12 @@ func isUpperAlpha(r rune) bool {
 	return r >= 'A' && r <= 'Z'
 }
 
+// isNumber reports whether r is valid in a number, this includes
+// [isDigit] but also +/-.
+func isNumber(r rune) bool {
+	return isDigit(r) || strings.ContainsRune("+-", r)
+}
+
 // isDigit reports whether r is a valid ASCII digit.
 func isDigit(r rune) bool {
 	return r >= '0' && r <= '9'

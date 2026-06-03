@@ -657,7 +657,7 @@ interp:
 		case isAlpha(s.peek()):
 			s.takeWhile(isIdent)
 			s.emit(token.Ident)
-		case isDigit(s.peek()):
+		case isNumber(s.peek()):
 			scanNumber(s)
 		case s.take("$"):
 			s.emit(token.Dollar)

@@ -1,0 +1,14 @@
+-- src.http --
+{{ $function.call(-) }}
+-- tokens.txt --
+<Token::OpenInterp start=0, end=2>
+<Token::Dollar start=3, end=4>
+<Token::Ident start=4, end=12>
+<Token::Dot start=12, end=13>
+<Token::Ident start=13, end=17>
+<Token::LParen start=17, end=18>
+<Token::Error start=18, end=19>
+<Token::RParen start=19, end=20>
+<Token::CloseInterp start=21, end=23>
+-- diagnostics.txt --
+[error] testdata/invalid/interps/sign-without-digits.txtar/src.http:1:19-20: number must have digits
