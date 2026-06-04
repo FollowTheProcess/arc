@@ -1,0 +1,15 @@
+-- src.http --
+@choice = {{ $random.choice(, "one") }}
+-- want.txt --
+File testdata/invalid/directive/call-leading-comma.txtar/src.http:1:1-40
+  Directive testdata/invalid/directive/call-leading-comma.txtar/src.http:1:1-40
+    Ident "choice" testdata/invalid/directive/call-leading-comma.txtar/src.http:1:2-8
+    Interp testdata/invalid/directive/call-leading-comma.txtar/src.http:1:11-40
+      Call testdata/invalid/directive/call-leading-comma.txtar/src.http:1:14-37
+        Selector testdata/invalid/directive/call-leading-comma.txtar/src.http:1:14-28
+          Builtin testdata/invalid/directive/call-leading-comma.txtar/src.http:1:14-21
+            Ident "random" testdata/invalid/directive/call-leading-comma.txtar/src.http:1:15-21
+          Ident "choice" testdata/invalid/directive/call-leading-comma.txtar/src.http:1:22-28
+        TextLiteral `one` testdata/invalid/directive/call-leading-comma.txtar/src.http:1:31-36
+-- diagnostics.txt --
+[error] testdata/invalid/directive/call-leading-comma.txtar/src.http:1:29-30: expected an argument, found Comma

@@ -1,0 +1,18 @@
+-- src.http --
+###
+POST https://api.somewhere.com/users
+Content-Type: application/json
+
+<@ payload.json
+-- want.txt --
+File testdata/valid/body/file-at.txtar/src.http:1:1-5:16
+  Request testdata/valid/body/file-at.txtar/src.http:1:1-5:16
+    Ident "POST" testdata/valid/body/file-at.txtar/src.http:2:1-5
+    TextLiteral `https://api.somewhere.com/users` testdata/valid/body/file-at.txtar/src.http:2:6-37
+    Header testdata/valid/body/file-at.txtar/src.http:3:1-31
+      Ident "Content-Type" testdata/valid/body/file-at.txtar/src.http:3:1-13
+      TextLiteral `application/json` testdata/valid/body/file-at.txtar/src.http:3:15-31
+    BodyFile templated testdata/valid/body/file-at.txtar/src.http:5:1-16
+      Template testdata/valid/body/file-at.txtar/src.http:5:4-16
+        TextLiteral `payload.json` testdata/valid/body/file-at.txtar/src.http:5:4-16
+-- diagnostics.txt --

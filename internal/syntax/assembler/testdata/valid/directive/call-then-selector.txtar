@@ -1,0 +1,16 @@
+-- src.http --
+@date = {{ $time.format("rfc1123").date }}
+-- want.txt --
+File testdata/valid/directive/call-then-selector.txtar/src.http:1:1-43
+  Directive testdata/valid/directive/call-then-selector.txtar/src.http:1:1-43
+    Ident "date" testdata/valid/directive/call-then-selector.txtar/src.http:1:2-6
+    Interp testdata/valid/directive/call-then-selector.txtar/src.http:1:9-43
+      Selector testdata/valid/directive/call-then-selector.txtar/src.http:1:12-40
+        Call testdata/valid/directive/call-then-selector.txtar/src.http:1:12-35
+          Selector testdata/valid/directive/call-then-selector.txtar/src.http:1:12-24
+            Builtin testdata/valid/directive/call-then-selector.txtar/src.http:1:12-17
+              Ident "time" testdata/valid/directive/call-then-selector.txtar/src.http:1:13-17
+            Ident "format" testdata/valid/directive/call-then-selector.txtar/src.http:1:18-24
+          TextLiteral `rfc1123` testdata/valid/directive/call-then-selector.txtar/src.http:1:25-34
+        Ident "date" testdata/valid/directive/call-then-selector.txtar/src.http:1:36-40
+-- diagnostics.txt --

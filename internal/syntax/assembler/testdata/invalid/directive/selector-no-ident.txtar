@@ -1,0 +1,13 @@
+-- src.http --
+@home = {{ $env. }}
+-- want.txt --
+File testdata/invalid/directive/selector-no-ident.txtar/src.http:1:1-20
+  Directive testdata/invalid/directive/selector-no-ident.txtar/src.http:1:1-20
+    Ident "home" testdata/invalid/directive/selector-no-ident.txtar/src.http:1:2-6
+    Interp testdata/invalid/directive/selector-no-ident.txtar/src.http:1:9-20
+      Selector testdata/invalid/directive/selector-no-ident.txtar/src.http:1:12-17
+        Builtin testdata/invalid/directive/selector-no-ident.txtar/src.http:1:12-16
+          Ident "env" testdata/invalid/directive/selector-no-ident.txtar/src.http:1:13-16
+        Ident "" testdata/invalid/directive/selector-no-ident.txtar/src.http:1:17
+-- diagnostics.txt --
+[error] testdata/invalid/directive/selector-no-ident.txtar/src.http:1:18-20: expected Ident, got CloseInterp

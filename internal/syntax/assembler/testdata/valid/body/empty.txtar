@@ -1,0 +1,21 @@
+-- src.http --
+### empty
+POST https://api.somewhere.com/items
+Content-Type: application/json
+
+### next
+GET https://api.somewhere.com/items
+-- want.txt --
+File testdata/valid/body/empty.txtar/src.http:1:1-6:36
+  Request testdata/valid/body/empty.txtar/src.http:1:1-4:1
+    Ident "empty" testdata/valid/body/empty.txtar/src.http:1:5-10
+    Ident "POST" testdata/valid/body/empty.txtar/src.http:2:1-5
+    TextLiteral `https://api.somewhere.com/items` testdata/valid/body/empty.txtar/src.http:2:6-37
+    Header testdata/valid/body/empty.txtar/src.http:3:1-31
+      Ident "Content-Type" testdata/valid/body/empty.txtar/src.http:3:1-13
+      TextLiteral `application/json` testdata/valid/body/empty.txtar/src.http:3:15-31
+  Request testdata/valid/body/empty.txtar/src.http:5:1-6:36
+    Ident "next" testdata/valid/body/empty.txtar/src.http:5:5-9
+    Ident "GET" testdata/valid/body/empty.txtar/src.http:6:1-4
+    TextLiteral `https://api.somewhere.com/items` testdata/valid/body/empty.txtar/src.http:6:5-36
+-- diagnostics.txt --

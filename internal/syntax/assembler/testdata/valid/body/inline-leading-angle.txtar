@@ -1,0 +1,18 @@
+-- src.http --
+###
+POST https://api.somewhere.com/render
+Content-Type: text/html
+
+<html><body>Hello</body></html>
+-- want.txt --
+File testdata/valid/body/inline-leading-angle.txtar/src.http:1:1-5:32
+  Request testdata/valid/body/inline-leading-angle.txtar/src.http:1:1-5:32
+    Ident "POST" testdata/valid/body/inline-leading-angle.txtar/src.http:2:1-5
+    TextLiteral `https://api.somewhere.com/render` testdata/valid/body/inline-leading-angle.txtar/src.http:2:6-38
+    Header testdata/valid/body/inline-leading-angle.txtar/src.http:3:1-24
+      Ident "Content-Type" testdata/valid/body/inline-leading-angle.txtar/src.http:3:1-13
+      TextLiteral `text/html` testdata/valid/body/inline-leading-angle.txtar/src.http:3:15-24
+    BodyInline testdata/valid/body/inline-leading-angle.txtar/src.http:5:1-32
+      Template testdata/valid/body/inline-leading-angle.txtar/src.http:5:1-32
+        TextLiteral `<html><body>Hello</body></html>` testdata/valid/body/inline-leading-angle.txtar/src.http:5:1-32
+-- diagnostics.txt --

@@ -1,0 +1,20 @@
+-- src.http --
+###
+POST https://api.somewhere.com/users
+Content-Type: application/json
+
+< {{ dir }}/payload.json
+-- want.txt --
+File testdata/valid/body/file-interp-path.txtar/src.http:1:1-5:25
+  Request testdata/valid/body/file-interp-path.txtar/src.http:1:1-5:25
+    Ident "POST" testdata/valid/body/file-interp-path.txtar/src.http:2:1-5
+    TextLiteral `https://api.somewhere.com/users` testdata/valid/body/file-interp-path.txtar/src.http:2:6-37
+    Header testdata/valid/body/file-interp-path.txtar/src.http:3:1-31
+      Ident "Content-Type" testdata/valid/body/file-interp-path.txtar/src.http:3:1-13
+      TextLiteral `application/json` testdata/valid/body/file-interp-path.txtar/src.http:3:15-31
+    BodyFile testdata/valid/body/file-interp-path.txtar/src.http:5:1-25
+      Template testdata/valid/body/file-interp-path.txtar/src.http:5:3-25
+        Interp testdata/valid/body/file-interp-path.txtar/src.http:5:3-12
+          Ident "dir" testdata/valid/body/file-interp-path.txtar/src.http:5:6-9
+        TextLiteral `/payload.json` testdata/valid/body/file-interp-path.txtar/src.http:5:12-25
+-- diagnostics.txt --

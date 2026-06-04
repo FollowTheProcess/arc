@@ -1,0 +1,16 @@
+-- src.http --
+@choice = {{ $random.choice("one",, "two") }}
+-- want.txt --
+File testdata/invalid/directive/call-double-comma.txtar/src.http:1:1-46
+  Directive testdata/invalid/directive/call-double-comma.txtar/src.http:1:1-46
+    Ident "choice" testdata/invalid/directive/call-double-comma.txtar/src.http:1:2-8
+    Interp testdata/invalid/directive/call-double-comma.txtar/src.http:1:11-46
+      Call testdata/invalid/directive/call-double-comma.txtar/src.http:1:14-43
+        Selector testdata/invalid/directive/call-double-comma.txtar/src.http:1:14-28
+          Builtin testdata/invalid/directive/call-double-comma.txtar/src.http:1:14-21
+            Ident "random" testdata/invalid/directive/call-double-comma.txtar/src.http:1:15-21
+          Ident "choice" testdata/invalid/directive/call-double-comma.txtar/src.http:1:22-28
+        TextLiteral `one` testdata/invalid/directive/call-double-comma.txtar/src.http:1:29-34
+        TextLiteral `two` testdata/invalid/directive/call-double-comma.txtar/src.http:1:37-42
+-- diagnostics.txt --
+[error] testdata/invalid/directive/call-double-comma.txtar/src.http:1:35-36: expected an argument, found Comma

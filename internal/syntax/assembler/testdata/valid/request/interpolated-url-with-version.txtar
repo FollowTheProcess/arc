@@ -1,0 +1,16 @@
+-- src.http --
+###
+GET {{ base }}/users/{{ id }} HTTP/1.1
+-- want.txt --
+File testdata/valid/request/interpolated-url-with-version.txtar/src.http:1:1-2:39
+  Request testdata/valid/request/interpolated-url-with-version.txtar/src.http:1:1-2:39
+    Ident "GET" testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:1-4
+    Template testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:5-30
+      Interp testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:5-15
+        Ident "base" testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:8-12
+      TextLiteral `/users/` testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:15-22
+      Interp testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:22-30
+        Ident "id" testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:25-27
+    HTTPVersion testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:31-39
+      NumberLiteral "1.1" testdata/valid/request/interpolated-url-with-version.txtar/src.http:2:36-39
+-- diagnostics.txt --

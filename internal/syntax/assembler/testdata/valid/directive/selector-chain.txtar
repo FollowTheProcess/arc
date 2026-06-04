@@ -1,0 +1,13 @@
+-- src.http --
+@userID = {{ listUsers.response.body }}
+-- want.txt --
+File testdata/valid/directive/selector-chain.txtar/src.http:1:1-40
+  Directive testdata/valid/directive/selector-chain.txtar/src.http:1:1-40
+    Ident "userID" testdata/valid/directive/selector-chain.txtar/src.http:1:2-8
+    Interp testdata/valid/directive/selector-chain.txtar/src.http:1:11-40
+      Selector testdata/valid/directive/selector-chain.txtar/src.http:1:14-37
+        Selector testdata/valid/directive/selector-chain.txtar/src.http:1:14-32
+          Ident "listUsers" testdata/valid/directive/selector-chain.txtar/src.http:1:14-23
+          Ident "response" testdata/valid/directive/selector-chain.txtar/src.http:1:24-32
+        Ident "body" testdata/valid/directive/selector-chain.txtar/src.http:1:33-37
+-- diagnostics.txt --

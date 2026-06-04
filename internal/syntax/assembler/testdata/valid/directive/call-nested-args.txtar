@@ -1,0 +1,21 @@
+-- src.http --
+@choice = {{ $random.choice($random.int(1, 10), "fallback") }}
+-- want.txt --
+File testdata/valid/directive/call-nested-args.txtar/src.http:1:1-63
+  Directive testdata/valid/directive/call-nested-args.txtar/src.http:1:1-63
+    Ident "choice" testdata/valid/directive/call-nested-args.txtar/src.http:1:2-8
+    Interp testdata/valid/directive/call-nested-args.txtar/src.http:1:11-63
+      Call testdata/valid/directive/call-nested-args.txtar/src.http:1:14-60
+        Selector testdata/valid/directive/call-nested-args.txtar/src.http:1:14-28
+          Builtin testdata/valid/directive/call-nested-args.txtar/src.http:1:14-21
+            Ident "random" testdata/valid/directive/call-nested-args.txtar/src.http:1:15-21
+          Ident "choice" testdata/valid/directive/call-nested-args.txtar/src.http:1:22-28
+        Call testdata/valid/directive/call-nested-args.txtar/src.http:1:29-47
+          Selector testdata/valid/directive/call-nested-args.txtar/src.http:1:29-40
+            Builtin testdata/valid/directive/call-nested-args.txtar/src.http:1:29-36
+              Ident "random" testdata/valid/directive/call-nested-args.txtar/src.http:1:30-36
+            Ident "int" testdata/valid/directive/call-nested-args.txtar/src.http:1:37-40
+          NumberLiteral "1" testdata/valid/directive/call-nested-args.txtar/src.http:1:41-42
+          NumberLiteral "10" testdata/valid/directive/call-nested-args.txtar/src.http:1:44-46
+        TextLiteral `fallback` testdata/valid/directive/call-nested-args.txtar/src.http:1:49-59
+-- diagnostics.txt --

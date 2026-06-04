@@ -350,7 +350,16 @@ func (p *parser) parseInterpExpr() ast.Expression {
 func (p *parser) parseSelector(left ast.Expression) ast.Selector {
 	p.advance() // Consume the '.'
 
-	var sel ast.Ident
+	// If the ident is missing (e.g. `{{ $env. }}`), expect diagnoses and sel
+	// remains a zero-width Ident just after the '.'
+	sel := ast.Ident{
+		Range: source.Span{
+			File:        p.block.Span.File,
+			StartOffset: p.current.End,
+			EndOffset:   p.current.End,
+		},
+	}
+
 	if p.expect(token.Ident) {
 		sel = p.parseIdent()
 	}
@@ -400,10 +409,23 @@ func (p *parser) parseArgs() []ast.Expression {
 	var args []ast.Expression
 
 	for {
-		// Each iteration must begin a fresh argument. A separator or premature
-		// end here means a stray/trailing comma or an unterminated call, e.g.
-		// `(1, 100,)` or `(,)`.
-		if p.next.Is(token.RParen, token.Comma, token.CloseInterp, token.EOF) {
+		// A comma where an argument should begin is a missing argument, e.g.
+		// `(, "one")` or `(1,, 2)`. Diagnose it once, skip it, and carry on
+		// parsing arguments so the rest of the call survives.
+		if p.next.Is(token.Comma) {
+			p.errorf(p.next, "expected an argument, found %s", p.next.Kind)
+			p.advance()
+
+			if p.next.Is(token.RParen, token.CloseInterp, token.EOF) {
+				break
+			}
+
+			continue
+		}
+
+		// A premature end here means a trailing comma or an unterminated
+		// call, e.g. `(1, 100,)` or `(1`.
+		if p.next.Is(token.RParen, token.CloseInterp, token.EOF) {
 			p.errorf(p.next, "expected an argument, found %s", p.next.Kind)
 
 			break

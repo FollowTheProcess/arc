@@ -1,0 +1,7 @@
+-- src.http --
+@no-redirect
+-- want.txt --
+File testdata/valid/directive/flag-value.txtar/src.http:1:1-13
+  Directive testdata/valid/directive/flag-value.txtar/src.http:1:1-13
+    Ident "no-redirect" testdata/valid/directive/flag-value.txtar/src.http:1:2-13
+-- diagnostics.txt --
