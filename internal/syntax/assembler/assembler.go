@@ -6,6 +6,8 @@ package assembler
 
 import (
 	"fmt"
+	"mime"
+	"strings"
 
 	"go.followtheprocess.codes/arc/internal/syntax/ast"
 	"go.followtheprocess.codes/arc/internal/syntax/block"
@@ -175,7 +177,7 @@ func assembleRequest(blocks []block.Block) (ast.Request, []diagnostic.Diagnostic
 		case block.Header:
 			req.Headers = append(req.Headers, p.parseHeader())
 		case block.Body:
-			req.Body = p.parseBody()
+			req.Body = p.parseBody(contentType(req.Headers))
 		case block.Blank, block.Comment:
 			// Nothing
 		default:
@@ -187,4 +189,28 @@ func assembleRequest(blocks []block.Block) (ast.Request, []diagnostic.Diagnostic
 	}
 
 	return req, diags
+}
+
+// contentType returns the value of the Content-Type header (if present)
+// or "" if there is no Content-Type header or it's value is dynamic.
+func contentType(headers []ast.Header) (string, map[string]string) {
+	for _, header := range headers {
+		if !strings.EqualFold(header.Name.Range.Text(), "Content-Type") {
+			continue
+		}
+
+		literal, ok := header.Value.(ast.TextLiteral)
+		if !ok {
+			return "", nil // Dynamic value, we can't know this at parse time
+		}
+
+		mediaType, params, err := mime.ParseMediaType(literal.Value)
+		if err != nil {
+			return "", nil
+		}
+
+		return mediaType, params
+	}
+
+	return "", nil
 }

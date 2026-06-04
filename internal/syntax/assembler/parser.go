@@ -589,16 +589,26 @@ func (p *parser) parseHeader() ast.Header {
 }
 
 // parseBody parses a request body into one of the [ast.Body] nodes.
-func (p *parser) parseBody() ast.Body {
+func (p *parser) parseBody(contentType string, params map[string]string) ast.Body {
 	switch p.current.Kind {
-	case token.Text, token.OpenInterp:
-		// Inline body: a run of literal text and interpolations.
-		return p.parseInlineBody()
 	case token.LAngle:
-		// File body e.g. `< file.json`
+		// File body, media type is irrelevant at parse time
 		return p.parseFileBody()
+	case token.Text, token.OpenInterp:
+		switch {
+		case contentType == "application/x-www-form-urlencoded":
+			// TODO: parseFormBody
+			// return p.parseFormBody()
+			fallthrough
+		case strings.HasPrefix(contentType, "multipart/"):
+			// TODO: parseMultipartBody
+			// return p.parseMultipartBody(params)
+			fallthrough
+		default:
+			return p.parseInlineBody()
+		}
 	case token.Error:
-		// Nothing, lexer has already reported
+		// Lexer already reported
 		return nil
 	default:
 		p.errorf(p.current, "parseBody: unexpected token %s", p.current.Kind)

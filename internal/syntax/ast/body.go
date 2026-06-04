@@ -19,18 +19,53 @@ type (
 		Encoding  string   // "" default, "utf8", "latin1" etc.
 		Path      Template // The filepath (can be interpolated)
 		Range     source.Span
-		Templated bool // <@ vs <
+		Templated bool // <@ (true) vs < (false)
+	}
+
+	// BodyMultipart represents a multipart body with a boundary.
+	BodyMultipart struct {
+		Boundary string
+		Parts    []MultipartPart
+		Range    source.Span
+	}
+
+	// MultipartPart is a single chunk of a [BodyMultipart].
+	MultipartPart struct {
+		Headers []Header
+		Body    Body // A part can be any valid body, file, inline, interpolated etc.
+		Range   source.Span
+	}
+
+	// BodyForm represents a url form encoded body.
+	BodyForm struct {
+		Fields []FormField
+		Range  source.Span
+	}
+
+	// FormField is a single url form encoded key, value pair.
+	FormField struct {
+		Key   Expression // Normally TextLiteral but can be Template
+		Value Expression
+		Range source.Span
 	}
 )
 
 // Span implementations.
-func (bi BodyInline) Span() source.Span { return bi.Range }
-func (bf BodyFile) Span() source.Span   { return bf.Range }
+func (bi BodyInline) Span() source.Span    { return bi.Range }
+func (bf BodyFile) Span() source.Span      { return bf.Range }
+func (bm BodyMultipart) Span() source.Span { return bm.Range }
+func (bf BodyForm) Span() source.Span      { return bf.Range }
+func (m MultipartPart) Span() source.Span  { return m.Range }
+func (f FormField) Span() source.Span      { return f.Range }
 
 // Expression implementations.
-func (bi BodyInline) expressionNode() {}
-func (bf BodyFile) expressionNode()   {}
+func (bi BodyInline) expressionNode()    {}
+func (bf BodyFile) expressionNode()      {}
+func (bm BodyMultipart) expressionNode() {}
+func (bf BodyForm) expressionNode()      {}
 
 // Body implementations, only these things can be bodies.
-func (bi BodyInline) bodyNode() {}
-func (bf BodyFile) bodyNode()   {}
+func (bi BodyInline) bodyNode()    {}
+func (bf BodyFile) bodyNode()      {}
+func (bm BodyMultipart) bodyNode() {}
+func (bf BodyForm) bodyNode()      {}

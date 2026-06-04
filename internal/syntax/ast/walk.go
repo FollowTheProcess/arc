@@ -104,6 +104,30 @@ func Walk(v Visitor, node Node) {
 		Walk(v, n.Content)
 	case BodyFile:
 		Walk(v, n.Path)
+	case BodyForm:
+		for _, field := range n.Fields {
+			Walk(v, field)
+		}
+	case BodyMultipart:
+		for _, part := range n.Parts {
+			Walk(v, part)
+		}
+	case MultipartPart:
+		for _, header := range n.Headers {
+			Walk(v, header)
+		}
+
+		if n.Body != nil {
+			Walk(v, n.Body)
+		}
+	case FormField:
+		if n.Key != nil {
+			Walk(v, n.Key)
+		}
+
+		if n.Value != nil {
+			Walk(v, n.Value)
+		}
 	case Ident, *Ident, TextLiteral, Comment, *Comment, NumberLiteral, nil:
 		// Leaves, no children to walk.
 	default:
@@ -233,6 +257,20 @@ func (d dumpVisitor) Visit(node Node) Visitor {
 		}
 
 		fmt.Fprintf(d.buf, " %s\n", n.Span())
+	case BodyForm:
+		fmt.Fprintf(d.buf, "%sBodyForm %s\n", indent, n.Span())
+	case BodyMultipart:
+		fmt.Fprintf(d.buf, "%sBodyMultipart", indent)
+
+		if n.Boundary != "" {
+			fmt.Fprintf(d.buf, " boundary=%q", n.Boundary)
+		}
+
+		fmt.Fprintf(d.buf, " %s\n", n.Span())
+	case FormField:
+		fmt.Fprintf(d.buf, "%sFormField %s\n", indent, n.Span())
+	case MultipartPart:
+		fmt.Fprintf(d.buf, "%sMultipartPart %s\n", indent, n.Span())
 	default:
 		fmt.Fprintf(d.buf, "%sast.Dump: UNHANDLED %T\n", indent, node)
 	}

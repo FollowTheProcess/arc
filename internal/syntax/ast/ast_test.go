@@ -132,6 +132,47 @@ func TestInspectVisitsEveryNodeDepthFirst(t *testing.T) {
 		"ast.BodyFile",
 		"ast.Template",
 		"ast.TextLiteral",
+		"ast.Request",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// Content-Type: multipart/form-data; boundary=xyz
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"ast.BodyMultipart",
+		"ast.MultipartPart",
+		// Content-Disposition: form-data; name="file"; filename="input.txt"
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// < ./input.txt
+		"ast.BodyFile",
+		"ast.Template",
+		"ast.TextLiteral",
+		// hello world
+		"ast.MultipartPart",
+		"ast.BodyInline",
+		"ast.Template",
+		"ast.TextLiteral",
+		"ast.Request",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// Content-Type: application/x-www-form-urlencoded
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"ast.BodyForm",
+		// search={{ query }}
+		"ast.FormField",
+		"ast.TextLiteral",
+		"ast.Interp",
+		"ast.Ident",
+		// sort=desc
+		"ast.FormField",
+		"ast.TextLiteral",
+		"ast.TextLiteral",
 	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
 }
@@ -211,6 +252,47 @@ func TestInspectStopsDescendingWhenCallbackReturnsFalse(t *testing.T) {
 		"ast.BodyFile",
 		"ast.Template",
 		"ast.TextLiteral",
+		"ast.Request",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// Content-Type: multipart/form-data; boundary=xyz
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"ast.BodyMultipart",
+		"ast.MultipartPart",
+		// Content-Disposition: form-data; name="file"; filename="input.txt"
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// < ./input.txt
+		"ast.BodyFile",
+		"ast.Template",
+		"ast.TextLiteral",
+		// hello world
+		"ast.MultipartPart",
+		"ast.BodyInline",
+		"ast.Template",
+		"ast.TextLiteral",
+		"ast.Request",
+		"*ast.Ident",
+		"ast.Ident",
+		"ast.TextLiteral",
+		// Content-Type: application/x-www-form-urlencoded
+		"ast.Header",
+		"ast.Ident",
+		"ast.TextLiteral",
+		"ast.BodyForm",
+		// search={{ query }}
+		"ast.FormField",
+		"ast.TextLiteral",
+		"ast.Interp",
+		"ast.Ident",
+		// sort=desc
+		"ast.FormField",
+		"ast.TextLiteral",
+		"ast.TextLiteral",
 	}, "\n")
 	test.Diff(t, strings.Join(got, "\n"), want)
 }
@@ -232,6 +314,21 @@ func tree(t *testing.T) ast.File {
 		test.True(t, i >= 0, test.Context("substring %q not found in fixture", sub))
 
 		return source.Span{File: file, StartOffset: i, EndOffset: i + len(sub)}
+	}
+
+	// spanAfter returns the span of the first occurrence of sub at or after
+	// the first occurrence of marker, for substrings that appear more than
+	// once in the fixture.
+	spanAfter := func(marker, sub string) source.Span {
+		m := bytes.Index(src, []byte(marker))
+		test.True(t, m >= 0, test.Context("marker %q not found in fixture", marker))
+
+		i := bytes.Index(src[m:], []byte(sub))
+		test.True(t, i >= 0, test.Context("substring %q not found after %q in fixture", sub, marker))
+
+		start := m + i
+
+		return source.Span{File: file, StartOffset: start, EndOffset: start + len(sub)}
 	}
 
 	// enclosing spans from the start of from to the end of to.
@@ -383,6 +480,108 @@ func tree(t *testing.T) ast.File {
 					Range:     span("<@latin1 ./payload.json"),
 				},
 				Range: enclosing(span("### import-data"), span("<@latin1 ./payload.json")),
+			},
+			ast.Request{
+				Name:   &ast.Ident{Range: span("upload")},
+				Method: ast.Ident{Range: spanAfter("### upload", "POST")},
+				URL: ast.TextLiteral{
+					Value: "https://example.com/upload",
+					Range: span("https://example.com/upload"),
+				},
+				Headers: []ast.Header{
+					{
+						Name: ast.Ident{Range: spanAfter("### upload", "Content-Type")},
+						Value: ast.TextLiteral{
+							Value: "multipart/form-data; boundary=xyz",
+							Range: span("multipart/form-data; boundary=xyz"),
+						},
+						Range: span("Content-Type: multipart/form-data; boundary=xyz"),
+					},
+				},
+				Body: ast.BodyMultipart{
+					Boundary: "xyz",
+					Parts: []ast.MultipartPart{
+						{
+							Headers: []ast.Header{
+								{
+									Name: ast.Ident{Range: span("Content-Disposition")},
+									Value: ast.TextLiteral{
+										Value: `form-data; name="file"; filename="input.txt"`,
+										Range: span(`form-data; name="file"; filename="input.txt"`),
+									},
+									Range: span(`Content-Disposition: form-data; name="file"; filename="input.txt"`),
+								},
+							},
+							// A part body can be any body kind, here a literal file ref.
+							Body: ast.BodyFile{
+								Path: ast.Template{
+									Parts: []ast.Expression{
+										ast.TextLiteral{Value: "./input.txt", Range: span("./input.txt")},
+									},
+									Range: span("./input.txt"),
+								},
+								Range: span("< ./input.txt"),
+							},
+							Range: enclosing(
+								span(`Content-Disposition: form-data; name="file"; filename="input.txt"`),
+								span("< ./input.txt"),
+							),
+						},
+						{
+							// A bare inline part with no headers of its own.
+							Body: ast.BodyInline{
+								Content: ast.Template{
+									Parts: []ast.Expression{
+										ast.TextLiteral{Value: "hello world", Range: span("hello world")},
+									},
+									Range: span("hello world"),
+								},
+								Range: span("hello world"),
+							},
+							Range: span("hello world"),
+						},
+					},
+					Range: enclosing(span("--xyz"), span("--xyz--")),
+				},
+				Range: enclosing(span("### upload"), span("--xyz--")),
+			},
+			ast.Request{
+				Name:   &ast.Ident{Range: span("find-users")},
+				Method: ast.Ident{Range: spanAfter("### find-users", "POST")},
+				URL: ast.TextLiteral{
+					Value: "https://example.com/find",
+					Range: span("https://example.com/find"),
+				},
+				Headers: []ast.Header{
+					{
+						Name: ast.Ident{Range: spanAfter("### find-users", "Content-Type")},
+						Value: ast.TextLiteral{
+							Value: "application/x-www-form-urlencoded",
+							Range: span("application/x-www-form-urlencoded"),
+						},
+						Range: span("Content-Type: application/x-www-form-urlencoded"),
+					},
+				},
+				// A form encoded body with a templated field and a literal one.
+				Body: ast.BodyForm{
+					Fields: []ast.FormField{
+						{
+							Key: ast.TextLiteral{Value: "search", Range: span("search")},
+							Value: ast.Interp{
+								Inner: ast.Ident{Range: span("query")},
+								Range: span("{{ query }}"),
+							},
+							Range: span("search={{ query }}"),
+						},
+						{
+							Key:   ast.TextLiteral{Value: "sort", Range: span("sort")},
+							Value: ast.TextLiteral{Value: "desc", Range: span("desc")},
+							Range: span("sort=desc"),
+						},
+					},
+					Range: span("search={{ query }}&sort=desc"),
+				},
+				Range: enclosing(span("### find-users"), span("search={{ query }}&sort=desc")),
 			},
 		},
 		Range: source.Span{File: file, StartOffset: 0, EndOffset: len(src)},
