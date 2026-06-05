@@ -675,8 +675,10 @@ func (p *parser) parseFileBody() ast.BodyFile {
 //
 // The lexer emits a form body exactly like an inline one: a flat run of
 // literal text and interps with no knowledge of '&' or '='. So we collect
-// the run, then split the literals ourselves; first on '&' into one group
-// of parts per field, then each group on its first '=' into key and value.
+// the run, then split it up in here.
+//
+// First on '&' into one group of parts per field, then each group
+// on its first '=' into key and value.
 func (p *parser) parseFormBody() ast.BodyForm {
 	body := ast.BodyForm{
 		Range: p.block.Span,
@@ -714,9 +716,7 @@ func (p *parser) parseFormBody() ast.BodyForm {
 			EndOffset:   last.Span().EndOffset,
 		}
 
-		// A value with no key (e.g. `=secret`) transmits fine but is almost
-		// certainly a mistake. Key-only fields are deliberately fine, that's
-		// flag-style usage e.g. `debug&pretty`.
+		// A value with no key (e.g. `=secret`) is almost certainly a mistake
 		if field.Key == nil {
 			p.warn(field.Range, "form field has no key")
 		}
