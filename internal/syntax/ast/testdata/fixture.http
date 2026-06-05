@@ -15,3 +15,20 @@ Content-Type: application/json
 PUT https://example.com/import
 
 <@latin1 ./payload.json
+### upload
+POST https://example.com/upload
+Content-Type: multipart/form-data; boundary=xyz
+
+--xyz
+Content-Disposition: form-data; name="file"; filename="input.txt"
+
+< ./input.txt
+--xyz
+
+hello world
+--xyz--
+### find-users
+POST https://example.com/find
+Content-Type: application/x-www-form-urlencoded
+
+search={{ query }}&sort=desc

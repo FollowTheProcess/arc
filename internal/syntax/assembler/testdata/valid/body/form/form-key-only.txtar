@@ -1,0 +1,21 @@
+-- src.http --
+###
+POST https://api.somewhere.com/login
+Content-Type: application/x-www-form-urlencoded
+
+foo&bar=1
+-- want.txt --
+File testdata/valid/body/form/form-key-only.txtar/src.http:1:1-5:10
+  Request testdata/valid/body/form/form-key-only.txtar/src.http:1:1-5:10
+    Ident "POST" testdata/valid/body/form/form-key-only.txtar/src.http:2:1-5
+    TextLiteral `https://api.somewhere.com/login` testdata/valid/body/form/form-key-only.txtar/src.http:2:6-37
+    Header testdata/valid/body/form/form-key-only.txtar/src.http:3:1-48
+      Ident "Content-Type" testdata/valid/body/form/form-key-only.txtar/src.http:3:1-13
+      TextLiteral `application/x-www-form-urlencoded` testdata/valid/body/form/form-key-only.txtar/src.http:3:15-48
+    BodyForm testdata/valid/body/form/form-key-only.txtar/src.http:5:1-10
+      FormField testdata/valid/body/form/form-key-only.txtar/src.http:5:1-4
+        TextLiteral `foo` testdata/valid/body/form/form-key-only.txtar/src.http:5:1-4
+      FormField testdata/valid/body/form/form-key-only.txtar/src.http:5:5-10
+        TextLiteral `bar` testdata/valid/body/form/form-key-only.txtar/src.http:5:5-8
+        TextLiteral `1` testdata/valid/body/form/form-key-only.txtar/src.http:5:9-10
+-- diagnostics.txt --

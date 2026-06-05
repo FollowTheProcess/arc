@@ -6,6 +6,8 @@ package assembler
 
 import (
 	"fmt"
+	"mime"
+	"strings"
 
 	"go.followtheprocess.codes/arc/internal/syntax/ast"
 	"go.followtheprocess.codes/arc/internal/syntax/block"
@@ -57,22 +59,6 @@ type assembler struct {
 // current returns the current block.
 func (a *assembler) current() block.Block {
 	return a.blocks[a.pos]
-}
-
-// peek returns the next block in the list, but does not advance
-// the assembler.
-//
-// Repeated calls to peek return the same block over and over again.
-//
-// If we're at the end of the stream, it returns a zero block.
-//
-//nolint:unused // We'll need this soon
-func (a *assembler) peek() (block.Block, bool) {
-	if next := a.pos + 1; next < len(a.blocks) {
-		return a.blocks[next], true
-	}
-
-	return block.Block{}, false
 }
 
 // advance advances the assembler in the block stream.
@@ -175,7 +161,7 @@ func assembleRequest(blocks []block.Block) (ast.Request, []diagnostic.Diagnostic
 		case block.Header:
 			req.Headers = append(req.Headers, p.parseHeader())
 		case block.Body:
-			req.Body = p.parseBody()
+			req.Body = p.parseBody(contentType(req.Headers))
 		case block.Blank, block.Comment:
 			// Nothing
 		default:
@@ -187,4 +173,28 @@ func assembleRequest(blocks []block.Block) (ast.Request, []diagnostic.Diagnostic
 	}
 
 	return req, diags
+}
+
+// contentType returns the value of the Content-Type header (if present)
+// or "" if there is no Content-Type header or it's value is dynamic.
+func contentType(headers []ast.Header) (string, map[string]string) {
+	for _, header := range headers {
+		if !strings.EqualFold(header.Name.Range.Text(), "Content-Type") {
+			continue
+		}
+
+		literal, ok := header.Value.(ast.TextLiteral)
+		if !ok {
+			return "", nil // Dynamic value, we can't know this at parse time
+		}
+
+		mediaType, params, err := mime.ParseMediaType(literal.Value)
+		if err != nil {
+			return "", nil
+		}
+
+		return mediaType, params
+	}
+
+	return "", nil
 }
