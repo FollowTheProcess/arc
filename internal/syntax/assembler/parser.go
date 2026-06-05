@@ -113,6 +113,17 @@ func (p *parser) errorf(tok token.Token, format string, a ...any) {
 	p.error(tok, fmt.Sprintf(format, a...))
 }
 
+// warn appends a warning level diagnostic to the parser covering the given
+// span.
+//
+// Unlike [parser.error], it takes a span rather than a token: errors tend to
+// point at the token that broke the parse, whereas warnings describe a
+// successfully parsed node.
+func (p *parser) warn(span source.Span, msg string, options ...diagnostic.Option) {
+	diag := diagnostic.Warn(msg, span, options...)
+	p.diagnostics = append(p.diagnostics, diag)
+}
+
 // span returns a [source.Span] for the parser's current token.
 func (p *parser) span() source.Span {
 	return source.Span{
@@ -191,24 +202,7 @@ func (p *parser) parseValue() ast.Expression {
 		return p.parseQuotedText()
 	}
 
-	parts := p.parseTemplateParts()
-
-	// If there's only 1 part, it's a literal, just emit that
-	switch len(parts) {
-	case 0:
-		return nil
-	case 1:
-		return parts[0]
-	default:
-		return ast.Template{
-			Parts: parts,
-			Range: source.Span{
-				File:        p.block.Span.File,
-				StartOffset: parts[0].Span().StartOffset,
-				EndOffset:   parts[len(parts)-1].Span().EndOffset,
-			},
-		}
-	}
+	return p.collapseParts(p.parseTemplateParts())
 }
 
 // parseQuotedText parses a double-quoted text value, e.g. `"rfc1123"` or
@@ -595,18 +589,13 @@ func (p *parser) parseBody(contentType string, params map[string]string) ast.Bod
 		// File body, media type is irrelevant at parse time
 		return p.parseFileBody()
 	case token.Text, token.OpenInterp:
-		switch {
-		case contentType == "application/x-www-form-urlencoded":
-			// TODO: parseFormBody
-			// return p.parseFormBody()
-			fallthrough
-		case strings.HasPrefix(contentType, "multipart/"):
-			// TODO: parseMultipartBody
-			// return p.parseMultipartBody(params)
-			fallthrough
-		default:
-			return p.parseInlineBody()
+		if contentType == "application/x-www-form-urlencoded" {
+			return p.parseFormBody()
 		}
+
+		// TODO: strings.HasPrefix(contentType, "multipart/") should
+		// dispatch to parseMultipartBody(params)
+		return p.parseInlineBody()
 	case token.Error:
 		// Lexer already reported
 		return nil
@@ -680,4 +669,174 @@ func (p *parser) parseFileBody() ast.BodyFile {
 	}
 
 	return body
+}
+
+// parseFormBody parses a url form encoded inline request body.
+//
+// The lexer emits a form body exactly like an inline one: a flat run of
+// literal text and interps with no knowledge of '&' or '='. So we collect
+// the run, then split the literals ourselves; first on '&' into one group
+// of parts per field, then each group on its first '=' into key and value.
+func (p *parser) parseFormBody() ast.BodyForm {
+	body := ast.BodyForm{
+		Range: p.block.Span,
+	}
+
+	parts := p.parseTemplateParts()
+	if len(parts) == 0 {
+		return body // parseTemplateParts already diagnosed
+	}
+
+	for _, group := range splitParts(parts, '&') {
+		keyParts, valueParts, _ := cutParts(group, '=')
+
+		field := ast.FormField{
+			Key:   p.collapseParts(keyParts),
+			Value: p.collapseParts(valueParts),
+		}
+
+		first, last := field.Key, field.Value
+		if first == nil {
+			first = field.Value
+		}
+
+		if last == nil {
+			last = field.Key
+		}
+
+		if first == nil {
+			continue // Entirely empty field, e.g. a trailing '&'
+		}
+
+		field.Range = source.Span{
+			File:        p.block.Span.File,
+			StartOffset: first.Span().StartOffset,
+			EndOffset:   last.Span().EndOffset,
+		}
+
+		// A value with no key (e.g. `=secret`) transmits fine but is almost
+		// certainly a mistake. Key-only fields are deliberately fine, that's
+		// flag-style usage e.g. `debug&pretty`.
+		if field.Key == nil {
+			p.warn(field.Range, "form field has no key")
+		}
+
+		body.Fields = append(body.Fields, field)
+	}
+
+	return body
+}
+
+// splitParts splits a flat run of template parts on every occurrence of sep
+// inside literal text, slicing literals into sub literals as needed. The
+// separators themselves belong to no group and are dropped.
+func splitParts(parts []ast.Expression, sep byte) [][]ast.Expression {
+	var (
+		groups  [][]ast.Expression
+		current []ast.Expression
+	)
+
+	for _, part := range parts {
+		lit, ok := part.(ast.TextLiteral)
+		if !ok {
+			current = append(current, part)
+
+			continue
+		}
+
+		chunkStart := 0
+
+		for i := range len(lit.Value) {
+			if lit.Value[i] != sep {
+				continue
+			}
+
+			if chunk, ok := subLiteral(lit, chunkStart, i); ok {
+				current = append(current, chunk)
+			}
+
+			groups = append(groups, current)
+			current = nil
+			chunkStart = i + 1
+		}
+
+		if chunk, ok := subLiteral(lit, chunkStart, len(lit.Value)); ok {
+			current = append(current, chunk)
+		}
+	}
+
+	return append(groups, current)
+}
+
+// cutParts cuts a run of template parts around the first occurrence of sep
+// inside literal text, like [strings.Cut]. The separator belongs to neither
+// half. found is false when sep is absent, in which case before is the
+// whole run.
+func cutParts(parts []ast.Expression, sep byte) (before, after []ast.Expression, found bool) {
+	for i, part := range parts {
+		lit, ok := part.(ast.TextLiteral)
+		if !ok {
+			continue
+		}
+
+		idx := strings.IndexByte(lit.Value, sep)
+		if idx < 0 {
+			continue
+		}
+
+		before = parts[:i:i]
+		if chunk, ok := subLiteral(lit, 0, idx); ok {
+			before = append(before, chunk)
+		}
+
+		if chunk, ok := subLiteral(lit, idx+1, len(lit.Value)); ok {
+			after = append(after, chunk)
+		}
+
+		return before, append(after, parts[i+1:]...), true
+	}
+
+	return parts, nil, false
+}
+
+// subLiteral slices a literal to lit.Value[start:end], shifting its span by
+// the same indices. ok is false when the slice is empty, e.g. the text either
+// side of the '=' in `a=&b=c`.
+//
+// The slice indices map directly onto the source because a TextLiteral's
+// Value is the raw text of its span.
+func subLiteral(lit ast.TextLiteral, start, end int) (sub ast.TextLiteral, ok bool) {
+	if start >= end {
+		return ast.TextLiteral{}, false
+	}
+
+	return ast.TextLiteral{
+		Value: lit.Value[start:end],
+		Range: source.Span{
+			File:        lit.Range.File,
+			StartOffset: lit.Range.StartOffset + start,
+			EndOffset:   lit.Range.StartOffset + end,
+		},
+	}, true
+}
+
+// collapseParts assembles a run of template parts into a single expression:
+// nil for an empty run, the bare part for a single one, otherwise an
+// [ast.Template] spanning all parts.
+func (p *parser) collapseParts(parts []ast.Expression) ast.Expression {
+	switch len(parts) {
+	case 0:
+		return nil
+	case 1:
+		return parts[0]
+	default:
+		return ast.Template{
+			Parts: parts,
+			Range: source.Span{
+				File:        p.block.Span.File,
+				StartOffset: parts[0].Span().StartOffset,
+				EndOffset:   parts[len(parts)-1].Span().EndOffset,
+			},
+		}
+	}
 }

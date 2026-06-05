@@ -1,0 +1,18 @@
+-- src.http --
+###
+POST https://api.somewhere.com/login
+Content-Type: application/x-www-form-urlencoded
+
+search=
+-- want.txt --
+File testdata/valid/body/form/form-empty-value.txtar/src.http:1:1-5:8
+  Request testdata/valid/body/form/form-empty-value.txtar/src.http:1:1-5:8
+    Ident "POST" testdata/valid/body/form/form-empty-value.txtar/src.http:2:1-5
+    TextLiteral `https://api.somewhere.com/login` testdata/valid/body/form/form-empty-value.txtar/src.http:2:6-37
+    Header testdata/valid/body/form/form-empty-value.txtar/src.http:3:1-48
+      Ident "Content-Type" testdata/valid/body/form/form-empty-value.txtar/src.http:3:1-13
+      TextLiteral `application/x-www-form-urlencoded` testdata/valid/body/form/form-empty-value.txtar/src.http:3:15-48
+    BodyForm testdata/valid/body/form/form-empty-value.txtar/src.http:5:1-8
+      FormField testdata/valid/body/form/form-empty-value.txtar/src.http:5:1-7
+        TextLiteral `search` testdata/valid/body/form/form-empty-value.txtar/src.http:5:1-7
+-- diagnostics.txt --

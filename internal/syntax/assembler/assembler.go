@@ -61,22 +61,6 @@ func (a *assembler) current() block.Block {
 	return a.blocks[a.pos]
 }
 
-// peek returns the next block in the list, but does not advance
-// the assembler.
-//
-// Repeated calls to peek return the same block over and over again.
-//
-// If we're at the end of the stream, it returns a zero block.
-//
-//nolint:unused // We'll need this soon
-func (a *assembler) peek() (block.Block, bool) {
-	if next := a.pos + 1; next < len(a.blocks) {
-		return a.blocks[next], true
-	}
-
-	return block.Block{}, false
-}
-
 // advance advances the assembler in the block stream.
 func (a *assembler) advance() {
 	a.pos++

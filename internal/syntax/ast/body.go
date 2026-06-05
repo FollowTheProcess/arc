@@ -37,6 +37,12 @@ type (
 	}
 
 	// BodyForm represents a url form encoded body.
+	//
+	// Fields are split out at parse time, rather than treating the body as
+	// inline text, so that evaluation can tell structural '&' and '=' (written
+	// in the source) apart from ones arriving inside interpolated values; the
+	// latter must be percent-encoded, which is impossible to do correctly
+	// after the parts have been joined.
 	BodyForm struct {
 		Fields []FormField
 		Range  source.Span

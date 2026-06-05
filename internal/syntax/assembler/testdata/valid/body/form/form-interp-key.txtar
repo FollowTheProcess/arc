@@ -1,0 +1,20 @@
+-- src.http --
+###
+POST https://api.somewhere.com/login
+Content-Type: application/x-www-form-urlencoded
+
+{{ key }}=value
+-- want.txt --
+File testdata/valid/body/form/form-interp-key.txtar/src.http:1:1-5:16
+  Request testdata/valid/body/form/form-interp-key.txtar/src.http:1:1-5:16
+    Ident "POST" testdata/valid/body/form/form-interp-key.txtar/src.http:2:1-5
+    TextLiteral `https://api.somewhere.com/login` testdata/valid/body/form/form-interp-key.txtar/src.http:2:6-37
+    Header testdata/valid/body/form/form-interp-key.txtar/src.http:3:1-48
+      Ident "Content-Type" testdata/valid/body/form/form-interp-key.txtar/src.http:3:1-13
+      TextLiteral `application/x-www-form-urlencoded` testdata/valid/body/form/form-interp-key.txtar/src.http:3:15-48
+    BodyForm testdata/valid/body/form/form-interp-key.txtar/src.http:5:1-16
+      FormField testdata/valid/body/form/form-interp-key.txtar/src.http:5:1-16
+        Interp testdata/valid/body/form/form-interp-key.txtar/src.http:5:1-10
+          Ident "key" testdata/valid/body/form/form-interp-key.txtar/src.http:5:4-7
+        TextLiteral `value` testdata/valid/body/form/form-interp-key.txtar/src.http:5:11-16
+-- diagnostics.txt --

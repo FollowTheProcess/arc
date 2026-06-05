@@ -1,0 +1,22 @@
+-- src.http --
+###
+POST https://api.somewhere.com/login
+Content-Type: application/x-www-form-urlencoded
+
+=secret&ok=yes
+-- want.txt --
+File testdata/invalid/body/form-empty-key.txtar/src.http:1:1-5:15
+  Request testdata/invalid/body/form-empty-key.txtar/src.http:1:1-5:15
+    Ident "POST" testdata/invalid/body/form-empty-key.txtar/src.http:2:1-5
+    TextLiteral `https://api.somewhere.com/login` testdata/invalid/body/form-empty-key.txtar/src.http:2:6-37
+    Header testdata/invalid/body/form-empty-key.txtar/src.http:3:1-48
+      Ident "Content-Type" testdata/invalid/body/form-empty-key.txtar/src.http:3:1-13
+      TextLiteral `application/x-www-form-urlencoded` testdata/invalid/body/form-empty-key.txtar/src.http:3:15-48
+    BodyForm testdata/invalid/body/form-empty-key.txtar/src.http:5:1-15
+      FormField testdata/invalid/body/form-empty-key.txtar/src.http:5:2-8
+        TextLiteral `secret` testdata/invalid/body/form-empty-key.txtar/src.http:5:2-8
+      FormField testdata/invalid/body/form-empty-key.txtar/src.http:5:9-15
+        TextLiteral `ok` testdata/invalid/body/form-empty-key.txtar/src.http:5:9-11
+        TextLiteral `yes` testdata/invalid/body/form-empty-key.txtar/src.http:5:12-15
+-- diagnostics.txt --
+[warning] testdata/invalid/body/form-empty-key.txtar/src.http:5:2-8: form field has no key
