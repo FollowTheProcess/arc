@@ -1,5 +1,5 @@
-go.followtheprocess.codes/cli v0.21.0 h1:8C+Vo0vZnpNq2FVojL+ruFM2DvzcBFn+JT7pVSbtWJg=
-go.followtheprocess.codes/cli v0.21.0/go.mod h1:VWtWLBUHp7gxHwF22Q7sWEm9nAx29AZj0Olv59B4C6I=
+go.followtheprocess.codes/cli v0.21.1 h1:Q9kMkcs7tR3++GByv45j/HirZ9ZtJGh9PoNU7I/eCx8=
+go.followtheprocess.codes/cli v0.21.1/go.mod h1:bwdHt/tpK/z7n96Rs0Buv1gv3dMozI+B3xtLjlp5JrQ=
 go.followtheprocess.codes/diff v0.2.0 h1:NuEPvXSUEIeBqpSukuhkAUchS1EaiH7PYSj9zesd8Uc=
 go.followtheprocess.codes/diff v0.2.0/go.mod h1:bDSZPC9CvkRr8HlOwjE1bl/8qFAmiA3LVtkThRnniis=
 go.followtheprocess.codes/hue v1.2.0 h1:irFHJvgXIgFWyc2z2EYd87raFNZ8nHFvQSfXhozo+ow=
@@ -16,9 +16,9 @@ go.followtheprocess.codes/txtar v0.8.0 h1:vQJbo/asKBpuzub+Wok6vKr9lPt+Q8qdY7mPEP
 go.followtheprocess.codes/txtar v0.8.0/go.mod h1:hi6y/ZExrTIZ7BzydWIIdsxrWd1WX0cY3a7c+ibLl5E=
 go.yaml.in/yaml/v4 v4.0.0-rc.4 h1:UP4+v6fFrBIb1l934bDl//mmnoIZEDK0idg1+AIvX5U=
 go.yaml.in/yaml/v4 v4.0.0-rc.4/go.mod h1:aZqd9kCMsGL7AuUv/m/PvWLdg5sjJsZ4oHDEnfPPfY0=
-golang.org/x/sys v0.45.0 h1:dO4czNzziLiiXplLQgBCEpCvXQ3dnkn0SdaZSYdQ+FY=
-golang.org/x/sys v0.45.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
-golang.org/x/term v0.43.0 h1:S4RLU2sB31O/NCl+zFN9Aru9A/Cq2aqKpTZJ6B+DwT4=
-golang.org/x/term v0.43.0/go.mod h1:lrhlHNdQJHO+1qVYiHfFKVuVioJIheAc3fBSMFYEIsk=
+golang.org/x/sys v0.46.0 h1:noSf2Fq6F8DBgS+LysIkx7rIExoNHJsxOAtPp4rthXw=
+golang.org/x/sys v0.46.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
+golang.org/x/term v0.44.0 h1:0rLvDRCtNj0gZkyIXhCyOb2OAzEhLVqc4B+hrsBhrmc=
+golang.org/x/term v0.44.0/go.mod h1:7ze4MdzUzLXpSAoFP1H0bOI9aXDqveSvatT5vKcFh2Y=
 golang.org/x/tools v0.44.0 h1:UP4ajHPIcuMjT1GqzDWRlalUEoY+uzoZKnhOjbIPD2c=
 golang.org/x/tools v0.44.0/go.mod h1:KA0AfVErSdxRZIsOVipbv3rQhVXTnlU6UhKxHd1seDI=
